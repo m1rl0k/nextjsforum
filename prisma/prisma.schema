@@ -1,3 +1,7 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
@@ -10,10 +14,11 @@ model User {
   location  String?
   role      Role     @default(USER)
 
-  threads      Thread[]
-  posts        Post[]
-  messages     Message[]
-  notifications Notification[]
+  threads         Thread[]
+  posts           Post[]
+  sentMessages    Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  notifications   Notification[]
 }
 
 enum Role {
@@ -75,8 +80,8 @@ model Message {
   updatedAt   DateTime @updatedAt
   senderId    Int
   recipientId Int
-  sender      User     @relation(fields: [senderId], references: [id])
-  recipient   User     @relation(fields: [recipientId], references: [id])
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id])
+  recipient   User     @relation("ReceivedMessages", fields: [recipientId], references: [id])
 }
 
 model Notification {
