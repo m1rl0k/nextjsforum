@@ -8,8 +8,18 @@ model User {
   bio       String?
   avatar    String?
   location  String?
-  threads   Thread[]
-  posts     Post[]
+  role      Role     @default(USER)
+
+  threads      Thread[]
+  posts        Post[]
+  messages     Message[]
+  notifications Notification[]
+}
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
 }
 
 model Category {
@@ -41,6 +51,7 @@ model Thread {
   subjectId Int
   subject   Subject  @relation(fields: [subjectId], references: [id])
   posts     Post[]
+  locked    Boolean  @default(false)
 }
 
 model Post {
@@ -55,4 +66,25 @@ model Post {
   replyToId Int?
   replyTo   Post?    @relation("ReplyTo", fields: [replyToId], references: [id])
   replies   Post[]   @relation("ReplyTo")
+}
+
+model Message {
+  id          Int      @id @default(autoincrement())
+  content     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  senderId    Int
+  recipientId Int
+  sender      User     @relation(fields: [senderId], references: [id])
+  recipient   User     @relation(fields: [recipientId], references: [id])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  read      Boolean  @default(false)
 }
