@@ -1,0 +1,58 @@
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  username  String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  bio       String?
+  avatar    String?
+  location  String?
+  threads   Thread[]
+  posts     Post[]
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  subjects  Subject[]
+}
+
+model Subject {
+  id         Int      @id @default(autoincrement())
+  name       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id])
+  threads    Thread[]
+}
+
+model Thread {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  subjectId Int
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  posts     Post[]
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int
+  threadId  Int
+  user      User     @relation(fields: [userId], references: [id])
+  thread    Thread   @relation(fields: [threadId], references: [id])
+  replyToId Int?
+  replyTo   Post?    @relation("ReplyTo", fields: [replyToId], references: [id])
+  replies   Post[]   @relation("ReplyTo")
+}
