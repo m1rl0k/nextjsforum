@@ -1,0 +1,310 @@
+/* Dashboard Layout */
+.dashboard {
+  padding: 2rem 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.dashboard h1 {
+  font-size: 2rem;
+  color: #2d3748;
+  margin-bottom: 2rem;
+  font-weight: 700;
+}
+
+/* Stats Grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.statCard {
+  background: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid #e2e8f0;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.statCard h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #718096;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statNumber {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0 0 0.25rem;
+  line-height: 1.2;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: #718096;
+  margin: 0;
+}
+
+.statChange {
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.statChange.positive {
+  color: #38a169;
+}
+
+.statChange.negative {
+  color: #e53e3e;
+}
+
+.statChange svg {
+  margin-right: 0.25rem;
+}
+
+/* Recent Activity */
+.recentActivity {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.recentSection {
+  background: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.recentSection h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  color: #2d3748;
+  font-weight: 600;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #edf2f7;
+}
+
+/* User List */
+.userList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.userItem {
+  padding: 1rem 0;
+  border-bottom: 1px solid #edf2f7;
+  display: flex;
+  align-items: center;
+}
+
+.userItem:last-child {
+  border-bottom: none;
+}
+
+.userAvatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  background-color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  flex-shrink: 0;
+  color: #4a5568;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.userInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.userName {
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userEmail {
+  font-size: 0.8125rem;
+  color: #718096;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userDate {
+  font-size: 0.75rem;
+  color: #a0aec0;
+  margin-top: 0.25rem;
+}
+
+/* Post List */
+.postList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.postItem {
+  padding: 1rem 0;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.postItem:last-child {
+  border-bottom: none;
+}
+
+.postContent {
+  margin-bottom: 0.75rem;
+}
+
+.postTitle {
+  display: block;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.postExcerpt {
+  font-size: 0.875rem;
+  color: #4a5568;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5;
+  margin: 0.25rem 0;
+}
+
+.postMeta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  color: #718096;
+}
+
+.postAuthor {
+  color: #4299e1;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 0.5rem;
+}
+
+.postDate {
+  white-space: nowrap;
+  margin-left: 0.5rem;
+}
+
+/* Loading and Error States */
+.loading,
+.error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  font-size: 1.125rem;
+  color: #4a5568;
+}
+
+.error {
+  color: #e53e3e;
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #718096;
+}
+
+.emptyStateIcon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #cbd5e0;
+}
+
+.emptyStateText {
+  margin: 0.5rem 0 0;
+  font-size: 1rem;
+  color: #a0aec0;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+  .recentActivity {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .statsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .dashboard {
+    padding: 1.5rem 1rem;
+  }
+  
+  .dashboard h1 {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .statCard {
+    padding: 1.25rem 1rem;
+  }
+  
+  .statNumber {
+    font-size: 1.5rem;
+  }
+  
+  .recentSection {
+    padding: 1.25rem 1rem;
+  }
+  
+  .postMeta {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .postDate {
+    margin-left: 0;
+  }
+}
