@@ -24,6 +24,9 @@ model User {
   signature String?  // Added for vBulletin/phpBB style
   postCount Int      @default(0)  // Added to track post count
   joinDate  DateTime @default(now())
+  isActive  Boolean  @default(true)  // For banning users
+  lastLogin DateTime?  // Track last login
+  ipAddress String?  // Track IP for admin purposes
 
   threads         Thread[]
   posts           Post[]
