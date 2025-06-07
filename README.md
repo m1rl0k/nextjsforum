@@ -1,36 +1,133 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# NextJS Forum
+
+A modern forum application built with Next.js, styled to resemble classic vBulletin/phpBB forums. This application features categories, threads, posts, user profiles, and more.
+
+## Features
+
+- 🏠 Homepage with categories and subjects
+- 📝 Thread viewing with pagination
+- 💬 Rich text posts with basic formatting
+- 👤 User profiles with avatars and signatures
+- 🔍 Search functionality
+- 🔒 User authentication (login/register)
+- 📱 Responsive design
+
+## Tech Stack
+
+- **Frontend**: Next.js 14, React 18
+- **Styling**: CSS Modules with custom vBulletin/phpBB theme
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: JWT (JSON Web Tokens)
+- **Containerization**: Docker & Docker Compose
+
+## Prerequisites
+
+- Node.js 18+
+- Docker & Docker Compose
+- npm or yarn
 
 ## Getting Started
 
-First, run the development server:
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/nextjs-forum.git
+   cd nextjs-forum
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+2. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   ```
+   Update the `.env` file with your database credentials and JWT secret.
+
+3. **Start the development environment**
+   ```bash
+   # Start PostgreSQL and the app
+   docker-compose up -d
+   
+   # Install dependencies
+   npm install
+   
+   # Run database migrations
+   npx prisma migrate dev
+   
+   # Start the development server
+   npm run dev
+   ```
+
+4. **Open your browser**
+   The application will be available at [http://localhost:3000](http://localhost:3000)
+
+## Development
+
+### Available Scripts
+
+- `npm run dev` - Start the development server
+- `npm run build` - Build the application for production
+- `npm start` - Start the production server
+- `npm run lint` - Run ESLint
+- `npm run prisma:studio` - Open Prisma Studio for database management
+
+### Database
+
+This project uses Prisma as the ORM. To make changes to the database schema:
+
+1. Update the schema in `prisma/schema.prisma`
+2. Generate and apply migrations:
+   ```bash
+   npx prisma migrate dev --name your_migration_name
+   ```
+3. Regenerate the Prisma Client:
+   ```bash
+   npx prisma generate
+   ```
+
+## Project Structure
+
+```
+nextjs-forum/
+├── components/         # Reusable UI components
+├── pages/             # Next.js pages and API routes
+├── prisma/           # Prisma schema and migrations
+├── public/           # Static files
+├── styles/           # Global styles and CSS modules
+├── .env.example      # Example environment variables
+├── .gitignore        # Git ignore file
+├── docker-compose.yml # Docker Compose configuration
+├── Dockerfile        # Docker configuration
+├── next.config.js    # Next.js configuration
+├── package.json      # Project dependencies and scripts
+└── README.md        # This file
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Deployment
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### Docker (Recommended)
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+```bash
+docker-compose up -d --build
+```
 
-## Learn More
+### Vercel
 
-To learn more about Next.js, take a look at the following resources:
+1. Push your code to a Git repository
+2. Import the repository on Vercel
+3. Set up environment variables
+4. Deploy!
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Contributing
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+1. Fork the repository
+2. Create a new branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Acknowledgments
+
+- Inspired by classic vBulletin and phpBB forums
+- Built with Next.js and modern web technologies
