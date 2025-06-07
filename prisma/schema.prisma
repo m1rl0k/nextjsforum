@@ -1,7 +1,15 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
@@ -13,6 +21,9 @@ model User {
   avatar    String?
   location  String?
   role      Role     @default(USER)
+  signature String?  // Added for vBulletin/phpBB style
+  postCount Int      @default(0)  // Added to track post count
+  joinDate  DateTime @default(now())
 
   threads         Thread[]
   posts           Post[]
@@ -28,35 +39,47 @@ enum Role {
 }
 
 model Category {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  subjects  Subject[]
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?  // Added description for category
+  order       Int      @default(0)  // For ordering categories
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  subjects    Subject[]
 }
 
 model Subject {
-  id         Int      @id @default(autoincrement())
-  name       String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  categoryId Int
-  category   Category @relation(fields: [categoryId], references: [id])
-  threads    Thread[]
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?  // Added description for subject
+  icon        String?  // For subject icon
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id])
+  threads     Thread[]
+  threadCount Int      @default(0)  // Counter for threads
+  postCount   Int      @default(0)  // Counter for posts
+  lastPost    DateTime?  // Track last post time
+  lastPostUserId Int?  // Track last poster
 }
 
 model Thread {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  subjectId Int
-  subject   Subject  @relation(fields: [subjectId], references: [id])
-  posts     Post[]
-  locked    Boolean  @default(false)
+  id          Int      @id @default(autoincrement())
+  title       String
+  content     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  subjectId   Int
+  subject     Subject  @relation(fields: [subjectId], references: [id])
+  posts       Post[]
+  locked      Boolean  @default(false)
+  sticky      Boolean  @default(false)  // For pinned threads
+  viewCount   Int      @default(0)  // Track view count
+  lastPostAt  DateTime @default(now())  // Track last post time
+  lastPostUserId Int?  // Track last poster
 }
 
 model Post {
