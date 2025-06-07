@@ -38,7 +38,13 @@ const AdminUsers = () => {
         sort: sortBy
       }).toString();
       
-      const res = await fetch(`/api/admin/users?${query}`);
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/admin/users?${query}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
       const data = await res.json();
       
       if (!res.ok) {
@@ -70,13 +76,27 @@ const AdminUsers = () => {
 
   const handleUserAction = async (userId, action) => {
     try {
-      // Implement user actions (ban, delete, promote, etc.)
-      console.log(`Action ${action} on user ${userId}`);
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ action })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to perform action');
+      }
+
       // Refresh users after action
       await fetchUsers();
     } catch (err) {
       console.error('Error performing user action:', err);
-      setError('Failed to perform action');
+      setError(err.message || 'Failed to perform action');
     }
   };
 
@@ -149,7 +169,7 @@ const AdminUsers = () => {
                         <div>
                           <div className={styles.username}>{user.username}</div>
                           <div className={styles.postsCount}>
-                            {user.threads} threads • {user.posts} posts
+                            {user.threadCount || 0} threads • {user.postCount || 0} posts
                           </div>
                         </div>
                       </div>

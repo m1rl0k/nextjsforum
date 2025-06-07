@@ -72,34 +72,22 @@ const AdminLayout = ({ children }) => {
         <nav className={styles.nav}>
           <ul>
             <li className={isActive('/admin/dashboard')}>
-              <Link href="/admin/dashboard">
-                <a>Dashboard</a>
-              </Link>
+              <Link href="/admin/dashboard">Dashboard</Link>
             </li>
             <li className={isActive('/admin/users')}>
-              <Link href="/admin/users">
-                <a>Users</a>
-              </Link>
+              <Link href="/admin/users">Users</Link>
             </li>
             <li className={isActive('/admin/forums')}>
-              <Link href="/admin/forums">
-                <a>Forums</a>
-              </Link>
+              <Link href="/admin/forums">Forums</Link>
             </li>
             <li className={isActive('/admin/threads')}>
-              <Link href="/admin/threads">
-                <a>Threads</a>
-              </Link>
+              <Link href="/admin/threads">Threads</Link>
             </li>
             <li className={isActive('/admin/posts')}>
-              <Link href="/admin/posts">
-                <a>Posts</a>
-              </Link>
+              <Link href="/admin/posts">Posts</Link>
             </li>
             <li className={isActive('/admin/settings')}>
-              <Link href="/admin/settings">
-                <a>Settings</a>
-              </Link>
+              <Link href="/admin/settings">Settings</Link>
             </li>
           </ul>
           
