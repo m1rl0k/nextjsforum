@@ -7,8 +7,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Get token from Authorization header or cookies
-    const token = req.headers.authorization?.split(' ')[1] || req.cookies.token;
+    // Get token from cookies
+    const token = req.cookies.token;
 
     if (!token) {
       return res.status(401).json({ message: 'Not authenticated' });

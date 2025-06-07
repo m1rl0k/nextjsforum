@@ -38,12 +38,11 @@ const AdminUsers = () => {
         sort: sortBy
       }).toString();
       
-      const token = localStorage.getItem('token');
       const res = await fetch(`/api/admin/users?${query}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        credentials: 'include'
       });
       const data = await res.json();
       
@@ -76,13 +75,12 @@ const AdminUsers = () => {
 
   const handleUserAction = async (userId, action) => {
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch(`/api/admin/users/${userId}`, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({ action })
       });
 

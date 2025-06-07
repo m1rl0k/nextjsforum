@@ -32,16 +32,23 @@ const AdminDashboard = () => {
 
     const fetchDashboardData = async () => {
       try {
-        const token = localStorage.getItem('token');
         const headers = {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         };
 
         const [statsRes, usersRes, postsRes] = await Promise.all([
-          fetch('/api/admin/stats', { headers }),
-          fetch('/api/admin/users?limit=5', { headers }),
-          fetch('/api/admin/posts?limit=5', { headers })
+          fetch('/api/admin/stats', {
+            headers,
+            credentials: 'include'
+          }),
+          fetch('/api/admin/users?limit=5', {
+            headers,
+            credentials: 'include'
+          }),
+          fetch('/api/admin/posts?limit=5', {
+            headers,
+            credentials: 'include'
+          })
         ]);
 
         if (!statsRes.ok || !usersRes.ok || !postsRes.ok) {

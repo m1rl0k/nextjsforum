@@ -1,7 +1,5 @@
 import { comparePassword, generateToken } from '../../../lib/auth';
-import prisma from '../../../lib/db';
-import { UnauthorizedError, ValidationError } from '../../../lib/apiError';
-import { errorHandler } from '../../../lib/apiError';
+import prisma from '../../../lib/prisma';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -13,21 +11,30 @@ export default async function handler(req, res) {
 
     // Validate input
     if (!email || !password) {
-      throw new ValidationError('Please provide email and password');
+      return res.status(400).json({ error: 'Please provide email and password' });
     }
 
     // Find user by email
     const user = await prisma.user.findUnique({
-      where: { email },
-      include: {
-        profile: true
-      }
+      where: { email }
     });
 
-    // Check if user exists and password is correct
-    if (!user || !(await comparePassword(password, user.password))) {
-      throw new UnauthorizedError('Invalid email or password');
+    // Check if user exists and is active
+    if (!user || !user.isActive) {
+      return res.status(401).json({ error: 'Invalid email or password' });
     }
+
+    // Check password
+    const isPasswordValid = await comparePassword(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    // Update last login
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLogin: new Date() }
+    });
 
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
@@ -42,13 +49,12 @@ export default async function handler(req, res) {
     );
 
     res.status(200).json({
-      status: 'success',
-      data: {
-        user: userWithoutPassword,
-        token
-      }
+      success: true,
+      user: userWithoutPassword,
+      token
     });
   } catch (error) {
-    errorHandler(error, req, res);
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 }

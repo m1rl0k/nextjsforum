@@ -15,7 +15,7 @@ export function AuthProvider({ children }) {
         const res = await fetch('/api/auth/me');
         if (res.ok) {
           const data = await res.json();
-          setUser(data.data.user);
+          setUser(data.user);
         } else {
           setUser(null);
         }
@@ -44,10 +44,10 @@ export function AuthProvider({ children }) {
       const data = await res.json();
 
       if (!res.ok) {
-        return { success: false, message: data.message || 'Login failed' };
+        return { success: false, message: data.error || 'Login failed' };
       }
 
-      setUser(data.data.user);
+      setUser(data.user);
       return { success: true };
     } catch (error) {
       return { success: false, message: 'An error occurred during login' };
@@ -67,7 +67,7 @@ export function AuthProvider({ children }) {
       const data = await res.json();
 
       if (!res.ok) {
-        return { success: false, message: data.message || 'Registration failed' };
+        return { success: false, message: data.error || 'Registration failed' };
       }
 
       // Auto-login after registration
