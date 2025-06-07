@@ -1,18 +1,25 @@
-import { getSession } from 'next-auth/react';
-import prisma from '../../../lib/db';
-import { withAuth } from '../../../middleware/auth';
+import prisma from '../../../lib/prisma';
+import { verifyToken } from '../../../lib/auth';
 
-const handler = async (req, res) => {
+export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
   try {
-    // Get user session
-    const session = await getSession({ req });
-    
-    // Check if user is admin
-    if (!session || session.user.role !== 'ADMIN') {
+    // Get token from Authorization header or cookies
+    const token = req.headers.authorization?.split(' ')[1] || req.cookies.token;
+
+    if (!token) {
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+
+    const decoded = verifyToken(token);
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+    });
+
+    if (!user || user.role !== 'ADMIN') {
       return res.status(403).json({ message: 'Unauthorized' });
     }
 
@@ -28,7 +35,7 @@ const handler = async (req, res) => {
     }
 
     if (userId) {
-      where.authorId = parseInt(userId);
+      where.userId = parseInt(userId);
     }
 
     if (threadId) {
@@ -53,18 +60,25 @@ const handler = async (req, res) => {
       prisma.post.findMany({
         where,
         include: {
-          author: {
+          user: {
             select: {
               id: true,
               username: true,
-              email: true
+              email: true,
+              role: true,
+              isActive: true
             }
           },
           thread: {
             select: {
               id: true,
               title: true,
-              slug: true
+              subject: {
+                select: {
+                  id: true,
+                  name: true
+                }
+              }
             }
           }
         },
@@ -94,4 +108,4 @@ const handler = async (req, res) => {
   }
 };
 
-export default withAuth(handler);
+
