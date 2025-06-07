@@ -3,10 +3,12 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Layout from '../../components/Layout';
 import Post from '../../components/Post';
+import { useAuth } from '../../context/AuthContext';
 
 export default function ThreadPage() {
   const router = useRouter();
   const { id } = router.query;
+  const { user } = useAuth();
   const [thread, setThread] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,161 +17,45 @@ export default function ThreadPage() {
 
   useEffect(() => {
     if (!id) return;
-    
-    const fetchData = async () => {
-      try {
-        // In a real app, you would fetch this from your API
-        // const response = await fetch(`/api/threads/${id}?page=${page}`);
-        // const data = await response.json();
-        
-        // Mock data for now
-        const mockThreads = {
-          1: {
-            id: 1,
-            title: 'Welcome to our forum!',
-            content: 'This is the first thread in our forum. Feel free to introduce yourself!',
-            userId: 1,
-            user: { 
-              id: 1, 
-              username: 'admin',
-              joinDate: new Date('2023-01-01'),
-              postCount: 42,
-              location: 'Internet',
-              avatar: 'https://via.placeholder.com/100',
-              signature: 'Forum Administrator',
-              role: 'ADMIN'
-            },
-            subjectId: 1,
-            subject: { id: 1, name: 'Introductions' },
-            category: { id: 1, name: 'General Discussion' },
-            viewCount: 124,
-            sticky: true,
-            locked: false,
-            createdAt: new Date('2023-01-01'),
-            updatedAt: new Date('2023-01-01'),
-            lastPostAt: new Date(),
-            lastPostUserId: 2,
-            lastPostUser: { id: 2, username: 'newuser' },
-            posts: [
-              {
-                id: 1,
-                content: 'Welcome to our forum! Feel free to introduce yourself!',
-                userId: 1,
-                user: { 
-                  id: 1, 
-                  username: 'admin',
-                  joinDate: new Date('2023-01-01'),
-                  postCount: 42,
-                  location: 'Internet',
-                  avatar: 'https://via.placeholder.com/100',
-                  signature: 'Forum Administrator',
-                  role: 'ADMIN'
-                },
-                threadId: 1,
-                createdAt: new Date('2023-01-01'),
-                updatedAt: new Date('2023-01-01')
-              },
-              {
-                id: 2,
-                content: 'Thanks for having me! I\'m excited to be part of this community.',
-                userId: 2,
-                user: { 
-                  id: 2, 
-                  username: 'newuser',
-                  joinDate: new Date('2023-01-02'),
-                  postCount: 15,
-                  location: 'New York',
-                  avatar: 'https://via.placeholder.com/100?text=NU',
-                  signature: 'New member here!',
-                  role: 'USER'
-                },
-                threadId: 1,
-                createdAt: new Date('2023-01-02'),
-                updatedAt: new Date('2023-01-02')
-              },
-              {
-                id: 3,
-                content: 'This is a test post to show pagination.',
-                userId: 3,
-                user: { 
-                  id: 3, 
-                  username: 'testuser',
-                  joinDate: new Date('2023-01-03'),
-                  postCount: 28,
-                  location: 'California',
-                  avatar: 'https://via.placeholder.com/100?text=TU',
-                  signature: 'Testing the forums!',
-                  role: 'USER'
-                },
-                threadId: 1,
-                createdAt: new Date('2023-01-03'),
-                updatedAt: new Date('2023-01-03')
-              },
-              // Add more posts to test pagination
-              ...Array.from({ length: 15 }).map((_, i) => ({
-                id: i + 4,
-                content: `This is post #${i + 4} in this thread.`,
-                userId: (i % 3) + 1, // Cycle through user IDs 1-3
-                user: [
-                  { 
-                    id: 1, 
-                    username: 'admin',
-                    joinDate: new Date('2023-01-01'),
-                    postCount: 42,
-                    location: 'Internet',
-                    avatar: 'https://via.placeholder.com/100',
-                    signature: 'Forum Administrator',
-                    role: 'ADMIN'
-                  },
-                  { 
-                    id: 2, 
-                    username: 'newuser',
-                    joinDate: new Date('2023-01-02'),
-                    postCount: 15,
-                    location: 'New York',
-                    avatar: 'https://via.placeholder.com/100?text=NU',
-                    signature: 'New member here!',
-                    role: 'USER'
-                  },
-                  { 
-                    id: 3, 
-                    username: 'testuser',
-                    joinDate: new Date('2023-01-03'),
-                    postCount: 28,
-                    location: 'California',
-                    avatar: 'https://via.placeholder.com/100?text=TU',
-                    signature: 'Testing the forums!',
-                    role: 'USER'
-                  }
-                ][(i % 3)],
-                threadId: 1,
-                createdAt: new Date(Date.now() - (i * 3600000)),
-                updatedAt: new Date(Date.now() - (i * 3600000))
-              }))
-            ]
-          }
-        };
 
-        const threadData = mockThreads[id];
-        
-        if (!threadData) {
-          throw new Error('Thread not found');
-        }
+    // Get page from URL query
+    if (router.query.page) {
+      setPage(parseInt(router.query.page));
+    }
 
-        // Sort posts by creation date
-        threadData.posts.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-        
-        setThread(threadData);
-        setIsLoading(false);
-      } catch (err) {
-        console.error('Error fetching thread:', err);
-        setError('Failed to load thread');
-        setIsLoading(false);
+    fetchThread();
+  }, [id, router.query.page]);
+
+  const fetchThread = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/threads/${id}`);
+
+      if (!response.ok) {
+        throw new Error('Thread not found');
       }
-    };
-    
-    fetchData();
-  }, [id, page]);
+
+      const data = await response.json();
+      setThread(data);
+
+      // Increment view count (you might want to do this server-side)
+      incrementViewCount();
+    } catch (err) {
+      console.error('Error fetching thread:', err);
+      setError('Failed to load thread');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const incrementViewCount = async () => {
+    try {
+      await fetch(`/api/threads/${id}/view`, { method: 'POST' });
+    } catch (err) {
+      // Silently fail - view count increment is not critical
+      console.error('Failed to increment view count:', err);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -211,12 +97,15 @@ export default function ThreadPage() {
         </div>
         
         <div className="thread-actions top">
-          <a href={`/subjects/${thread.subjectId}/new-thread`} className="button">New Thread</a>
-          <a href={`/threads/${id}/reply`} className="button">Reply</a>
-          {thread.locked ? (
-            <span className="button disabled">Thread Locked</span>
+          <Link href={`/subjects/${thread.subjectId}/new-thread`} className="button">New Thread</Link>
+          {user ? (
+            thread.locked ? (
+              <span className="button disabled">🔒 Thread Locked</span>
+            ) : (
+              <Link href={`/threads/${id}/reply`} className="button">Reply</Link>
+            )
           ) : (
-            <a href={`/threads/${id}/reply`} className="button">Reply</a>
+            <Link href="/login" className="button">Login to Reply</Link>
           )}
           <a href="#bottom" className="button">Bottom</a>
         </div>
@@ -256,11 +145,15 @@ export default function ThreadPage() {
         </div>
         
         <div className="thread-actions bottom">
-          <a href={`/subjects/${thread.subjectId}/new-thread`} className="button">New Thread</a>
-          {thread.locked ? (
-            <span className="button disabled">Thread Locked</span>
+          <Link href={`/subjects/${thread.subjectId}/new-thread`} className="button">New Thread</Link>
+          {user ? (
+            thread.locked ? (
+              <span className="button disabled">🔒 Thread Locked</span>
+            ) : (
+              <Link href={`/threads/${id}/reply`} className="button">Reply</Link>
+            )
           ) : (
-            <a href={`/threads/${id}/reply`} className="button">Reply</a>
+            <Link href="/login" className="button">Login to Reply</Link>
           )}
           <a href="#top" className="button">Top</a>
         </div>

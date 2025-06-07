@@ -19,13 +19,18 @@ export default function Post({ post, isFirstPost = false }) {
       <div className="post-container">
         <div className="post-sidebar">
           <div className="post-username">
-            <Link href={`/users/${post.userId}`}>
+            <Link href={`/profile/${post.user?.username || 'deleted'}`}>
               {post.user?.username || 'Deleted User'}
             </Link>
           </div>
           <div className="post-userinfo">
             <div>Posts: {post.user?.postCount || 0}</div>
-            <div>Joined: {post.user?.joinDate ? new Date(post.user.joinDate).toLocaleDateString() : 'N/A'}</div>
+            <div>Joined: {post.user?.createdAt ? new Date(post.user.createdAt).toLocaleDateString() : 'N/A'}</div>
+            {post.user?.role && post.user.role !== 'USER' && (
+              <div style={{ color: post.user.role === 'ADMIN' ? '#d32f2f' : '#1976d2', fontSize: '11px', fontWeight: 'bold' }}>
+                {post.user.role === 'ADMIN' ? '👑 Administrator' : '🛡️ Moderator'}
+              </div>
+            )}
           </div>
           {post.user?.avatar && (
             <div className="post-avatar">
@@ -54,10 +59,9 @@ export default function Post({ post, isFirstPost = false }) {
         </div>
       </div>
       <div className="post-footer">
-        <Link href={`/report/post/${post.id}`} className="button">Report</Link>
-        <Link href={`#post-${post.id}`} className="button">Link</Link>
-        <Link href={`/reply/${post.threadId}?quote=${post.id}`} className="button">Quote</Link>
-        <Link href={`/reply/${post.threadId}`} className="button">Reply</Link>
+        <Link href={`#post-${post.id}`} className="button">#{post.id}</Link>
+        <Link href={`/threads/${post.threadId}/reply?quote=${post.id}`} className="button">Quote</Link>
+        <Link href={`/threads/${post.threadId}/reply`} className="button">Reply</Link>
       </div>
     </div>
   );

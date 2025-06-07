@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
@@ -6,10 +7,24 @@ import styles from '../styles/Navigation.module.css';
 const Navigation = () => {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleLogout = async () => {
     await logout();
     router.push('/login');
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+    }
+  };
+
+  const handleSearchKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch(e);
+    }
   };
 
   return (
@@ -18,30 +33,33 @@ const Navigation = () => {
         <div className={styles.logo}>
           <Link href="/">Forum</Link>
         </div>
-        
-        <div className={styles.search}>
-          <input 
-            type="text" 
-            placeholder="Search forums..." 
+
+        <form className={styles.search} onSubmit={handleSearch}>
+          <input
+            type="text"
+            placeholder="Search forums..."
             className={styles.searchInput}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyPress={handleSearchKeyPress}
           />
-          <button className={styles.searchButton}>
+          <button type="submit" className={styles.searchButton}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
           </button>
-        </div>
+        </form>
 
         <div className={styles.navLinks}>
           <Link href="/" className={router.pathname === '/' ? styles.active : ''}>
             Home
           </Link>
-          <Link href="/forums" className={router.pathname === '/forums' ? styles.active : ''}>
-            Forums
-          </Link>
           <Link href="/members" className={router.pathname === '/members' ? styles.active : ''}>
             Members
+          </Link>
+          <Link href="/search" className={router.pathname === '/search' ? styles.active : ''}>
+            Search
           </Link>
           
           {user ? (
