@@ -5,8 +5,18 @@ export default async function handler(req, res) {
   const { id } = req.query;
 
   if (req.method === 'GET') {
-    const thread = await prisma.thread.findUnique({
-      where: { id: parseInt(id) },
+    try {
+      if (!id) {
+        return res.status(400).json({ error: 'Thread ID is required' });
+      }
+
+      const threadId = parseInt(id);
+      if (isNaN(threadId)) {
+        return res.status(400).json({ error: 'Invalid thread ID' });
+      }
+
+      const thread = await prisma.thread.findUnique({
+        where: { id: threadId },
       include: {
         user: true,
         subject: true,
@@ -24,10 +34,22 @@ export default async function handler(req, res) {
     } else {
       res.status(404).json({ error: 'Thread not found' });
     }
+  } catch (error) {
+    console.error('Error fetching thread:', error);
+    res.status(500).json({ error: 'Failed to fetch thread' });
+  }
   } else if (req.method === 'POST') {
     const { content, replyToId } = req.body;
 
     try {
+      if (!id) {
+        return res.status(400).json({ error: 'Thread ID is required' });
+      }
+
+      const threadId = parseInt(id);
+      if (isNaN(threadId)) {
+        return res.status(400).json({ error: 'Invalid thread ID' });
+      }
       // Get token from cookies
       const token = req.cookies.token;
 
@@ -46,7 +68,7 @@ export default async function handler(req, res) {
 
       // Check if thread exists and is not locked
       const thread = await prisma.thread.findUnique({
-        where: { id: parseInt(id) },
+        where: { id: threadId },
       });
 
       if (!thread) {
@@ -60,7 +82,7 @@ export default async function handler(req, res) {
       const post = await prisma.post.create({
         data: {
           content,
-          threadId: parseInt(id),
+          threadId: threadId,
           userId: user.id,
           replyToId: replyToId ? parseInt(replyToId) : null,
         },
@@ -81,7 +103,7 @@ export default async function handler(req, res) {
 
       // Update thread's last post info
       await prisma.thread.update({
-        where: { id: parseInt(id) },
+        where: { id: threadId },
         data: {
           lastPostAt: new Date(),
           lastPostUserId: user.id
@@ -117,6 +139,14 @@ export default async function handler(req, res) {
     const { action } = req.body;
 
     try {
+      if (!id) {
+        return res.status(400).json({ error: 'Thread ID is required' });
+      }
+
+      const threadId = parseInt(id);
+      if (isNaN(threadId)) {
+        return res.status(400).json({ error: 'Invalid thread ID' });
+      }
       // Get token from cookies
       const token = req.cookies.token;
 
@@ -135,22 +165,22 @@ export default async function handler(req, res) {
 
       if (action === 'lock') {
         await prisma.thread.update({
-          where: { id: parseInt(id) },
+          where: { id: threadId },
           data: { locked: true },
         });
       } else if (action === 'unlock') {
         await prisma.thread.update({
-          where: { id: parseInt(id) },
+          where: { id: threadId },
           data: { locked: false },
         });
       } else if (action === 'sticky') {
         await prisma.thread.update({
-          where: { id: parseInt(id) },
+          where: { id: threadId },
           data: { sticky: true },
         });
       } else if (action === 'unsticky') {
         await prisma.thread.update({
-          where: { id: parseInt(id) },
+          where: { id: threadId },
           data: { sticky: false },
         });
       } else {

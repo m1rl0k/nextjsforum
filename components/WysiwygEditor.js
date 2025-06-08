@@ -6,9 +6,9 @@ import styles from '../styles/WysiwygEditor.module.css';
 // Dynamically import ReactQuill to avoid SSR issues
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
-const WysiwygEditor = ({ 
-  value, 
-  onChange, 
+const WysiwygEditor = ({
+  value,
+  onChange,
   placeholder = "Enter your message...",
   height = 200,
   showEmojiPicker = true,
@@ -22,9 +22,35 @@ const WysiwygEditor = ({
     setQuillLoaded(true);
   }, []);
 
+  // Set up image handler after Quill is loaded
+  useEffect(() => {
+    if (quillLoaded && quillRef.current) {
+      const timer = setTimeout(() => {
+        const quill = quillRef.current.getEditor();
+        if (quill) {
+          const toolbar = quill.getModule('toolbar');
+          if (toolbar) {
+            toolbar.addHandler('image', imageHandler);
+            console.log('Image handler set up successfully');
+          }
+        }
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [quillLoaded]);
+
+  // Function to get the Quill editor instance safely
+  const getQuillEditor = () => {
+    if (quillRef.current && quillRef.current.getEditor) {
+      return quillRef.current.getEditor();
+    }
+    return null;
+  };
+
   const handleEmojiClick = (emojiObject) => {
-    if (quillRef.current) {
-      const quill = quillRef.current.getQuill();
+    const quill = getQuillEditor();
+    if (quill) {
       const range = quill.getSelection();
       const position = range ? range.index : quill.getLength();
       quill.insertText(position, emojiObject.emoji);
@@ -34,7 +60,9 @@ const WysiwygEditor = ({
   };
 
   // Custom image handler for Quill
-  const imageHandler = () => {
+  const imageHandler = function() {
+    console.log('Image handler called');
+
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
     input.setAttribute('accept', 'image/*');
@@ -43,6 +71,8 @@ const WysiwygEditor = ({
     input.onchange = async () => {
       const file = input.files[0];
       if (!file) return;
+
+      console.log('File selected:', file.name, file.size, file.type);
 
       // Validate file size (10MB limit)
       if (file.size > 10 * 1024 * 1024) {
@@ -56,9 +86,17 @@ const WysiwygEditor = ({
         return;
       }
 
-      const quill = quillRef.current.getEditor();
+      // Get the Quill editor instance
+      const quill = quillRef.current?.getEditor();
+      if (!quill) {
+        alert('Editor not ready. Please try again.');
+        return;
+      }
+
       const range = quill.getSelection();
       const index = range ? range.index : quill.getLength();
+
+      console.log('Inserting image at index:', index);
 
       // Show loading placeholder
       quill.insertEmbed(index, 'image', '/images/loading.svg');
@@ -69,16 +107,21 @@ const WysiwygEditor = ({
         const formData = new FormData();
         formData.append('image', file);
 
+        console.log('Uploading image...');
+
         const response = await fetch('/api/upload/image', {
           method: 'POST',
           body: formData,
         });
 
         if (!response.ok) {
-          throw new Error('Upload failed');
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Upload failed');
         }
 
         const result = await response.json();
+
+        console.log('Upload successful:', result.imageUrl);
 
         // Replace loading placeholder with actual image
         quill.deleteText(index, 1);
@@ -89,7 +132,7 @@ const WysiwygEditor = ({
         console.error('Image upload failed:', error);
         // Remove loading placeholder
         quill.deleteText(index, 1);
-        alert('Failed to upload image. Please try again.');
+        alert(`Failed to upload image: ${error.message}`);
       }
     };
   };
@@ -106,7 +149,7 @@ const WysiwygEditor = ({
       [{ 'header': [1, 2, 3, false] }],
       ['bold', 'italic', 'underline', 'strike'],
       [{ 'color': [] }, { 'background': [] }],
-      ['link', 'blockquote', 'code-block'],
+      ['link', 'image', 'blockquote', 'code-block'],
       [{ 'list': 'ordered'}, { 'list': 'bullet' }],
       [{ 'align': [] }],
       ['clean']
@@ -127,12 +170,7 @@ const WysiwygEditor = ({
   };
 
   const modules = {
-    toolbar: {
-      container: toolbarConfigs[toolbar] || toolbarConfigs.standard,
-      handlers: {
-        image: imageHandler
-      }
-    },
+    toolbar: toolbarConfigs[toolbar] || toolbarConfigs.standard,
     clipboard: {
       matchVisual: false,
     }

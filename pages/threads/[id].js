@@ -169,7 +169,14 @@ export default function ThreadPage() {
           </ul>
           
           <h3>Search this Thread</h3>
-          <form className="search-form">
+          <form className="search-form" onSubmit={(e) => {
+            e.preventDefault();
+            const searchTerm = e.target.elements[0].value.trim();
+            if (searchTerm) {
+              // For now, redirect to main search with thread filter
+              window.location.href = `/search?q=${encodeURIComponent(searchTerm)}&thread=${id}`;
+            }
+          }}>
             <input type="text" className="form-input" placeholder="Search this thread..." />
             <button type="submit" className="button">Search</button>
           </form>

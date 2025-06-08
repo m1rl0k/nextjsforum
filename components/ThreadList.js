@@ -1,10 +1,14 @@
 import Link from 'next/link';
 
-export default function ThreadList({ threads = [] }) {
+export default function ThreadList({ threads = [], subjectId }) {
   if (threads.length === 0) {
     return (
       <div className="no-threads">
-        No threads found. Be the first to <Link href="/new-thread">start a new thread</Link>!
+        No threads found. {subjectId ? (
+          <>Be the first to <Link href={`/subjects/${subjectId}/new-thread`}>start a new thread</Link>!</>
+        ) : (
+          'Select a subject to start a new thread!'
+        )}
       </div>
     );
   }

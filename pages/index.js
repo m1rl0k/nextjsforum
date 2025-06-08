@@ -84,7 +84,6 @@ export default function Home() {
     <Layout>
       <div className="forum-index">
         <div className="forum-actions">
-          <Link href="/new-thread" className="button">New Thread</Link>
           <Link href="/mark-read" className="button">Mark Forums Read</Link>
         </div>
         
