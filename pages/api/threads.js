@@ -1,5 +1,6 @@
 import prisma from '../../lib/prisma';
 import { verifyToken } from '../../lib/auth';
+import { associateImagesWithThread } from '../../lib/imageUtils';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
@@ -116,6 +117,9 @@ export default async function handler(req, res) {
           }
         }
       });
+
+      // Associate any images in the content with this thread
+      await associateImagesWithThread(thread.id, content);
 
       res.status(201).json(thread);
     } catch (error) {

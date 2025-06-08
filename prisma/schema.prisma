@@ -54,6 +54,7 @@ model User {
   notificationPreferences NotificationPreferences?
   triggeredNotifications  Notification[]           @relation("TriggeredNotifications")
   notifications           Notification[]
+  uploadedImages          Image[]
 }
 
 model Category {
@@ -125,6 +126,7 @@ model Thread {
   subject         Subject              @relation(fields: [subjectId], references: [id])
   user            User                 @relation(fields: [userId], references: [id])
   subscriptions   ThreadSubscription[]
+  images          ThreadImage[]
 
   @@index([subjectId, sticky, lastPostAt])
   @@index([userId])
@@ -162,6 +164,7 @@ model Post {
   user          User           @relation(fields: [userId], references: [id])
   reactions     PostReaction[]
   reports       Report[]
+  images        PostImage[]
 
   @@index([threadId, postNumber])
   @@index([userId])
@@ -508,4 +511,43 @@ enum MessageContentType {
   TEXT
   HTML
   MARKDOWN
+}
+
+model Image {
+  id           Int           @id @default(autoincrement())
+  filename     String        @unique
+  originalName String
+  url          String
+  size         Int
+  mimeType     String
+  uploadedAt   DateTime      @default(now())
+  uploadedBy   Int
+  isOrphaned   Boolean       @default(true)
+  user         User          @relation(fields: [uploadedBy], references: [id])
+  postImages   PostImage[]
+  threadImages ThreadImage[]
+
+  @@index([uploadedBy])
+  @@index([isOrphaned])
+  @@index([uploadedAt])
+}
+
+model PostImage {
+  id      Int   @id @default(autoincrement())
+  postId  Int
+  imageId Int
+  post    Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  image   Image @relation(fields: [imageId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, imageId])
+}
+
+model ThreadImage {
+  id       Int    @id @default(autoincrement())
+  threadId Int
+  imageId  Int
+  thread   Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  image    Image  @relation(fields: [imageId], references: [id], onDelete: Cascade)
+
+  @@unique([threadId, imageId])
 }

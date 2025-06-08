@@ -1,5 +1,6 @@
 import prisma from '../../lib/prisma';
 import { verifyToken } from '../../lib/auth';
+import { associateImagesWithPost } from '../../lib/imageUtils';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -30,6 +31,10 @@ export default async function handler(req, res) {
           replyToId: replyToId ? parseInt(replyToId) : null,
         },
       });
+
+      // Associate any images in the content with this post
+      await associateImagesWithPost(post.id, content);
+
       res.status(201).json(post);
     } catch (error) {
       console.error('Error creating post:', error);

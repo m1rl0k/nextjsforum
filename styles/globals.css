@@ -1,5 +1,5 @@
 /* Import Quill CSS */
-@import 'react-quill/dist/quill.snow.css';
+@import 'react-quill-new/dist/quill.snow.css';
 
 /* Import Z-Index Management */
 @import './z-index.css';

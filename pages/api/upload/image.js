@@ -2,15 +2,8 @@ import formidable from 'formidable';
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import AWS from 'aws-sdk';
 import { verifyToken } from '../../../lib/auth';
-
-// Configure AWS S3 (if using S3)
-const s3 = new AWS.S3({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION || 'us-east-1'
-});
+import prisma from '../../../lib/prisma';
 
 export const config = {
   api: {
@@ -64,79 +57,55 @@ export default async function handler(req, res) {
     const fileExtension = path.extname(file.originalFilename || '');
     const uniqueFilename = `${uuidv4()}${fileExtension}`;
     
-    let imageUrl;
-    let uploadSuccess = false;
-
-    // Try S3 upload first (if configured)
-    if (process.env.USE_S3_UPLOAD === 'true' && 
-        process.env.AWS_ACCESS_KEY_ID && 
-        process.env.AWS_SECRET_ACCESS_KEY && 
-        process.env.S3_BUCKET_NAME) {
-      
-      try {
-        const fileBuffer = fs.readFileSync(file.filepath);
-        
-        const uploadParams = {
-          Bucket: process.env.S3_BUCKET_NAME,
-          Key: `forum-images/${uniqueFilename}`,
-          Body: fileBuffer,
-          ContentType: file.mimetype,
-          ACL: 'public-read'
-        };
-
-        const result = await s3.upload(uploadParams).promise();
-        imageUrl = result.Location;
-        uploadSuccess = true;
-        
-        // Clean up temp file
-        fs.unlinkSync(file.filepath);
-        
-        console.log('Image uploaded to S3:', imageUrl);
-      } catch (s3Error) {
-        console.error('S3 upload failed:', s3Error);
-        // Fall back to local storage
-      }
+    // Local storage upload
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'images');
+    
+    // Ensure uploads directory exists
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
     }
 
-    // Local storage fallback (or primary if S3 not configured)
-    if (!uploadSuccess) {
-      const uploadsDir = path.join(process.cwd(), 'public', 'uploads', 'images');
-      
-      // Ensure uploads directory exists
-      if (!fs.existsSync(uploadsDir)) {
-        fs.mkdirSync(uploadsDir, { recursive: true });
-      }
+    const localFilePath = path.join(uploadsDir, uniqueFilename);
+    
+    try {
+      // Move file to uploads directory
+      fs.copyFileSync(file.filepath, localFilePath);
+      fs.unlinkSync(file.filepath); // Clean up temp file
 
-      const localFilePath = path.join(uploadsDir, uniqueFilename);
-      
-      try {
-        // Move file to uploads directory
-        fs.copyFileSync(file.filepath, localFilePath);
-        fs.unlinkSync(file.filepath); // Clean up temp file
-        
-        imageUrl = `/uploads/images/${uniqueFilename}`;
-        uploadSuccess = true;
-        
-        console.log('Image uploaded locally:', imageUrl);
-      } catch (localError) {
-        console.error('Local upload failed:', localError);
-        return res.status(500).json({ error: 'Failed to upload image' });
-      }
-    }
+      const imageUrl = `/uploads/images/${uniqueFilename}`;
 
-    if (!uploadSuccess) {
+      console.log('Image uploaded locally:', imageUrl);
+
+      // Create database record for the uploaded image
+      const imageRecord = await prisma.image.create({
+        data: {
+          filename: uniqueFilename,
+          originalName: file.originalFilename,
+          url: imageUrl,
+          size: file.size,
+          mimeType: file.mimetype,
+          uploadedBy: decoded.userId,
+          isOrphaned: true // Will be set to false when attached to a post/thread
+        }
+      });
+
+      console.log('Image record created in database:', imageRecord.id);
+
+      // Return the image URL and database ID
+      res.status(200).json({
+        success: true,
+        imageUrl,
+        imageId: imageRecord.id,
+        filename: uniqueFilename,
+        originalName: file.originalFilename,
+        size: file.size,
+        type: file.mimetype
+      });
+
+    } catch (localError) {
+      console.error('Local upload failed:', localError);
       return res.status(500).json({ error: 'Failed to upload image' });
     }
-
-    // Return the image URL
-    res.status(200).json({
-      success: true,
-      imageUrl,
-      filename: uniqueFilename,
-      originalName: file.originalFilename,
-      size: file.size,
-      type: file.mimetype
-    });
 
   } catch (error) {
     console.error('Upload error:', error);

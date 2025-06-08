@@ -1,5 +1,6 @@
 import prisma from '../../../lib/prisma';
 import { verifyToken } from '../../../lib/auth';
+import { associateImagesWithPost } from '../../../lib/imageUtils';
 
 export default async function handler(req, res) {
   const { id } = req.query;
@@ -38,7 +39,7 @@ export default async function handler(req, res) {
     console.error('Error fetching thread:', error);
     res.status(500).json({ error: 'Failed to fetch thread' });
   }
-  } else if (req.method === 'POST') {
+} else if (req.method === 'POST') {
     const { content, replyToId } = req.body;
 
     try {
@@ -129,6 +130,9 @@ export default async function handler(req, res) {
           }
         }
       });
+
+      // Associate any images in the content with this post
+      await associateImagesWithPost(post.id, content);
 
       res.status(201).json(post);
     } catch (error) {

@@ -71,13 +71,21 @@ export default function Post({ post, isFirstPost = false }) {
 
 function formatPostContent(content) {
   if (!content) return '';
-  
-  // Simple formatting - in a real app, you'd want to use a proper parser
+
+  // Check if content is already HTML (from Quill editor)
+  if (content.includes('<p>') || content.includes('<img') || content.includes('<strong>') || content.includes('<em>')) {
+    // Content is already HTML, just ensure images are responsive
+    return content
+      .replace(/<img([^>]*?)>/g, '<img$1 style="max-width: 100%; height: auto; border-radius: 3px;">')
+      .replace(/<p><\/p>/g, '<br>'); // Replace empty paragraphs with line breaks
+  }
+
+  // Legacy BBCode formatting for older posts
   return content
     .replace(/\[b\](.*?)\[\/b\]/g, '<strong>$1</strong>')
     .replace(/\[i\](.*?)\[\/i\]/g, '<em>$1</em>')
     .replace(/\[u\](.*?)\[\/u\]/g, '<u>$1</u>')
     .replace(/\[url=(.*?)\](.*?)\[\/url\]/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$2</a>')
-    .replace(/\[img\](.*?)\[\/img\]/g, '<img src="$1" alt="User posted image" style="max-width:100%;">')
+    .replace(/\[img\](.*?)\[\/img\]/g, '<img src="$1" alt="User posted image" style="max-width:100%; height: auto; border-radius: 3px;">')
     .replace(/\n/g, '<br>');
 }

@@ -1,6 +1,8 @@
 .editorContainer {
   position: relative;
   margin-bottom: 20px;
+  isolation: isolate;
+  z-index: 1;
 }
 
 .editorWrapper {
@@ -8,6 +10,7 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   background: white;
+  overflow: hidden;
 }
 
 .loadingEditor {
@@ -71,11 +74,15 @@
   border-right: none;
   border-bottom: 1px solid #ddd;
   background: #f8f9fa;
+  position: relative;
+  z-index: 2;
 }
 
 .editorContainer :global(.ql-container) {
   border: none;
   font-family: inherit;
+  position: relative;
+  z-index: 1;
 }
 
 .editorContainer :global(.ql-editor) {
@@ -91,6 +98,17 @@
 
 .editorContainer :global(.ql-snow .ql-tooltip) {
   z-index: 1001;
+}
+
+/* Ensure only one editor instance is visible */
+.editorContainer :global(.ql-editor) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Hide any potential duplicate toolbars */
+.editorContainer :global(.ql-toolbar) + :global(.ql-toolbar) {
+  display: none !important;
 }
 
 /* Custom button styles */
