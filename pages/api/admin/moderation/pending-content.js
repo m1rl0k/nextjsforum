@@ -27,7 +27,7 @@ export default async function handler(req, res) {
     // For now, we'll return recently created content that might need review
     // In a real forum, you might have an approval system where content is marked as "pending"
     
-    // Get recent threads (last 24 hours)
+    // Get recent threads (last 24 hours) that haven't been processed
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
 
@@ -54,7 +54,7 @@ export default async function handler(req, res) {
       take: Math.floor(parseInt(limit) / 2)
     });
 
-    // Get recent posts (last 24 hours)
+    // Get recent posts (last 24 hours) that haven't been processed
     const recentPosts = await prisma.post.findMany({
       where: {
         createdAt: { gte: yesterday },
@@ -79,9 +79,46 @@ export default async function handler(req, res) {
       take: Math.floor(parseInt(limit) / 2)
     });
 
+    // Get moderation logs to filter out processed content
+    const threadIds = recentThreads.map(t => t.id);
+    const postIds = recentPosts.map(p => p.id);
+
+    const processedContent = await prisma.moderationLog.findMany({
+      where: {
+        OR: [
+          {
+            targetType: 'THREAD',
+            targetId: { in: threadIds },
+            action: { in: ['APPROVE_THREAD', 'REJECT_THREAD'] }
+          },
+          {
+            targetType: 'POST',
+            targetId: { in: postIds },
+            action: { in: ['APPROVE_POST', 'REJECT_POST'] }
+          }
+        ]
+      }
+    });
+
+    const processedThreadIds = new Set(
+      processedContent
+        .filter(log => log.targetType === 'THREAD')
+        .map(log => log.targetId)
+    );
+
+    const processedPostIds = new Set(
+      processedContent
+        .filter(log => log.targetType === 'POST')
+        .map(log => log.targetId)
+    );
+
+    // Filter out processed content
+    const unprocessedThreads = recentThreads.filter(thread => !processedThreadIds.has(thread.id));
+    const unprocessedPosts = recentPosts.filter(post => !processedPostIds.has(post.id));
+
     // Combine and format the content
     const content = [
-      ...recentThreads.map(thread => ({
+      ...unprocessedThreads.map(thread => ({
         type: 'thread',
         id: thread.id,
         title: thread.title,
@@ -90,7 +127,7 @@ export default async function handler(req, res) {
         createdAt: thread.createdAt,
         subject: thread.subject?.name
       })),
-      ...recentPosts.map(post => ({
+      ...unprocessedPosts.map(post => ({
         type: 'post',
         id: post.id,
         title: `Post in: ${post.thread?.title}`,
