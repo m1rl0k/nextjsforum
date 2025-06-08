@@ -151,9 +151,8 @@ export default function CategoryPage() {
         .category-header {
           background: white;
           padding: 20px;
-          border-radius: 8px;
+          border: 1px solid #ddd;
           margin-bottom: 20px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .category-header h1 {
@@ -168,9 +167,7 @@ export default function CategoryPage() {
 
         .subjects-list {
           background: white;
-          border-radius: 8px;
-          overflow: hidden;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          border: 1px solid #ddd;
         }
 
         .subject-row {
@@ -207,7 +204,6 @@ export default function CategoryPage() {
         .subject-icon img {
           width: 32px;
           height: 32px;
-          border-radius: 4px;
         }
 
         .default-icon {
