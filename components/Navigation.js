@@ -40,12 +40,12 @@ const Navigation = () => {
             {themeSettings?.logoUrl ? (
               <img
                 src={themeSettings.logoUrl}
-                alt={themeSettings.siteName || 'Forum'}
+                alt={themeSettings.siteName || 'NextJS Forum'}
                 className={styles.logoImage}
               />
             ) : (
               <span className={styles.logoText}>
-                {themeSettings?.siteName || 'Forum'}
+                {themeSettings?.siteName || 'NextJS Forum'}
               </span>
             )}
           </Link>

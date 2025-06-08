@@ -119,3 +119,95 @@ model Notification {
   user      User     @relation(fields: [userId], references: [id])
   read      Boolean  @default(false)
 }
+
+model SiteSettings {
+  id          Int      @id @default(autoincrement())
+  key         String   @unique
+  value       String?
+  type        String   @default("string")
+  category    String   @default("general")
+  description String?
+  isInstalled Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ThemeSettings {
+  id                         Int      @id @default(autoincrement())
+  siteName                   String   @default("NextJS Forum")
+  logoUrl                    String?
+  faviconUrl                 String?  @default("/favicon.ico")
+  siteDescription            String?  @default("A modern forum built with Next.js")
+  footerText                 String?  @default("Powered by NextJS Forum")
+
+  // Colors
+  primaryColor               String   @default("#2B4F81")
+  secondaryColor             String   @default("#4C76B2")
+  backgroundColor            String   @default("#E0E8F5")
+  textColor                  String   @default("#000000")
+  linkColor                  String   @default("#006699")
+  linkHoverColor             String   @default("#0088CC")
+
+  // Header & Navigation
+  headerBackground           String   @default("#2B4F81")
+  headerText                 String   @default("#FFFFFF")
+  navbarBackground           String   @default("#4C76B2")
+  navbarText                 String   @default("#FFFFFF")
+
+  // Forum Elements
+  categoryHeaderBackground   String   @default("#738FBF")
+  categoryHeaderText         String   @default("#FFFFFF")
+  subjectHeaderBackground    String   @default("#DEE4F2")
+  subjectHeaderText          String   @default("#000000")
+  threadBackground           String   @default("#FFFFFF")
+  threadAltBackground        String   @default("#F5F5FF")
+  threadHoverBackground      String   @default("#E8EFFD")
+  postHeaderBackground       String   @default("#DEE4F2")
+  postBodyBackground         String   @default("#FFFFFF")
+  postFooterBackground       String   @default("#F5F5FF")
+  sidebarBackground          String   @default("#E0E8F5")
+  borderColor                String   @default("#94A3C4")
+
+  // Buttons & Forms
+  buttonBackground           String   @default("#4C76B2")
+  buttonText                 String   @default("#FFFFFF")
+  buttonHoverBackground      String   @default("#0088CC")
+  inputBackground            String   @default("#FFFFFF")
+  inputText                  String   @default("#000000")
+  inputBorderColor           String   @default("#94A3C4")
+
+  // Layout
+  buttonRadius               String   @default("0px")
+  cardRadius                 String   @default("0px")
+  fontSize                   String   @default("13px")
+  fontFamily                 String   @default("Verdana, Arial, sans-serif")
+
+  // Features
+  enableDarkMode             Boolean  @default(false)
+  compactMode                Boolean  @default(false)
+  showAvatars                Boolean  @default(true)
+  showSignatures             Boolean  @default(true)
+  threadsPerPage             Int      @default(20)
+  postsPerPage               Int      @default(10)
+
+  // Custom
+  customCSS                  String?
+
+  isActive                   Boolean  @default(true)
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+}
+
+model InstallationStatus {
+  id               Int       @id @default(autoincrement())
+  isInstalled      Boolean   @default(false)
+  installationStep Int       @default(0)
+  dbConfigured     Boolean   @default(false)
+  adminCreated     Boolean   @default(false)
+  siteConfigured   Boolean   @default(false)
+  forumsCreated    Boolean   @default(false)
+  installationDate DateTime?
+  version          String    @default("1.0.0")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}

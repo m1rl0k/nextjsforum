@@ -49,27 +49,64 @@ const ThemeProvider = ({ children }) => {
     logoUrl: ''
   });
 
+  const loadThemeSettings = async () => {
+    try {
+      const res = await fetch('/api/theme-settings');
+      if (res.ok) {
+        const data = await res.json();
+        setThemeSettings(prev => ({ ...prev, ...data }));
+      }
+    } catch (error) {
+      console.error('Failed to load theme settings:', error);
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
 
-    const loadThemeSettings = async () => {
-      try {
-        const res = await fetch('/api/theme-settings');
-        if (res.ok && mounted) {
-          const data = await res.json();
-          setThemeSettings(prev => ({ ...prev, ...data }));
-        }
-      } catch (error) {
-        console.error('Failed to load theme settings:', error);
+    const loadSettings = async () => {
+      if (mounted) {
+        await loadThemeSettings();
       }
     };
 
-    loadThemeSettings();
+    loadSettings();
 
     return () => {
       mounted = false;
     };
   }, []);
+
+  // Apply theme styles using CSS custom properties
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const root = document.documentElement;
+
+    // Apply CSS custom properties
+    root.style.setProperty('--primary-color', themeSettings.primaryColor);
+    root.style.setProperty('--secondary-color', themeSettings.secondaryColor);
+    root.style.setProperty('--header-bg', themeSettings.headerBackground || themeSettings.headerBg);
+    root.style.setProperty('--header-text', themeSettings.headerText);
+    root.style.setProperty('--navbar-bg', themeSettings.navbarBackground || themeSettings.primaryColor);
+    root.style.setProperty('--navbar-text', themeSettings.navbarText || themeSettings.headerText);
+    root.style.setProperty('--background-color', themeSettings.backgroundColor);
+    root.style.setProperty('--text-color', themeSettings.textColor);
+    root.style.setProperty('--link-color', themeSettings.linkColor);
+    root.style.setProperty('--link-hover-color', themeSettings.linkHoverColor);
+    root.style.setProperty('--button-bg', themeSettings.buttonBackground || themeSettings.buttonBg);
+    root.style.setProperty('--button-text', themeSettings.buttonText);
+    root.style.setProperty('--button-hover-bg', themeSettings.buttonHoverBackground || themeSettings.buttonHoverBg);
+    root.style.setProperty('--border-color', themeSettings.borderColor);
+
+    // Apply body styles
+    document.body.style.fontFamily = themeSettings.fontFamily || 'Verdana, Arial, sans-serif';
+    document.body.style.fontSize = themeSettings.fontSize || '13px';
+    document.body.style.backgroundColor = themeSettings.backgroundColor || '#E0E8F5';
+    document.body.style.color = themeSettings.textColor || '#000000';
+  }, [themeSettings]);
+
+
 
   const generateCSS = (settings) => {
     if (!settings) return '';
@@ -304,7 +341,7 @@ const ThemeProvider = ({ children }) => {
   };
 
   return (
-    <ThemeContext.Provider value={{ themeSettings, setThemeSettings }}>
+    <ThemeContext.Provider value={{ themeSettings, setThemeSettings, refreshThemeSettings: loadThemeSettings }}>
       {children}
     </ThemeContext.Provider>
   );

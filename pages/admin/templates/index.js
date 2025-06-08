@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../../../context/AuthContext';
+import { useTheme } from '../../../components/ThemeProvider';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import styles from '../../../styles/AdminTemplates.module.css';
 
 const AdminTemplates = () => {
   const { user, isAuthenticated, loading } = useAuth();
+  const { refreshThemeSettings } = useTheme();
   const router = useRouter();
   const [settings, setSettings] = useState({});
   const [isLoading, setIsLoading] = useState(true);
@@ -75,11 +77,11 @@ const AdminTemplates = () => {
       const data = await res.json();
       
       if (res.ok) {
-        setMessage('Template settings saved successfully! Refreshing page to apply changes...');
-        // Refresh the page after a short delay to show the changes
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
+        setMessage('Template settings saved successfully! Changes applied.');
+        // Refresh theme settings to apply changes immediately
+        if (refreshThemeSettings) {
+          await refreshThemeSettings();
+        }
       } else {
         setError(data.message || 'Failed to save settings');
       }
