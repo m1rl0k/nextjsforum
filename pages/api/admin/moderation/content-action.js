@@ -30,7 +30,7 @@ export default async function handler(req, res) {
     }
 
     // Validate action
-    if (!['approve', 'reject', 'delete'].includes(action)) {
+    if (!['approve', 'reject', 'delete', 'restore', 'lock', 'unlock'].includes(action)) {
       return res.status(400).json({ message: 'Invalid action' });
     }
 
@@ -47,12 +47,38 @@ export default async function handler(req, res) {
         // For now, threads are auto-approved, so this is just a log action
         result = await prisma.thread.update({
           where: { id: targetIdInt },
-          data: { updatedAt: new Date() }
+          data: {
+            approved: true,
+            updatedAt: new Date()
+          }
         });
       } else if (action === 'reject' || action === 'delete') {
         result = await prisma.thread.update({
           where: { id: targetIdInt },
-          data: { deleted: true }
+          data: {
+            deleted: true,
+            deletedAt: new Date(),
+            deletedBy: user.id
+          }
+        });
+      } else if (action === 'restore') {
+        result = await prisma.thread.update({
+          where: { id: targetIdInt },
+          data: {
+            deleted: false,
+            deletedAt: null,
+            deletedBy: null
+          }
+        });
+      } else if (action === 'lock') {
+        result = await prisma.thread.update({
+          where: { id: targetIdInt },
+          data: { locked: true }
+        });
+      } else if (action === 'unlock') {
+        result = await prisma.thread.update({
+          where: { id: targetIdInt },
+          data: { locked: false }
         });
       }
     } else if (type === 'post') {
@@ -60,12 +86,28 @@ export default async function handler(req, res) {
         // For now, posts are auto-approved, so this is just a log action
         result = await prisma.post.update({
           where: { id: targetIdInt },
-          data: { updatedAt: new Date() }
+          data: {
+            approved: true,
+            updatedAt: new Date()
+          }
         });
       } else if (action === 'reject' || action === 'delete') {
         result = await prisma.post.update({
           where: { id: targetIdInt },
-          data: { deleted: true }
+          data: {
+            deleted: true,
+            deletedAt: new Date(),
+            deletedBy: user.id
+          }
+        });
+      } else if (action === 'restore') {
+        result = await prisma.post.update({
+          where: { id: targetIdInt },
+          data: {
+            deleted: false,
+            deletedAt: null,
+            deletedBy: null
+          }
         });
       }
     }

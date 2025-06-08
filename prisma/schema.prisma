@@ -485,3 +485,29 @@ enum ReportStatus {
   RESOLVED
   DISMISSED
 }
+
+model ModerationSettings {
+  id                   Int      @id @default(autoincrement())
+  requireApproval      Boolean  @default(false)
+  newUserPostCount     Int      @default(5)
+  autoModeration       Boolean  @default(false)
+  profanityFilter      Boolean  @default(false)
+  spamDetection        Boolean  @default(false)
+  linkModeration       Boolean  @default(false)
+  imageModeration      Boolean  @default(false)
+  reportThreshold      Int      @default(3)
+  autoLockReports      Boolean  @default(false)
+  moderationQueue      Boolean  @default(true)
+  emailNotifications   Boolean  @default(true)
+  bannedWords          String?
+  allowedDomains       String?
+  trustedUserPostCount Int      @default(50)
+  autoApproveImages    Boolean  @default(false)
+  maxLinksPerPost      Int      @default(3)
+  minPostLength        Int      @default(10)
+  maxPostLength        Int      @default(10000)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@map("moderation_settings")
+}
