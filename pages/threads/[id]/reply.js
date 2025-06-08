@@ -94,8 +94,8 @@ export default function ReplyToThread() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
-          token,
           content: formData.content.trim()
         }),
       });
