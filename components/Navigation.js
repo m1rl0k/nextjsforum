@@ -93,21 +93,27 @@ const Navigation = () => {
                 <Link href="/messages" className={styles.messageLink} title="Messages">
                   ✉️
                 </Link>
-                <Link href={`/profile/${user.username}`} className={styles.userLink}>
-                  <span className={styles.avatar}>
-                    {user.username.charAt(0).toUpperCase()}
-                  </span>
-                  {user.username}
-                </Link>
-                <div className={styles.dropdown}>
-                  <Link href="/account/settings">Settings</Link>
-                  {(user.role === 'ADMIN' || user.role === 'MODERATOR') && (
-                    <Link href="/admin/moderation">Moderation</Link>
-                  )}
-                  {user.role === 'ADMIN' && (
-                    <Link href="/admin/dashboard">Admin Panel</Link>
-                  )}
-                  <button onClick={handleLogout}>Logout</button>
+                <div className={styles.userDropdown}>
+                  <Link href={`/profile/${user.username}`} className={styles.userLink}>
+                    <span className={styles.avatar}>
+                      {user.username.charAt(0).toUpperCase()}
+                    </span>
+                    {user.username}
+                    <span className={styles.dropdownArrow}>▼</span>
+                  </Link>
+                  <div className={styles.dropdown}>
+                    <Link href={`/profile/${user.username}`}>My Profile</Link>
+                    <Link href="/account/settings">Settings</Link>
+                    <Link href="/notifications">Notifications</Link>
+                    <Link href="/messages">Messages</Link>
+                    {(user.role === 'ADMIN' || user.role === 'MODERATOR') && (
+                      <Link href="/admin/moderation">Moderation</Link>
+                    )}
+                    {user.role === 'ADMIN' && (
+                      <Link href="/admin/dashboard">Admin Panel</Link>
+                    )}
+                    <button onClick={handleLogout} className={styles.logoutButton}>Logout</button>
+                  </div>
                 </div>
               </div>
             ) : (

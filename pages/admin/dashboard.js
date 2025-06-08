@@ -161,6 +161,13 @@ const AdminDashboard = () => {
               ⚙️ Forum Settings
             </button>
 
+            <button
+              className={styles.actionButton}
+              onClick={() => router.push('/admin/upload-settings')}
+            >
+              📁 Upload Settings
+            </button>
+
             {stats.pendingReports > 0 && (
               <button
                 className={`${styles.actionButton} ${styles.urgent}`}

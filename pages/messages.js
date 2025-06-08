@@ -471,8 +471,9 @@ function ComposeModal({ onClose, onSent }) {
           display: flex;
           align-items: center;
           justify-content: center;
-          z-index: 1000;
+          z-index: 10001;
           padding: 20px;
+          overflow-y: auto;
         }
 
         .modal-content {
@@ -482,6 +483,9 @@ function ComposeModal({ onClose, onSent }) {
           max-width: 500px;
           max-height: 90vh;
           overflow-y: auto;
+          margin: auto;
+          position: relative;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
 
         .modal-header {

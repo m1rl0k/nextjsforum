@@ -171,6 +171,11 @@
   color: var(--header-text, #FFFFFF);
 }
 
+.userDropdown {
+  position: relative;
+  display: inline-block;
+}
+
 .userLink {
   display: flex;
   align-items: center;
@@ -182,6 +187,23 @@
   font-size: 0.95rem;
   font-weight: 500;
   text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.userLink:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--header-text, #FFFFFF);
+}
+
+.dropdownArrow {
+  font-size: 0.7rem;
+  margin-left: 0.25rem;
+  transition: transform 0.2s;
+}
+
+.userDropdown:hover .dropdownArrow {
+  transform: rotate(180deg);
 }
 
 .avatar {
@@ -202,18 +224,20 @@
   top: 100%;
   right: 0;
   background-color: white;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   min-width: 200px;
   overflow: hidden;
   opacity: 0;
   visibility: hidden;
   transform: translateY(10px);
   transition: all 0.2s ease;
-  z-index: 1000;
+  z-index: 9999;
 }
 
-.userMenu:hover .dropdown {
+.userMenu:hover .dropdown,
+.userDropdown:hover .dropdown {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
@@ -236,6 +260,16 @@
 .dropdown a:hover, .dropdown button:hover {
   background-color: #f8f9fa;
   color: #3498db;
+}
+
+.logoutButton {
+  border-top: 1px solid #eee;
+  color: #dc3545 !important;
+}
+
+.logoutButton:hover {
+  background-color: #dc3545 !important;
+  color: white !important;
 }
 
 /* Auth buttons container */

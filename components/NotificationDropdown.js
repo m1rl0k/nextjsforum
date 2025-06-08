@@ -239,11 +239,12 @@ export default function NotificationDropdown() {
           background: white;
           border: 1px solid #ddd;
           border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
           width: 350px;
           max-height: 500px;
           overflow: hidden;
-          z-index: 1000;
+          z-index: 10000;
+          margin-top: 5px;
         }
 
         .notification-header {

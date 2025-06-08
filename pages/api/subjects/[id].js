@@ -5,8 +5,17 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
+      if (!id) {
+        return res.status(400).json({ error: 'Subject ID is required' });
+      }
+
+      const subjectId = parseInt(id);
+      if (isNaN(subjectId)) {
+        return res.status(400).json({ error: 'Invalid subject ID' });
+      }
+
       const subject = await prisma.subject.findUnique({
-        where: { id: parseInt(id) },
+        where: { id: subjectId },
         include: {
           category: true,
           threads: {

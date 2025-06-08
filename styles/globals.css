@@ -1,6 +1,9 @@
 /* Import Quill CSS */
 @import 'react-quill/dist/quill.snow.css';
 
+/* Import Z-Index Management */
+@import './z-index.css';
+
 /* Old school vBulletin/phpBB forum styles */
 :root {
   --primary-color: #2B4F81;
@@ -25,6 +28,13 @@
   --post-body-bg: #FFFFFF;
   --post-footer-bg: #F5F5FF;
   --sidebar-bg: #E0E8F5;
+
+  /* Z-Index Variables */
+  --z-dropdown: 9000;
+  --z-notification-dropdown: 10000;
+  --z-modal-backdrop: 10001;
+  --z-modal: 10002;
+  --z-toast: 11000;
 }
 
 body {

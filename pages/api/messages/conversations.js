@@ -82,27 +82,27 @@ export default async function handler(req, res) {
         // Get conversation list
         const conversations = await prisma.$queryRaw`
           WITH latest_messages AS (
-            SELECT DISTINCT ON (conversation_id)
+            SELECT DISTINCT ON ("conversationId")
               m.*,
-              ROW_NUMBER() OVER (PARTITION BY conversation_id ORDER BY created_at DESC) as rn
+              ROW_NUMBER() OVER (PARTITION BY "conversationId" ORDER BY "createdAt" DESC) as rn
             FROM messages m
-            WHERE (m.sender_id = ${user.id} OR m.recipient_id = ${user.id})
-              AND m.conversation_id IS NOT NULL
-              AND m.is_deleted = false
-            ORDER BY conversation_id, created_at DESC
+            WHERE (m."senderId" = ${user.id} OR m."recipientId" = ${user.id})
+              AND m."conversationId" IS NOT NULL
+              AND m."isDeleted" = false
+            ORDER BY "conversationId", "createdAt" DESC
           )
-          SELECT 
+          SELECT
             lm.*,
             sender.username as sender_username,
             sender.avatar as sender_avatar,
             recipient.username as recipient_username,
             recipient.avatar as recipient_avatar,
-            (SELECT COUNT(*) FROM messages WHERE conversation_id = lm.conversation_id AND recipient_id = ${user.id} AND is_read = false) as unread_count
+            (SELECT COUNT(*) FROM messages WHERE "conversationId" = lm."conversationId" AND "recipientId" = ${user.id} AND "isRead" = false) as unread_count
           FROM latest_messages lm
-          LEFT JOIN "User" sender ON lm.sender_id = sender.id
-          LEFT JOIN "User" recipient ON lm.recipient_id = recipient.id
+          LEFT JOIN "User" sender ON lm."senderId" = sender.id
+          LEFT JOIN "User" recipient ON lm."recipientId" = recipient.id
           WHERE rn = 1
-          ORDER BY lm.created_at DESC
+          ORDER BY lm."createdAt" DESC
           LIMIT ${parseInt(limit)}
           OFFSET ${parseInt(offset)}
         `;

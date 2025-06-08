@@ -1,0 +1,75 @@
+/* Z-Index Management for Forum Application */
+
+/* Base layers */
+.z-base { z-index: 1; }
+.z-content { z-index: 10; }
+.z-sticky { z-index: 100; }
+
+/* Navigation and header elements */
+.z-header { z-index: 1000; }
+.z-navigation { z-index: 1100; }
+
+/* Dropdowns and tooltips */
+.z-dropdown { z-index: 9000; }
+.z-tooltip { z-index: 9100; }
+
+/* Notification dropdown specifically */
+.z-notification-dropdown { z-index: 10000; }
+
+/* Modals and overlays */
+.z-modal-backdrop { z-index: 10001; }
+.z-modal { z-index: 10002; }
+.z-modal-high { z-index: 10003; }
+
+/* Toast notifications and alerts */
+.z-toast { z-index: 11000; }
+.z-alert { z-index: 11001; }
+
+/* Loading overlays */
+.z-loading { z-index: 12000; }
+
+/* Debug/development tools */
+.z-debug { z-index: 99999; }
+
+/* Utility classes for common z-index needs */
+.dropdown-menu {
+  z-index: var(--z-dropdown, 9000) !important;
+}
+
+.modal-overlay {
+  z-index: var(--z-modal-backdrop, 10001) !important;
+}
+
+.modal-content {
+  z-index: var(--z-modal, 10002) !important;
+}
+
+.notification-dropdown {
+  z-index: var(--z-notification-dropdown, 10000) !important;
+}
+
+.user-menu-dropdown {
+  z-index: var(--z-dropdown, 9000) !important;
+}
+
+/* Ensure proper stacking context */
+.stacking-context {
+  position: relative;
+  z-index: 0;
+}
+
+/* Fix for overlapping issues */
+.no-overlap {
+  isolation: isolate;
+}
+
+/* Responsive z-index adjustments */
+@media (max-width: 768px) {
+  .mobile-modal {
+    z-index: 10005 !important;
+  }
+  
+  .mobile-dropdown {
+    z-index: 9500 !important;
+  }
+}
