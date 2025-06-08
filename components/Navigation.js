@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../components/ThemeProvider';
+import NotificationDropdown from './NotificationDropdown';
 import styles from '../styles/Navigation.module.css';
 
 const Navigation = () => {
@@ -88,6 +89,10 @@ const Navigation = () => {
           ) : (
             user ? (
               <div className={styles.userMenu}>
+                <NotificationDropdown />
+                <Link href="/messages" className={styles.messageLink} title="Messages">
+                  ✉️
+                </Link>
                 <Link href={`/profile/${user.username}`} className={styles.userLink}>
                   <span className={styles.avatar}>
                     {user.username.charAt(0).toUpperCase()}

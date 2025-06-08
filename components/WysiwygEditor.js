@@ -33,6 +33,67 @@ const WysiwygEditor = ({
     setShowEmojis(false);
   };
 
+  // Custom image handler for Quill
+  const imageHandler = () => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files[0];
+      if (!file) return;
+
+      // Validate file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('Image size must be less than 10MB');
+        return;
+      }
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select a valid image file');
+        return;
+      }
+
+      const quill = quillRef.current.getEditor();
+      const range = quill.getSelection();
+      const index = range ? range.index : quill.getLength();
+
+      // Show loading placeholder
+      quill.insertEmbed(index, 'image', '/images/loading.svg');
+      quill.setSelection(index + 1);
+
+      try {
+        // Upload image
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const response = await fetch('/api/upload/image', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error('Upload failed');
+        }
+
+        const result = await response.json();
+
+        // Replace loading placeholder with actual image
+        quill.deleteText(index, 1);
+        quill.insertEmbed(index, 'image', result.imageUrl);
+        quill.setSelection(index + 1);
+
+      } catch (error) {
+        console.error('Image upload failed:', error);
+        // Remove loading placeholder
+        quill.deleteText(index, 1);
+        alert('Failed to upload image. Please try again.');
+      }
+    };
+  };
+
   // Toolbar configurations
   const toolbarConfigs = {
     minimal: [
@@ -66,7 +127,12 @@ const WysiwygEditor = ({
   };
 
   const modules = {
-    toolbar: toolbarConfigs[toolbar] || toolbarConfigs.standard,
+    toolbar: {
+      container: toolbarConfigs[toolbar] || toolbarConfigs.standard,
+      handlers: {
+        image: imageHandler
+      }
+    },
     clipboard: {
       matchVisual: false,
     }

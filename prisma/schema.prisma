@@ -1,6 +1,3 @@
-// NextJS Forum - Comprehensive Schema
-// Commercial-grade forum software schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,164 +7,124 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============================================================================
-// CORE USER SYSTEM
-// ============================================================================
-
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  username  String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Profile & Display
-  bio       String?
-  avatar    String?
-  location  String?
-  signature String?  // Added for vBulletin/phpBB style
-  website   String?
-  birthday  DateTime?
-  displayName String?
-
-  // Account Status & Security
-  role      Role     @default(USER)
-  isActive  Boolean  @default(true)  // For banning users
-  isBanned  Boolean  @default(false)
-  banReason String?
-  banExpiresAt DateTime?
-  emailVerified Boolean @default(false)
-
-  // Statistics & Activity
-  postCount Int      @default(0)  // Added to track post count
-  threadCount Int    @default(0)
-  reputationPoints Int @default(0)
-  warningPoints Int @default(0)
-  joinDate  DateTime @default(now())
-  lastLogin DateTime?  // Track last login
-  lastActivity DateTime?
-  ipAddress String?  // Track IP for admin purposes
-
-  // Preferences
-  timezone  String   @default("UTC")
-  language  String   @default("en")
-  emailNotifications Boolean @default(true)
-  showOnline Boolean @default(true)
-
-  // Relations
-  threads         Thread[]
-  posts           Post[]
-  sentMessages    Message[] @relation("SentMessages")
-  receivedMessages Message[] @relation("ReceivedMessages")
-  notifications   Notification[]
-  userGroups      UserGroupMember[]
-  moderatedSubjects SubjectModerator[]
-  subscriptions   ThreadSubscription[]
-  reactions       PostReaction[]
-  reports         Report[]
-  reportedBy      Report[] @relation("ReportedBy")
-  resolvedReports Report[] @relation("ResolvedBy")
-  moderationLogs  ModerationLog[] @relation("ModeratorLogs")
-}
-
-enum Role {
-  USER
-  MODERATOR
-  ADMIN
+  id                      Int                      @id @default(autoincrement())
+  email                   String                   @unique
+  password                String
+  username                String                   @unique
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  bio                     String?
+  avatar                  String?
+  location                String?
+  signature               String?
+  website                 String?
+  birthday                DateTime?
+  displayName             String?
+  role                    Role                     @default(USER)
+  isActive                Boolean                  @default(true)
+  isBanned                Boolean                  @default(false)
+  banReason               String?
+  banExpiresAt            DateTime?
+  emailVerified           Boolean                  @default(false)
+  postCount               Int                      @default(0)
+  threadCount             Int                      @default(0)
+  reputationPoints        Int                      @default(0)
+  warningPoints           Int                      @default(0)
+  joinDate                DateTime                 @default(now())
+  lastLogin               DateTime?
+  lastActivity            DateTime?
+  ipAddress               String?
+  timezone                String                   @default("UTC")
+  language                String                   @default("en")
+  emailNotifications      Boolean                  @default(true)
+  showOnline              Boolean                  @default(true)
+  moderationLogs          ModerationLog[]          @relation("ModeratorLogs")
+  posts                   Post[]
+  reactions               PostReaction[]
+  reportedBy              Report[]                 @relation("ReportedBy")
+  resolvedReports         Report[]                 @relation("ResolvedBy")
+  reports                 Report[]
+  moderatedSubjects       SubjectModerator[]
+  threads                 Thread[]
+  subscriptions           ThreadSubscription[]
+  userGroups              UserGroupMember[]
+  receivedMessages        Message[]                @relation("ReceivedMessages")
+  sentMessages            Message[]                @relation("SentMessages")
+  notificationPreferences NotificationPreferences?
+  triggeredNotifications  Notification[]           @relation("TriggeredNotifications")
+  notifications           Notification[]
 }
 
 model Category {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   name        String
-  description String?  // Added description for category
-  order       Int      @default(0)  // For ordering categories
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  description String?
+  order       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   subjects    Subject[]
 }
 
 model Subject {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String?  // Added description for subject
-  icon        String?  // For subject icon
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Subject Properties
-  order       Int      @default(0)  // For ordering within category
-  isActive    Boolean  @default(true)
-  requiresApproval Boolean @default(false) // Posts need approval
-
-  // Permissions
-  canPost     Boolean  @default(true)
-  canReply    Boolean  @default(true)
-  guestPosting Boolean @default(false)
-
-  // Statistics (cached for performance)
-  threadCount Int      @default(0)  // Counter for threads
-  postCount   Int      @default(0)  // Counter for posts
-  lastPost    DateTime?  // Track last post time
-  lastPostUserId Int?  // Track last poster
-  lastThreadId Int?    // Track last thread
-
-  // SEO
-  slug        String?  // URL-friendly slug
-  metaDescription String?
-
-  // Relations
-  categoryId  Int
-  category    Category @relation(fields: [categoryId], references: [id])
-  threads     Thread[]
-  moderators  SubjectModerator[]
+  id               Int                @id @default(autoincrement())
+  name             String
+  description      String?
+  icon             String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  order            Int                @default(0)
+  isActive         Boolean            @default(true)
+  requiresApproval Boolean            @default(false)
+  canPost          Boolean            @default(true)
+  canReply         Boolean            @default(true)
+  guestPosting     Boolean            @default(false)
+  threadCount      Int                @default(0)
+  postCount        Int                @default(0)
+  lastPost         DateTime?
+  lastPostUserId   Int?
+  lastThreadId     Int?
+  slug             String?
+  metaDescription  String?
+  categoryId       Int
+  category         Category           @relation(fields: [categoryId], references: [id])
+  moderators       SubjectModerator[]
+  threads          Thread[]
 
   @@index([categoryId, order])
   @@index([slug])
 }
 
 model Thread {
-  id          Int      @id @default(autoincrement())
-  title       String
-  content     String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Thread Status & Properties
-  locked      Boolean  @default(false)
-  sticky      Boolean  @default(false)  // For pinned threads
-  approved    Boolean  @default(true)   // For moderation
-  deleted     Boolean  @default(false)  // Soft delete
-  deletedAt   DateTime?
-  deletedBy   Int?
-
-  // Statistics
-  viewCount   Int      @default(0)  // Track view count
-  postCount   Int      @default(0)  // Cache post count
-  replyCount  Int      @default(0)  // Replies only (excluding OP)
-
-  // Activity Tracking
-  lastPostAt  DateTime @default(now())  // Track last post time
-  lastPostUserId Int?  // Track last poster
-
-  // Thread Type & Features
-  threadType  ThreadType @default(NORMAL)
-  allowReplies Boolean  @default(true)
-  requireApproval Boolean @default(false)
-
-  // SEO & Metadata
-  slug        String?   // URL-friendly slug
+  id              Int                  @id @default(autoincrement())
+  title           String
+  content         String
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  locked          Boolean              @default(false)
+  sticky          Boolean              @default(false)
+  approved        Boolean              @default(true)
+  deleted         Boolean              @default(false)
+  deletedAt       DateTime?
+  deletedBy       Int?
+  viewCount       Int                  @default(0)
+  postCount       Int                  @default(0)
+  replyCount      Int                  @default(0)
+  lastPostAt      DateTime             @default(now())
+  lastPostUserId  Int?
+  threadType      ThreadType           @default(NORMAL)
+  allowReplies    Boolean              @default(true)
+  requireApproval Boolean              @default(false)
+  slug            String?
   metaDescription String?
-  tags        String?   // Comma-separated tags
-
-  // Relations
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id])
-  subjectId   Int
-  subject     Subject  @relation(fields: [subjectId], references: [id])
-  posts       Post[]
-  subscriptions ThreadSubscription[]
-  reports     Report[]
+  tags            String?
+  userId          Int
+  subjectId       Int
+  posts           Post[]
+  reports         Report[]
+  subject         Subject              @relation(fields: [subjectId], references: [id])
+  user            User                 @relation(fields: [userId], references: [id])
+  subscriptions   ThreadSubscription[]
 
   @@index([subjectId, sticky, lastPostAt])
   @@index([userId])
@@ -175,48 +132,36 @@ model Thread {
 }
 
 model Post {
-  id        Int      @id @default(autoincrement())
-  content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Post Status & Moderation
-  approved  Boolean  @default(true)
-  deleted   Boolean  @default(false)
-  deletedAt DateTime?
-  deletedBy Int?
-  editedAt  DateTime?
-  editedBy  Int?
-  editReason String?
-
-  // Post Properties
-  isFirstPost Boolean @default(false) // Original thread post
-  postNumber  Int?    // Position in thread (1, 2, 3...)
-
-  // Content & Formatting
-  contentRaw  String? // Raw content before processing
-  contentHtml String? // Processed HTML content
-  attachments String? // JSON array of attachment IDs
-
-  // User Info (cached for performance)
-  userPostCount Int?    // User's post count at time of posting
-  userJoinDate  DateTime? // User's join date (cached)
-  userLocation  String?   // User's location (cached)
-
-  // IP & Security
-  ipAddress String?
-  userAgent String?
-
-  // Relations
-  userId    Int
-  threadId  Int
-  user      User     @relation(fields: [userId], references: [id])
-  thread    Thread   @relation(fields: [threadId], references: [id])
-  replyToId Int?
-  replyTo   Post?    @relation("ReplyTo", fields: [replyToId], references: [id])
-  replies   Post[]   @relation("ReplyTo")
-  reactions PostReaction[]
-  reports   Report[]
+  id            Int            @id @default(autoincrement())
+  content       String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  approved      Boolean        @default(true)
+  deleted       Boolean        @default(false)
+  deletedAt     DateTime?
+  deletedBy     Int?
+  editedAt      DateTime?
+  editedBy      Int?
+  editReason    String?
+  isFirstPost   Boolean        @default(false)
+  postNumber    Int?
+  contentRaw    String?
+  contentHtml   String?
+  attachments   String?
+  userPostCount Int?
+  userJoinDate  DateTime?
+  userLocation  String?
+  ipAddress     String?
+  userAgent     String?
+  userId        Int
+  threadId      Int
+  replyToId     Int?
+  replyTo       Post?          @relation("ReplyTo", fields: [replyToId], references: [id])
+  replies       Post[]         @relation("ReplyTo")
+  thread        Thread         @relation(fields: [threadId], references: [id])
+  user          User           @relation(fields: [userId], references: [id])
+  reactions     PostReaction[]
+  reports       Report[]
 
   @@index([threadId, postNumber])
   @@index([userId])
@@ -224,24 +169,55 @@ model Post {
 }
 
 model Message {
-  id          Int      @id @default(autoincrement())
-  content     String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  senderId    Int
-  recipientId Int
-  sender      User     @relation("SentMessages", fields: [senderId], references: [id])
-  recipient   User     @relation("ReceivedMessages", fields: [recipientId], references: [id])
+  id             Int                @id @default(autoincrement())
+  subject        String?
+  content        String
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  isRead         Boolean            @default(false)
+  isDeleted      Boolean            @default(false)
+  deletedAt      DateTime?
+  priority       MessagePriority    @default(NORMAL)
+  conversationId String?
+  replyToId      Int?
+  attachments    String?
+  contentType    MessageContentType @default(TEXT)
+  senderId       Int
+  recipientId    Int
+  recipient      User               @relation("ReceivedMessages", fields: [recipientId], references: [id])
+  replyTo        Message?           @relation("MessageReplies", fields: [replyToId], references: [id])
+  replies        Message[]          @relation("MessageReplies")
+  sender         User               @relation("SentMessages", fields: [senderId], references: [id])
+
+  @@index([conversationId])
+  @@index([senderId, createdAt])
+  @@index([recipientId, createdAt])
+  @@map("messages")
 }
 
 model Notification {
-  id        Int      @id @default(autoincrement())
-  content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  read      Boolean  @default(false)
+  id            Int                  @id @default(autoincrement())
+  title         String
+  content       String
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  read          Boolean              @default(false)
+  readAt        DateTime?
+  type          NotificationType
+  priority      NotificationPriority @default(NORMAL)
+  actionUrl     String?
+  actionData    String?
+  relatedType   String?
+  relatedId     Int?
+  triggeredById Int?
+  userId        Int
+  triggeredBy   User?                @relation("TriggeredNotifications", fields: [triggeredById], references: [id])
+  user          User                 @relation(fields: [userId], references: [id])
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
+  @@index([type, createdAt])
+  @@map("notifications")
 }
 
 model SiteSettings {
@@ -257,69 +233,54 @@ model SiteSettings {
 }
 
 model ThemeSettings {
-  id                         Int      @id @default(autoincrement())
-  siteName                   String   @default("NextJS Forum")
-  logoUrl                    String?
-  faviconUrl                 String?  @default("/favicon.ico")
-  siteDescription            String?  @default("A modern forum built with Next.js")
-  footerText                 String?  @default("Powered by NextJS Forum")
-
-  // Colors
-  primaryColor               String   @default("#2B4F81")
-  secondaryColor             String   @default("#4C76B2")
-  backgroundColor            String   @default("#E0E8F5")
-  textColor                  String   @default("#000000")
-  linkColor                  String   @default("#006699")
-  linkHoverColor             String   @default("#0088CC")
-
-  // Header & Navigation
-  headerBackground           String   @default("#2B4F81")
-  headerText                 String   @default("#FFFFFF")
-  navbarBackground           String   @default("#4C76B2")
-  navbarText                 String   @default("#FFFFFF")
-
-  // Forum Elements
-  categoryHeaderBackground   String   @default("#738FBF")
-  categoryHeaderText         String   @default("#FFFFFF")
-  subjectHeaderBackground    String   @default("#DEE4F2")
-  subjectHeaderText          String   @default("#000000")
-  threadBackground           String   @default("#FFFFFF")
-  threadAltBackground        String   @default("#F5F5FF")
-  threadHoverBackground      String   @default("#E8EFFD")
-  postHeaderBackground       String   @default("#DEE4F2")
-  postBodyBackground         String   @default("#FFFFFF")
-  postFooterBackground       String   @default("#F5F5FF")
-  sidebarBackground          String   @default("#E0E8F5")
-  borderColor                String   @default("#94A3C4")
-
-  // Buttons & Forms
-  buttonBackground           String   @default("#4C76B2")
-  buttonText                 String   @default("#FFFFFF")
-  buttonHoverBackground      String   @default("#0088CC")
-  inputBackground            String   @default("#FFFFFF")
-  inputText                  String   @default("#000000")
-  inputBorderColor           String   @default("#94A3C4")
-
-  // Layout
-  buttonRadius               String   @default("0px")
-  cardRadius                 String   @default("0px")
-  fontSize                   String   @default("13px")
-  fontFamily                 String   @default("Verdana, Arial, sans-serif")
-
-  // Features
-  enableDarkMode             Boolean  @default(false)
-  compactMode                Boolean  @default(false)
-  showAvatars                Boolean  @default(true)
-  showSignatures             Boolean  @default(true)
-  threadsPerPage             Int      @default(20)
-  postsPerPage               Int      @default(10)
-
-  // Custom
-  customCSS                  String?
-
-  isActive                   Boolean  @default(true)
-  createdAt                  DateTime @default(now())
-  updatedAt                  DateTime @updatedAt
+  id                       Int      @id @default(autoincrement())
+  siteName                 String   @default("NextJS Forum")
+  logoUrl                  String?
+  faviconUrl               String?  @default("/favicon.ico")
+  siteDescription          String?  @default("A modern forum built with Next.js")
+  footerText               String?  @default("Powered by NextJS Forum")
+  primaryColor             String   @default("#2B4F81")
+  secondaryColor           String   @default("#4C76B2")
+  backgroundColor          String   @default("#E0E8F5")
+  textColor                String   @default("#000000")
+  linkColor                String   @default("#006699")
+  linkHoverColor           String   @default("#0088CC")
+  headerBackground         String   @default("#2B4F81")
+  headerText               String   @default("#FFFFFF")
+  navbarBackground         String   @default("#4C76B2")
+  navbarText               String   @default("#FFFFFF")
+  categoryHeaderBackground String   @default("#738FBF")
+  categoryHeaderText       String   @default("#FFFFFF")
+  subjectHeaderBackground  String   @default("#DEE4F2")
+  subjectHeaderText        String   @default("#000000")
+  threadBackground         String   @default("#FFFFFF")
+  threadAltBackground      String   @default("#F5F5FF")
+  threadHoverBackground    String   @default("#E8EFFD")
+  postHeaderBackground     String   @default("#DEE4F2")
+  postBodyBackground       String   @default("#FFFFFF")
+  postFooterBackground     String   @default("#F5F5FF")
+  sidebarBackground        String   @default("#E0E8F5")
+  borderColor              String   @default("#94A3C4")
+  buttonBackground         String   @default("#4C76B2")
+  buttonText               String   @default("#FFFFFF")
+  buttonHoverBackground    String   @default("#0088CC")
+  inputBackground          String   @default("#FFFFFF")
+  inputText                String   @default("#000000")
+  inputBorderColor         String   @default("#94A3C4")
+  buttonRadius             String   @default("0px")
+  cardRadius               String   @default("0px")
+  fontSize                 String   @default("13px")
+  fontFamily               String   @default("Verdana, Arial, sans-serif")
+  enableDarkMode           Boolean  @default(false)
+  compactMode              Boolean  @default(false)
+  showAvatars              Boolean  @default(true)
+  showSignatures           Boolean  @default(true)
+  threadsPerPage           Int      @default(20)
+  postsPerPage             Int      @default(10)
+  customCSS                String?
+  isActive                 Boolean  @default(true)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
 }
 
 model InstallationStatus {
@@ -336,154 +297,103 @@ model InstallationStatus {
   updatedAt        DateTime  @updatedAt
 }
 
-// ============================================================================
-// COMMERCIAL FORUM FEATURES
-// ============================================================================
-
-// User Groups & Permissions
 model UserGroup {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  description String?
-  color       String?  // Display color for group
-  isDefault   Boolean  @default(false)
-  priority    Int      @default(0) // Higher priority = more important
-
-  // Permissions
-  canPost     Boolean  @default(true)
-  canReply    Boolean  @default(true)
-  canEdit     Boolean  @default(false) // Edit own posts
-  canDelete   Boolean  @default(false) // Delete own posts
-  canModerate Boolean  @default(false)
-  canAdmin    Boolean  @default(false)
-  canViewProfiles Boolean @default(true)
-  canSendMessages Boolean @default(true)
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  members     UserGroupMember[]
+  id              Int               @id @default(autoincrement())
+  name            String            @unique
+  description     String?
+  color           String?
+  isDefault       Boolean           @default(false)
+  priority        Int               @default(0)
+  canPost         Boolean           @default(true)
+  canReply        Boolean           @default(true)
+  canEdit         Boolean           @default(false)
+  canDelete       Boolean           @default(false)
+  canModerate     Boolean           @default(false)
+  canAdmin        Boolean           @default(false)
+  canViewProfiles Boolean           @default(true)
+  canSendMessages Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  members         UserGroupMember[]
 }
 
 model UserGroupMember {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  groupId   Int
-  joinedAt  DateTime @default(now())
-
-  user      User     @relation(fields: [userId], references: [id])
-  group     UserGroup @relation(fields: [groupId], references: [id])
+  id       Int       @id @default(autoincrement())
+  userId   Int
+  groupId  Int
+  joinedAt DateTime  @default(now())
+  group    UserGroup @relation(fields: [groupId], references: [id])
+  user     User      @relation(fields: [userId], references: [id])
 
   @@unique([userId, groupId])
 }
 
-// Subject/Forum Moderation
 model SubjectModerator {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  subjectId Int
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  subjectId  Int
   assignedAt DateTime @default(now())
   assignedBy Int
-
-  user      User     @relation(fields: [userId], references: [id])
-  subject   Subject  @relation(fields: [subjectId], references: [id])
+  subject    Subject  @relation(fields: [subjectId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, subjectId])
 }
 
-// Thread Subscriptions
 model ThreadSubscription {
   id        Int      @id @default(autoincrement())
   userId    Int
   threadId  Int
   createdAt DateTime @default(now())
-
-  user      User     @relation(fields: [userId], references: [id])
   thread    Thread   @relation(fields: [threadId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, threadId])
 }
 
-// Post Reactions (Like, Dislike, etc.)
 model PostReaction {
-  id        Int      @id @default(autoincrement())
+  id        Int          @id @default(autoincrement())
   userId    Int
   postId    Int
   type      ReactionType
-  createdAt DateTime @default(now())
-
-  user      User     @relation(fields: [userId], references: [id])
-  post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime     @default(now())
+  post      Post         @relation(fields: [postId], references: [id])
+  user      User         @relation(fields: [userId], references: [id])
 
   @@unique([userId, postId])
 }
 
-// Reporting System
 model Report {
-  id          Int      @id @default(autoincrement())
-  reason      String
-  description String?
-  status      ReportStatus @default(PENDING)
-
-  // What's being reported
-  threadId    Int?
-  postId      Int?
-  userId      Int?     // Reported user
-
-  // Who reported it
-  reportedById Int
-
-  // Resolution
-  resolvedAt  DateTime?
-  resolvedBy  Int?
-  resolution  String?
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  thread      Thread?  @relation(fields: [threadId], references: [id])
-  post        Post?    @relation(fields: [postId], references: [id])
-  user        User?    @relation(fields: [userId], references: [id])
-  reportedBy  User     @relation("ReportedBy", fields: [reportedById], references: [id])
-  resolvedByUser User? @relation("ResolvedBy", fields: [resolvedBy], references: [id])
+  id             Int          @id @default(autoincrement())
+  reason         String
+  description    String?
+  status         ReportStatus @default(PENDING)
+  threadId       Int?
+  postId         Int?
+  userId         Int?
+  reportedById   Int
+  resolvedAt     DateTime?
+  resolvedBy     Int?
+  resolution     String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  post           Post?        @relation(fields: [postId], references: [id])
+  reportedBy     User         @relation("ReportedBy", fields: [reportedById], references: [id])
+  resolvedByUser User?        @relation("ResolvedBy", fields: [resolvedBy], references: [id])
+  thread         Thread?      @relation(fields: [threadId], references: [id])
+  user           User?        @relation(fields: [userId], references: [id])
 }
 
-// Moderation Logs
 model ModerationLog {
   id          Int      @id @default(autoincrement())
   moderatorId Int
-  action      String   // BAN_USER, DELETE_POST, RESOLVE_REPORT, etc.
-  targetType  String   // USER, POST, THREAD, REPORT
+  action      String
+  targetType  String
   targetId    Int
   reason      String
-  details     String?  // JSON string for additional data
+  details     String?
   createdAt   DateTime @default(now())
-
-  moderator User @relation("ModeratorLogs", fields: [moderatorId], references: [id], onDelete: Cascade)
-}
-
-// Enums
-enum ThreadType {
-  NORMAL
-  ANNOUNCEMENT
-  STICKY
-  POLL
-}
-
-enum ReactionType {
-  LIKE
-  DISLIKE
-  LOVE
-  LAUGH
-  ANGRY
-  SAD
-}
-
-enum ReportStatus {
-  PENDING
-  REVIEWED
-  RESOLVED
-  DISMISSED
+  moderator   User     @relation("ModeratorLogs", fields: [moderatorId], references: [id], onDelete: Cascade)
 }
 
 model ModerationSettings {
@@ -510,4 +420,92 @@ model ModerationSettings {
   updatedAt            DateTime @updatedAt
 
   @@map("moderation_settings")
+}
+
+model NotificationPreferences {
+  id                 Int      @id @default(autoincrement())
+  userId             Int      @unique
+  emailThreadReply   Boolean  @default(true)
+  emailPostReply     Boolean  @default(true)
+  emailMentions      Boolean  @default(true)
+  emailMessages      Boolean  @default(true)
+  emailModeration    Boolean  @default(true)
+  emailSystem        Boolean  @default(true)
+  browserThreadReply Boolean  @default(true)
+  browserPostReply   Boolean  @default(true)
+  browserMentions    Boolean  @default(true)
+  browserMessages    Boolean  @default(true)
+  browserModeration  Boolean  @default(true)
+  browserSystem      Boolean  @default(true)
+  emailDigest        Boolean  @default(false)
+  digestFrequency    String   @default("daily")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  user               User     @relation(fields: [userId], references: [id])
+
+  @@map("notification_preferences")
+}
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum ThreadType {
+  NORMAL
+  ANNOUNCEMENT
+  STICKY
+  POLL
+}
+
+enum ReactionType {
+  LIKE
+  DISLIKE
+  LOVE
+  LAUGH
+  ANGRY
+  SAD
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+  DISMISSED
+}
+
+enum NotificationType {
+  THREAD_REPLY
+  POST_REPLY
+  POST_MENTION
+  POST_LIKE
+  THREAD_SUBSCRIBE
+  PRIVATE_MESSAGE
+  FRIEND_REQUEST
+  FRIEND_ACCEPTED
+  MODERATION_ACTION
+  SYSTEM_ALERT
+  WARNING_RECEIVED
+  REPUTATION_CHANGE
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum MessagePriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum MessageContentType {
+  TEXT
+  HTML
+  MARKDOWN
 }
