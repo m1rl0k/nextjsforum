@@ -69,7 +69,7 @@ const AdminLayout = ({ children }) => {
           <h2>Admin Panel</h2>
         </div>
         
-        <nav className={styles.nav}>
+        <nav className={`${styles.nav} adminNav`}>
           <ul>
             <li className={styles.forumLink}>
               <Link href="/">← Back to Forum</Link>
@@ -89,6 +89,9 @@ const AdminLayout = ({ children }) => {
             </li>
             <li className={isActive('/admin/posts')}>
               <Link href="/admin/posts">Posts</Link>
+            </li>
+            <li className={isActive('/admin/templates')}>
+              <Link href="/admin/templates">Templates</Link>
             </li>
             <li className={isActive('/admin/settings')}>
               <Link href="/admin/settings">Settings</Link>
@@ -113,7 +116,7 @@ const AdminLayout = ({ children }) => {
       )}
 
       {/* Main content */}
-      <main className={styles.mainContent}>
+      <main className={`${styles.mainContent} adminContent`}>
         {children}
       </main>
     </div>

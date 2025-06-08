@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { AuthProvider } from '../context/AuthContext';
+import ThemeProvider from '../components/ThemeProvider';
 import '../styles/globals.css';
 
 // List of public routes that don't require authentication
@@ -12,7 +13,9 @@ function MyApp({ Component, pageProps }) {
   // Add any global layout or providers here
   return (
     <AuthProvider>
-      <Component {...pageProps} />
+      <ThemeProvider>
+        <Component {...pageProps} />
+      </ThemeProvider>
     </AuthProvider>
   );
 }

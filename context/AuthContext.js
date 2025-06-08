@@ -11,8 +11,19 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     // Check if user is logged in
     const checkAuth = async () => {
+      const startTime = Date.now();
+
       try {
-        const res = await fetch('/api/auth/me');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+
+        const res = await fetch('/api/auth/me', {
+          credentials: 'include',
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);
@@ -20,10 +31,20 @@ export function AuthProvider({ children }) {
           setUser(null);
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        if (error.name !== 'AbortError') {
+          console.error('Auth check failed:', error);
+        }
         setUser(null);
       } finally {
-        setLoading(false);
+        // Ensure minimum loading time to prevent flash
+        const elapsed = Date.now() - startTime;
+        const minLoadTime = 300; // 300ms minimum
+
+        if (elapsed < minLoadTime) {
+          setTimeout(() => setLoading(false), minLoadTime - elapsed);
+        } else {
+          setLoading(false);
+        }
       }
     };
 

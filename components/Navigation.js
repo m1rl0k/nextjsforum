@@ -1,13 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 import styles from '../styles/Navigation.module.css';
 
 const Navigation = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
+  const [themeSettings, setThemeSettings] = useState({
+    siteName: 'Forum',
+    logoUrl: ''
+  });
+
+  useEffect(() => {
+    const loadThemeSettings = async () => {
+      try {
+        const res = await fetch('/api/theme-settings');
+        if (res.ok) {
+          const data = await res.json();
+          setThemeSettings(data);
+        }
+      } catch (error) {
+        console.error('Failed to load theme settings:', error);
+      }
+    };
+
+    loadThemeSettings();
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -16,6 +36,7 @@ const Navigation = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     if (searchTerm.trim()) {
       router.push(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
     }
@@ -23,6 +44,8 @@ const Navigation = () => {
 
   const handleSearchKeyPress = (e) => {
     if (e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
       handleSearch(e);
     }
   };
@@ -31,7 +54,19 @@ const Navigation = () => {
     <nav className={styles.nav}>
       <div className={styles.navContainer}>
         <div className={styles.logo}>
-          <Link href="/">Forum</Link>
+          <Link href="/">
+            {themeSettings?.logoUrl ? (
+              <img
+                src={themeSettings.logoUrl}
+                alt={themeSettings.siteName || 'Forum'}
+                className={styles.logoImage}
+              />
+            ) : (
+              <span className={styles.logoText}>
+                {themeSettings?.siteName || 'Forum'}
+              </span>
+            )}
+          </Link>
         </div>
 
         <form className={styles.search} onSubmit={handleSearch}>
@@ -62,31 +97,41 @@ const Navigation = () => {
             Search
           </Link>
           
-          {user ? (
-            <div className={styles.userMenu}>
-              <Link href={`/profile/${user.username}`} className={styles.userLink}>
-                <span className={styles.avatar}>
-                  {user.username.charAt(0).toUpperCase()}
-                </span>
-                {user.username}
-              </Link>
-              <div className={styles.dropdown}>
-                <Link href="/account/settings">Settings</Link>
-                {user.role === 'ADMIN' && (
-                  <Link href="/admin/dashboard">Admin Panel</Link>
-                )}
-                <button onClick={handleLogout}>Logout</button>
+          {loading ? (
+            <div className={styles.authPlaceholder}>
+              <div className={styles.loadingDots}>
+                <span></span>
+                <span></span>
+                <span></span>
               </div>
             </div>
           ) : (
-            <>
-              <Link href="/login" className={styles.loginLink}>
-                Log In
-              </Link>
-              <Link href="/register" className={styles.registerButton}>
-                Sign Up
-              </Link>
-            </>
+            user ? (
+              <div className={styles.userMenu}>
+                <Link href={`/profile/${user.username}`} className={styles.userLink}>
+                  <span className={styles.avatar}>
+                    {user.username.charAt(0).toUpperCase()}
+                  </span>
+                  {user.username}
+                </Link>
+                <div className={styles.dropdown}>
+                  <Link href="/account/settings">Settings</Link>
+                  {user.role === 'ADMIN' && (
+                    <Link href="/admin/dashboard">Admin Panel</Link>
+                  )}
+                  <button onClick={handleLogout}>Logout</button>
+                </div>
+              </div>
+            ) : (
+              <div className={styles.authButtons}>
+                <Link href="/login" className={styles.loginLink}>
+                  Log In
+                </Link>
+                <Link href="/register" className={styles.registerButton}>
+                  Sign Up
+                </Link>
+              </div>
+            )
           )}
         </div>
       </div>

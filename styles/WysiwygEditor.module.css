@@ -1,0 +1,166 @@
+.editorContainer {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.editorWrapper {
+  position: relative;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+}
+
+.loadingEditor {
+  padding: 40px;
+  text-align: center;
+  color: #666;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #f9f9f9;
+}
+
+.editorActions {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 10;
+}
+
+.emojiButton {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.emojiButton:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.emojiPickerContainer {
+  position: relative;
+}
+
+.emojiPickerOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+}
+
+.emojiPicker {
+  position: absolute;
+  top: 10px;
+  right: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Quill Editor Customizations */
+.editorContainer :global(.ql-toolbar) {
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: 1px solid #ddd;
+  background: #f8f9fa;
+}
+
+.editorContainer :global(.ql-container) {
+  border: none;
+  font-family: inherit;
+}
+
+.editorContainer :global(.ql-editor) {
+  min-height: 150px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.editorContainer :global(.ql-editor.ql-blank::before) {
+  color: #adb5bd;
+  font-style: normal;
+}
+
+.editorContainer :global(.ql-snow .ql-tooltip) {
+  z-index: 1001;
+}
+
+/* Custom button styles */
+.editorContainer :global(.ql-snow .ql-toolbar button:hover),
+.editorContainer :global(.ql-snow .ql-toolbar button:focus),
+.editorContainer :global(.ql-snow .ql-toolbar button.ql-active),
+.editorContainer :global(.ql-snow .ql-toolbar .ql-picker-label:hover),
+.editorContainer :global(.ql-snow .ql-toolbar .ql-picker-label.ql-active),
+.editorContainer :global(.ql-snow .ql-toolbar .ql-picker-item:hover),
+.editorContainer :global(.ql-snow .ql-toolbar .ql-picker-item.ql-selected) {
+  color: #007bff;
+}
+
+.editorContainer :global(.ql-snow .ql-stroke) {
+  stroke: #444;
+}
+
+.editorContainer :global(.ql-snow .ql-toolbar button:hover .ql-stroke),
+.editorContainer :global(.ql-snow .ql-toolbar button:focus .ql-stroke),
+.editorContainer :global(.ql-snow .ql-toolbar button.ql-active .ql-stroke),
+.editorContainer :global(.ql-snow .ql-toolbar .ql-picker-label:hover .ql-stroke),
+.editorContainer :global(.ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-stroke),
+.editorContainer :global(.ql-snow .ql-toolbar .ql-picker-item:hover .ql-stroke),
+.editorContainer :global(.ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-stroke) {
+  stroke: #007bff;
+}
+
+.editorContainer :global(.ql-snow .ql-fill) {
+  fill: #444;
+}
+
+.editorContainer :global(.ql-snow .ql-toolbar button:hover .ql-fill),
+.editorContainer :global(.ql-snow .ql-toolbar button:focus .ql-fill),
+.editorContainer :global(.ql-snow .ql-toolbar button.ql-active .ql-fill),
+.editorContainer :global(.ql-snow .ql-toolbar .ql-picker-label:hover .ql-fill),
+.editorContainer :global(.ql-snow .ql-toolbar .ql-picker-label.ql-active .ql-fill),
+.editorContainer :global(.ql-snow .ql-toolbar .ql-picker-item:hover .ql-fill),
+.editorContainer :global(.ql-snow .ql-toolbar .ql-picker-item.ql-selected .ql-fill) {
+  fill: #007bff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .emojiPicker {
+    right: -50px;
+    width: 280px;
+  }
+  
+  .editorContainer :global(.ql-toolbar) {
+    padding: 8px;
+  }
+
+  .editorContainer :global(.ql-formats) {
+    margin-right: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .emojiPicker {
+    right: -100px;
+    width: 260px;
+  }
+  
+  .editorActions {
+    bottom: 5px;
+    right: 5px;
+  }
+  
+  .emojiButton {
+    padding: 4px 8px;
+    font-size: 14px;
+  }
+}

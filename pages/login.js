@@ -89,8 +89,8 @@ export default function Login() {
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.card}>
+    <div className={`${styles.container} loginContainer`}>
+      <div className={`${styles.card} loginForm`}>
         <h1 className={styles.title}>Welcome Back</h1>
         
         {registered && (
@@ -115,7 +115,7 @@ export default function Login() {
               placeholder="Enter your email"
               value={formData.email}
               onChange={handleChange}
-              className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
+              className={`${styles.input} ${errors.email ? styles.inputError : ''} form-input`}
               autoComplete="username"
             />
             {errors.email && <span className={styles.errorMessage}>{errors.email}</span>}
@@ -135,7 +135,7 @@ export default function Login() {
               placeholder="Enter your password"
               value={formData.password}
               onChange={handleChange}
-              className={`${styles.input} ${errors.password ? styles.inputError : ''}`}
+              className={`${styles.input} ${errors.password ? styles.inputError : ''} form-input`}
               autoComplete="current-password"
             />
             {errors.password && <span className={styles.errorMessage}>{errors.password}</span>}

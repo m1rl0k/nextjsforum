@@ -1,3 +1,6 @@
+/* Import Quill CSS */
+@import 'react-quill/dist/quill.snow.css';
+
 /* Old school vBulletin/phpBB forum styles */
 :root {
   --primary-color: #2B4F81;
@@ -52,45 +55,7 @@ a:hover {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Header */
-.header {
-  background-color: var(--header-bg);
-  color: var(--header-text);
-  padding: 10px 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.header h1 {
-  font-size: 24px;
-  margin: 0;
-  font-weight: bold;
-}
-
-/* Navigation */
-.navbar {
-  background-color: var(--navbar-bg);
-  color: var(--navbar-text);
-  padding: 5px 15px;
-}
-
-.navbar ul {
-  list-style: none;
-  display: flex;
-  margin: 0;
-  padding: 0;
-}
-
-.navbar li {
-  margin-right: 20px;
-}
-
-.navbar a {
-  color: var(--navbar-text);
-  text-decoration: none;
-  font-weight: bold;
-}
+/* Legacy header and navbar styles removed - using Navigation component instead */
 
 /* Breadcrumbs */
 .breadcrumbs {

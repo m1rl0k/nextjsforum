@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Layout from '../../../components/Layout';
 import { useAuth } from '../../../context/AuthContext';
+import WysiwygEditor from '../../../components/WysiwygEditor';
 
 export default function ReplyToThread() {
   const router = useRouter();
@@ -62,15 +63,22 @@ export default function ReplyToThread() {
     }
   };
 
+  const stripHtml = (html) => {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+  };
+
   const validateForm = () => {
     const newErrors = {};
-    
-    if (!formData.content.trim()) {
+    const contentText = stripHtml(formData.content).trim();
+
+    if (!contentText) {
       newErrors.content = 'Reply content is required';
-    } else if (formData.content.length < 10) {
+    } else if (contentText.length < 10) {
       newErrors.content = 'Reply content must be at least 10 characters';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -170,14 +178,12 @@ export default function ReplyToThread() {
                   <label className="form-label" htmlFor="content">
                     Your Reply *
                   </label>
-                  <textarea
-                    id="content"
-                    name="content"
+                  <WysiwygEditor
                     value={formData.content}
-                    onChange={handleChange}
-                    className={`form-textarea ${errors.content ? 'error' : ''}`}
+                    onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
                     placeholder="Enter your reply..."
-                    rows="15"
+                    height={300}
+                    toolbar="standard"
                   />
                   {errors.content && (
                     <div style={{ color: '#c62828', fontSize: '12px', marginTop: '5px' }}>

@@ -3,11 +3,12 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Layout from '../../../components/Layout';
 import { useAuth } from '../../../context/AuthContext';
+import WysiwygEditor from '../../../components/WysiwygEditor';
 
 export default function NewThread() {
   const router = useRouter();
   const { id } = router.query;
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const [subject, setSubject] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
@@ -58,9 +59,15 @@ export default function NewThread() {
     }
   };
 
+  const stripHtml = (html) => {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+  };
+
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.title.trim()) {
       newErrors.title = 'Thread title is required';
     } else if (formData.title.length < 3) {
@@ -68,13 +75,14 @@ export default function NewThread() {
     } else if (formData.title.length > 255) {
       newErrors.title = 'Thread title must be less than 255 characters';
     }
-    
-    if (!formData.content.trim()) {
+
+    const contentText = stripHtml(formData.content).trim();
+    if (!contentText) {
       newErrors.content = 'Thread content is required';
-    } else if (formData.content.length < 10) {
+    } else if (contentText.length < 10) {
       newErrors.content = 'Thread content must be at least 10 characters';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -93,8 +101,8 @@ export default function NewThread() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
-          token,
           title: formData.title.trim(),
           content: formData.content.trim(),
           subjectId: parseInt(id)
@@ -178,14 +186,12 @@ export default function NewThread() {
                 <label className="form-label" htmlFor="content">
                   Message *
                 </label>
-                <textarea
-                  id="content"
-                  name="content"
+                <WysiwygEditor
                   value={formData.content}
-                  onChange={handleChange}
-                  className={`form-textarea ${errors.content ? 'error' : ''}`}
+                  onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
                   placeholder="Enter your message..."
-                  rows="15"
+                  height={350}
+                  toolbar="full"
                 />
                 {errors.content && (
                   <div style={{ color: '#c62828', fontSize: '12px', marginTop: '5px' }}>

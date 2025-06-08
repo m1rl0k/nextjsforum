@@ -1,0 +1,58 @@
+
+/* Custom Theme CSS - Generated automatically */
+:root {
+  --primary-color: #2B4F81;
+  --secondary-color: #4C76B2;
+  --background-color: #E0E8F5;
+  --text-color: #000000;
+  --link-color: #006699;
+  --header-background: #2B4F81;
+  --header-text: #FFFFFF;
+  --sidebar-background: #E0E8F5;
+  --border-color: #94A3C4;
+  --button-radius: 0px;
+  --card-radius: 0px;
+  --font-size: 13px;
+  --font-family: Verdana, Arial, sans-serif;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+}
+
+a {
+  color: var(--link-color);
+}
+
+.button, button {
+  border-radius: var(--button-radius);
+  background-color: var(--primary-color);
+}
+
+.card, .category-block, .thread-item {
+  border-radius: var(--card-radius);
+  border-color: var(--border-color);
+}
+
+.nav {
+  background-color: var(--header-background);
+  color: var(--header-text);
+}
+
+.sidebar {
+  background-color: var(--sidebar-background);
+}
+
+
+
+
+
+
+
+
+
+/* Custom CSS */
+
