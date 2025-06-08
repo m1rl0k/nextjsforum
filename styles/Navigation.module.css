@@ -108,9 +108,15 @@
 .navLinks {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  justify-content: space-between;
   min-width: 300px; /* Ensure consistent width for all auth states */
-  justify-content: flex-end;
+  gap: 2rem;
+}
+
+.mainLinks {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
 }
 
 .navLinks a {
@@ -119,6 +125,10 @@
   font-size: 0.95rem;
   font-weight: 500;
   transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 0.5rem;
 }
 
 .navLinks a:hover {
@@ -146,6 +156,11 @@
   gap: 0.5rem;
   cursor: pointer;
   color: var(--header-text, #FFFFFF);
+  height: 36px;
+  padding: 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
 }
 
 .avatar {
@@ -208,12 +223,26 @@
   gap: 1rem;
   min-width: 120px;
   justify-content: flex-end;
+  align-items: center;
+  height: 36px;
 }
 
 /* Auth buttons */
 .loginLink {
   color: var(--header-text, #FFFFFF) !important;
   white-space: nowrap;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 0.5rem;
+}
+
+.loginLink:hover {
+  color: var(--header-text, #FFFFFF) !important;
+  opacity: 0.8;
 }
 
 .registerButton {
@@ -223,6 +252,13 @@
   border-radius: var(--button-radius, 0px);
   transition: background-color 0.2s;
   white-space: nowrap;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  height: 36px;
+  border: none;
 }
 
 .registerButton:hover {

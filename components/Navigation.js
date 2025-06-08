@@ -2,32 +2,14 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../components/ThemeProvider';
 import styles from '../styles/Navigation.module.css';
 
 const Navigation = () => {
   const { user, logout, loading } = useAuth();
+  const { themeSettings } = useTheme();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
-  const [themeSettings, setThemeSettings] = useState({
-    siteName: 'Forum',
-    logoUrl: ''
-  });
-
-  useEffect(() => {
-    const loadThemeSettings = async () => {
-      try {
-        const res = await fetch('/api/theme-settings');
-        if (res.ok) {
-          const data = await res.json();
-          setThemeSettings(data);
-        }
-      } catch (error) {
-        console.error('Failed to load theme settings:', error);
-      }
-    };
-
-    loadThemeSettings();
-  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -87,23 +69,21 @@ const Navigation = () => {
         </form>
 
         <div className={styles.navLinks}>
-          <Link href="/" className={router.pathname === '/' ? styles.active : ''}>
-            Home
-          </Link>
-          <Link href="/members" className={router.pathname === '/members' ? styles.active : ''}>
-            Members
-          </Link>
-          <Link href="/search" className={router.pathname === '/search' ? styles.active : ''}>
-            Search
-          </Link>
-          
+          <div className={styles.mainLinks}>
+            <Link href="/" className={router.pathname === '/' ? styles.active : ''}>
+              Home
+            </Link>
+            <Link href="/members" className={router.pathname === '/members' ? styles.active : ''}>
+              Members
+            </Link>
+            <Link href="/search" className={router.pathname === '/search' ? styles.active : ''}>
+              Search
+            </Link>
+          </div>
+
           {loading ? (
             <div className={styles.authPlaceholder}>
-              <div className={styles.loadingDots}>
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
+              {/* Invisible placeholder during loading */}
             </div>
           ) : (
             user ? (

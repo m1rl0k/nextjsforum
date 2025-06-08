@@ -1,14 +1,19 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
 
 export const AuthContext = createContext({});
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
+    // Only check auth once per session
+    if (authChecked) {
+      setLoading(false);
+      return;
+    }
+
     // Check if user is logged in
     const checkAuth = async () => {
       const startTime = Date.now();
@@ -36,9 +41,11 @@ export function AuthProvider({ children }) {
         }
         setUser(null);
       } finally {
+        setAuthChecked(true);
+
         // Ensure minimum loading time to prevent flash
         const elapsed = Date.now() - startTime;
-        const minLoadTime = 300; // 300ms minimum
+        const minLoadTime = 50; // 50ms minimum - very fast for navigation
 
         if (elapsed < minLoadTime) {
           setTimeout(() => setLoading(false), minLoadTime - elapsed);
@@ -49,7 +56,7 @@ export function AuthProvider({ children }) {
     };
 
     checkAuth();
-  }, []);
+  }, [authChecked]);
 
   const login = async (email, password) => {
     try {
@@ -69,6 +76,7 @@ export function AuthProvider({ children }) {
       }
 
       setUser(data.user);
+      setAuthChecked(true);
       return { success: true };
     } catch (error) {
       return { success: false, message: 'An error occurred during login' };
@@ -100,12 +108,13 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', { 
+      await fetch('/api/auth/logout', {
         method: 'POST',
         credentials: 'include'
       });
       setUser(null);
-      router.push('/login');
+      setAuthChecked(true);
+      // Let the component handle the redirect
     } catch (error) {
       console.error('Logout failed:', error);
     }

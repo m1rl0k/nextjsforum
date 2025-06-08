@@ -1,5 +1,14 @@
-import { useEffect, useState } from 'react';
-import Head from 'next/head';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+const ThemeContext = createContext();
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+};
 
 const ThemeProvider = ({ children }) => {
   const [themeSettings, setThemeSettings] = useState({
@@ -41,12 +50,14 @@ const ThemeProvider = ({ children }) => {
   });
 
   useEffect(() => {
+    let mounted = true;
+
     const loadThemeSettings = async () => {
       try {
         const res = await fetch('/api/theme-settings');
-        if (res.ok) {
+        if (res.ok && mounted) {
           const data = await res.json();
-          setThemeSettings(data);
+          setThemeSettings(prev => ({ ...prev, ...data }));
         }
       } catch (error) {
         console.error('Failed to load theme settings:', error);
@@ -54,6 +65,10 @@ const ThemeProvider = ({ children }) => {
     };
 
     loadThemeSettings();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const generateCSS = (settings) => {
@@ -289,17 +304,9 @@ const ThemeProvider = ({ children }) => {
   };
 
   return (
-    <>
-      <Head>
-        <style dangerouslySetInnerHTML={{ __html: generateCSS(themeSettings) }} />
-        {themeSettings.logoUrl && (
-          <link rel="icon" href={themeSettings.faviconUrl || '/favicon.ico'} />
-        )}
-        <title>{themeSettings.siteName || 'NextJS Forum'}</title>
-        <meta name="description" content={themeSettings.siteDescription || 'A modern forum built with Next.js'} />
-      </Head>
+    <ThemeContext.Provider value={{ themeSettings, setThemeSettings }}>
       {children}
-    </>
+    </ThemeContext.Provider>
   );
 };
 
