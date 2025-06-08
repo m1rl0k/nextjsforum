@@ -24,7 +24,7 @@ const WysiwygEditor = ({
 
   const handleEmojiClick = (emojiObject) => {
     if (quillRef.current) {
-      const quill = quillRef.current.getEditor();
+      const quill = quillRef.current.getQuill();
       const range = quill.getSelection();
       const position = range ? range.index : quill.getLength();
       quill.insertText(position, emojiObject.emoji);
