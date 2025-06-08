@@ -26,6 +26,22 @@ async function main() {
     },
   });
 
+  // Create moderator user
+  const moderator = await prisma.user.upsert({
+    where: { email: 'moderator@example.com' },
+    update: {},
+    create: {
+      email: 'moderator@example.com',
+      username: 'moderator',
+      password: await hashPassword('mod123'),
+      role: 'MODERATOR',
+      bio: 'I help keep the forum safe and friendly',
+      avatar: 'https://ui-avatars.com/api/?name=Moderator+User&background=random',
+      location: 'Moderation Station',
+      signature: 'Moderator - Keeping things civil!',
+    },
+  });
+
   // Create test user
   const testUser = await prisma.user.upsert({
     where: { email: 'user@example.com' },
@@ -103,7 +119,10 @@ async function main() {
           {
             content: 'This is the first post in our forum. Welcome!',
             userId: admin.id,
-            postNumber: 1,
+          },
+          {
+            content: 'Thanks for setting up this forum! Looking forward to great discussions.',
+            userId: moderator.id,
           },
         ],
       },

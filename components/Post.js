@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import ReportButton from './ReportButton';
 
 export default function Post({ post, isFirstPost = false }) {
   const postDate = post.createdAt ? new Date(post.createdAt) : new Date();
@@ -62,6 +63,7 @@ export default function Post({ post, isFirstPost = false }) {
         <Link href={`#post-${post.id}`} className="button">#{post.id}</Link>
         <Link href={`/threads/${post.threadId}/reply?quote=${post.id}`} className="button">Quote</Link>
         <Link href={`/threads/${post.threadId}/reply`} className="button">Reply</Link>
+        <ReportButton type="post" targetId={post.id} targetTitle={`Post #${post.id}`} />
       </div>
     </div>
   );

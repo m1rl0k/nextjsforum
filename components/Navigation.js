@@ -96,6 +96,9 @@ const Navigation = () => {
                 </Link>
                 <div className={styles.dropdown}>
                   <Link href="/account/settings">Settings</Link>
+                  {(user.role === 'ADMIN' || user.role === 'MODERATOR') && (
+                    <Link href="/admin/moderation">Moderation</Link>
+                  )}
                   {user.role === 'ADMIN' && (
                     <Link href="/admin/dashboard">Admin Panel</Link>
                   )}

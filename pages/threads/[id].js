@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Layout from '../../components/Layout';
 import Post from '../../components/Post';
+import ReportButton from '../../components/ReportButton';
 import { useAuth } from '../../context/AuthContext';
 
 export default function ThreadPage() {
@@ -164,6 +165,7 @@ export default function ThreadPage() {
             <li><a href={`/threads/${id}/print`}>Show Printable Version</a></li>
             <li><a href={`/threads/${id}/email`}>Email this Page</a></li>
             <li><a href={`/threads/${id}/subscribe`}>Subscribe to this Thread</a></li>
+            <li><ReportButton type="thread" targetId={thread.id} targetTitle={thread.title} /></li>
           </ul>
           
           <h3>Search this Thread</h3>

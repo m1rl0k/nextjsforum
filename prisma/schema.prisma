@@ -67,6 +67,7 @@ model User {
   reactions       PostReaction[]
   reports         Report[]
   reportedBy      Report[] @relation("ReportedBy")
+  moderationLogs  ModerationLog[] @relation("ModeratorLogs")
 }
 
 enum Role {
@@ -443,6 +444,20 @@ model Report {
   post        Post?    @relation(fields: [postId], references: [id])
   user        User?    @relation(fields: [userId], references: [id])
   reportedBy  User     @relation("ReportedBy", fields: [reportedById], references: [id])
+}
+
+// Moderation Logs
+model ModerationLog {
+  id          Int      @id @default(autoincrement())
+  moderatorId Int
+  action      String   // BAN_USER, DELETE_POST, RESOLVE_REPORT, etc.
+  targetType  String   // USER, POST, THREAD, REPORT
+  targetId    Int
+  reason      String
+  details     String?  // JSON string for additional data
+  createdAt   DateTime @default(now())
+
+  moderator User @relation("ModeratorLogs", fields: [moderatorId], references: [id], onDelete: Cascade)
 }
 
 // Enums
