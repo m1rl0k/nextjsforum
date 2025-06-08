@@ -192,20 +192,64 @@ nextjs-forum/
 └── README.md           # This documentation
 ```
 
-## Deployment
+## 🚀 Deployment
 
-### Docker (Recommended)
+### Production Deployment
 
+#### Docker (Recommended)
 ```bash
+# Build and deploy with Docker
 docker-compose up -d --build
+
+# Or deploy individual services
+docker-compose up -d postgres
+docker-compose up -d app
 ```
 
-### Vercel
+#### Manual Deployment
+```bash
+# Build the application
+npm run build
 
-1. Push your code to a Git repository
-2. Import the repository on Vercel
-3. Set up environment variables
-4. Deploy!
+# Set production environment variables
+export NODE_ENV=production
+export DATABASE_URL="your-production-db-url"
+export JWT_SECRET="your-production-secret"
+export USE_DATABASE_SETTINGS=true
+
+# Start production server
+npm start
+```
+
+#### Platform-Specific Deployments
+
+**Vercel:**
+1. Connect your Git repository
+2. Set environment variables in dashboard
+3. Deploy automatically on push
+
+**Railway/Render:**
+1. Connect repository
+2. Configure environment variables
+3. Set build command: `npm run build`
+4. Set start command: `npm start`
+
+**VPS/Dedicated Server:**
+1. Use PM2 for process management
+2. Configure Nginx reverse proxy
+3. Set up SSL certificates
+4. Configure database backups
+
+### Environment Variables for Production
+
+```env
+NODE_ENV=production
+DATABASE_URL=postgresql://user:pass@host:5432/forum
+JWT_SECRET=your-super-secure-secret-key
+USE_DATABASE_SETTINGS=true
+FORUM_INSTALLED=true
+NEXTAUTH_URL=https://your-domain.com
+```
 
 ## Contributing
 
