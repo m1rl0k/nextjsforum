@@ -88,7 +88,7 @@ export default async function handler(req, res) {
           status: action === 'resolve' ? 'RESOLVED' : 'DISMISSED',
           resolvedAt: new Date(),
           resolution: resolution || null,
-          resolvedById: user.id
+          resolvedBy: user.id
         },
         include: {
           reportedBy: { select: { username: true } },

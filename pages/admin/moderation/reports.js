@@ -12,6 +12,9 @@ export default function ReportsManagement() {
   const [error, setError] = useState('');
   const [filter, setFilter] = useState('PENDING');
   const [selectedReports, setSelectedReports] = useState([]);
+  const [showResolutionModal, setShowResolutionModal] = useState(false);
+  const [currentReport, setCurrentReport] = useState(null);
+  const [resolutionText, setResolutionText] = useState('');
 
   useEffect(() => {
     if (!loading && (!isAuthenticated || (user?.role !== 'ADMIN' && user?.role !== 'MODERATOR'))) {
@@ -53,12 +56,27 @@ export default function ReportsManagement() {
 
       if (res.ok) {
         await fetchReports(); // Refresh the list
+        setShowResolutionModal(false);
+        setCurrentReport(null);
+        setResolutionText('');
       } else {
         throw new Error('Failed to update report');
       }
     } catch (err) {
       console.error('Error updating report:', err);
       setError('Failed to update report');
+    }
+  };
+
+  const openResolutionModal = (report, action) => {
+    setCurrentReport({ ...report, action });
+    setShowResolutionModal(true);
+    setResolutionText('');
+  };
+
+  const handleResolutionSubmit = () => {
+    if (currentReport) {
+      handleReportAction(currentReport.id, currentReport.action, resolutionText);
     }
   };
 
@@ -225,30 +243,20 @@ export default function ReportsManagement() {
                 {report.status === 'PENDING' && (
                   <div className="report-actions">
                     <button
-                      onClick={() => {
-                        const resolution = prompt('Resolution notes (optional):');
-                        if (resolution !== null) {
-                          handleReportAction(report.id, 'resolve', resolution);
-                        }
-                      }}
+                      onClick={() => openResolutionModal(report, 'resolve')}
                       className="button success"
                     >
                       ✅ Resolve
                     </button>
-                    
+
                     <button
-                      onClick={() => {
-                        const resolution = prompt('Dismissal reason (optional):');
-                        if (resolution !== null) {
-                          handleReportAction(report.id, 'dismiss', resolution);
-                        }
-                      }}
+                      onClick={() => openResolutionModal(report, 'dismiss')}
                       className="button danger"
                     >
                       ❌ Dismiss
                     </button>
 
-                    <Link 
+                    <Link
                       href={`/admin/moderation/reports/${report.id}`}
                       className="button"
                     >
@@ -266,6 +274,67 @@ export default function ReportsManagement() {
             </div>
           )}
         </div>
+
+        {/* Resolution Modal */}
+        {showResolutionModal && (
+          <div className="modal-overlay" onClick={() => setShowResolutionModal(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>
+                  {currentReport?.action === 'resolve' ? '✅ Resolve Report' : '❌ Dismiss Report'}
+                </h3>
+                <button
+                  onClick={() => setShowResolutionModal(false)}
+                  className="close-button"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="modal-body">
+                <div className="report-summary">
+                  <strong>Report:</strong> {currentReport?.reason}
+                  <br />
+                  <strong>Reported by:</strong> {currentReport?.reportedBy?.username}
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="resolution">
+                    {currentReport?.action === 'resolve' ? 'Resolution notes:' : 'Dismissal reason:'}
+                  </label>
+                  <textarea
+                    id="resolution"
+                    value={resolutionText}
+                    onChange={(e) => setResolutionText(e.target.value)}
+                    rows="4"
+                    placeholder={
+                      currentReport?.action === 'resolve'
+                        ? 'Describe how this report was resolved...'
+                        : 'Explain why this report is being dismissed...'
+                    }
+                    className="form-textarea"
+                  />
+                </div>
+
+                <div className="modal-actions">
+                  <button
+                    onClick={handleResolutionSubmit}
+                    className={`button ${currentReport?.action === 'resolve' ? 'success' : 'danger'}`}
+                  >
+                    {currentReport?.action === 'resolve' ? 'Resolve Report' : 'Dismiss Report'}
+                  </button>
+
+                  <button
+                    onClick={() => setShowResolutionModal(false)}
+                    className="button"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <style dangerouslySetInnerHTML={{
@@ -452,6 +521,93 @@ export default function ReportsManagement() {
             padding: 15px;
             border-radius: 4px;
             margin-bottom: 20px;
+          }
+
+          .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+          }
+
+          .modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+          }
+
+          .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+          }
+
+          .modal-header h3 {
+            margin: 0;
+            color: #333;
+          }
+
+          .close-button {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+          }
+
+          .modal-body {
+            padding: 20px;
+          }
+
+          .report-summary {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+          }
+
+          .form-group {
+            margin-bottom: 20px;
+          }
+
+          .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+          }
+
+          .form-textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            resize: vertical;
+          }
+
+          .form-textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+          }
+
+          .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
           }
 
           @media (max-width: 768px) {

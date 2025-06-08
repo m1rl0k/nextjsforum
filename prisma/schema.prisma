@@ -67,6 +67,7 @@ model User {
   reactions       PostReaction[]
   reports         Report[]
   reportedBy      Report[] @relation("ReportedBy")
+  resolvedReports Report[] @relation("ResolvedBy")
   moderationLogs  ModerationLog[] @relation("ModeratorLogs")
 }
 
@@ -444,6 +445,7 @@ model Report {
   post        Post?    @relation(fields: [postId], references: [id])
   user        User?    @relation(fields: [userId], references: [id])
   reportedBy  User     @relation("ReportedBy", fields: [reportedById], references: [id])
+  resolvedByUser User? @relation("ResolvedBy", fields: [resolvedBy], references: [id])
 }
 
 // Moderation Logs

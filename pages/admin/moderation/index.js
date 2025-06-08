@@ -12,6 +12,7 @@ export default function ModerationDashboard() {
   const [pendingContent, setPendingContent] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [actionLoading, setActionLoading] = useState({});
 
   useEffect(() => {
     if (!loading && (!isAuthenticated || (user?.role !== 'ADMIN' && user?.role !== 'MODERATOR'))) {
@@ -54,6 +55,37 @@ export default function ModerationDashboard() {
       setError('Failed to load moderation data');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleContentAction = async (action, type, targetId) => {
+    const actionKey = `${type}-${targetId}`;
+    setActionLoading(prev => ({ ...prev, [actionKey]: true }));
+
+    try {
+      const res = await fetch('/api/admin/moderation/content-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action,
+          type,
+          targetId,
+          reason: `${action} by moderator`
+        })
+      });
+
+      if (res.ok) {
+        // Refresh the data
+        await fetchModerationData();
+      } else {
+        const data = await res.json();
+        setError(data.message || `Failed to ${action} ${type}`);
+      }
+    } catch (err) {
+      console.error(`Error ${action}ing ${type}:`, err);
+      setError(`Failed to ${action} ${type}`);
+    } finally {
+      setActionLoading(prev => ({ ...prev, [actionKey]: false }));
     }
   };
 
@@ -215,8 +247,20 @@ export default function ModerationDashboard() {
                     </div>
                   </div>
                   <div className="content-actions">
-                    <button className="button small success">Approve</button>
-                    <button className="button small danger">Reject</button>
+                    <button
+                      onClick={() => handleContentAction('approve', item.type, item.id)}
+                      disabled={actionLoading[`${item.type}-${item.id}`]}
+                      className="button small success"
+                    >
+                      {actionLoading[`${item.type}-${item.id}`] ? 'Processing...' : 'Approve'}
+                    </button>
+                    <button
+                      onClick={() => handleContentAction('reject', item.type, item.id)}
+                      disabled={actionLoading[`${item.type}-${item.id}`]}
+                      className="button small danger"
+                    >
+                      {actionLoading[`${item.type}-${item.id}`] ? 'Processing...' : 'Reject'}
+                    </button>
                   </div>
                 </div>
               ))
