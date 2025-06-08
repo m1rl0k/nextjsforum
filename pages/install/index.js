@@ -439,4 +439,140 @@ const AdminStep = ({ data, errors, onChange }) => (
   </div>
 );
 
+const SiteConfigStep = ({ data, errors, onChange }) => (
+  <div className={styles.stepForm}>
+    <h2>Site Configuration</h2>
+    <p>Configure your forum's basic settings and branding.</p>
+
+    <div className={styles.formGroup}>
+      <label>Site Name</label>
+      <input
+        type="text"
+        value={data.siteName}
+        onChange={(e) => onChange('siteName', e.target.value)}
+        className={`${styles.input} ${errors.siteName ? styles.error : ''}`}
+        placeholder="NextJS Forum"
+      />
+      {errors.siteName && <span className={styles.errorText}>{errors.siteName}</span>}
+    </div>
+
+    <div className={styles.formGroup}>
+      <label>Site Description</label>
+      <textarea
+        value={data.siteDescription}
+        onChange={(e) => onChange('siteDescription', e.target.value)}
+        className={styles.textarea}
+        placeholder="A modern forum built with Next.js"
+        rows="3"
+      />
+    </div>
+
+    <div className={styles.formGroup}>
+      <label>Contact Email</label>
+      <input
+        type="email"
+        value={data.adminEmailContact}
+        onChange={(e) => onChange('adminEmailContact', e.target.value)}
+        className={`${styles.input} ${errors.adminEmailContact ? styles.error : ''}`}
+        placeholder="contact@example.com"
+      />
+      {errors.adminEmailContact && <span className={styles.errorText}>{errors.adminEmailContact}</span>}
+    </div>
+
+    <div className={styles.formGroup}>
+      <label>Timezone</label>
+      <select
+        value={data.timezone}
+        onChange={(e) => onChange('timezone', e.target.value)}
+        className={styles.select}
+      >
+        <option value="UTC">UTC</option>
+        <option value="America/New_York">Eastern Time</option>
+        <option value="America/Chicago">Central Time</option>
+        <option value="America/Denver">Mountain Time</option>
+        <option value="America/Los_Angeles">Pacific Time</option>
+        <option value="Europe/London">London</option>
+        <option value="Europe/Paris">Paris</option>
+        <option value="Asia/Tokyo">Tokyo</option>
+      </select>
+    </div>
+  </div>
+);
+
+const ForumStructureStep = ({ data, errors, onChange }) => (
+  <div className={styles.stepForm}>
+    <h2>Forum Structure</h2>
+    <p>Set up your initial forum categories and structure.</p>
+
+    <div className={styles.formGroup}>
+      <label className={styles.checkboxLabel}>
+        <input
+          type="checkbox"
+          checked={data.createSampleData}
+          onChange={(e) => onChange('createSampleData', e.target.checked)}
+        />
+        Create sample categories and forums
+      </label>
+      <small>This will create default categories to get you started quickly.</small>
+    </div>
+
+    {data.createSampleData && (
+      <div className={styles.categoryList}>
+        <h3>Default Categories</h3>
+        {data.defaultCategories.map((category, index) => (
+          <div key={index} className={styles.categoryItem}>
+            <strong>{category.name}</strong>
+            <p>{category.description}</p>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+);
+
+const CompleteStep = ({ data }) => (
+  <div className={styles.stepForm}>
+    <h2>Ready to Complete Installation</h2>
+    <p>Review your settings and complete the installation.</p>
+
+    <div className={styles.summary}>
+      <h3>Installation Summary</h3>
+
+      <div className={styles.summarySection}>
+        <h4>Database</h4>
+        <p>Type: {data.dbType.toUpperCase()}</p>
+        {data.dbType !== 'sqlite' && (
+          <>
+            <p>Host: {data.dbHost}:{data.dbPort}</p>
+            <p>Database: {data.dbName}</p>
+          </>
+        )}
+      </div>
+
+      <div className={styles.summarySection}>
+        <h4>Administrator</h4>
+        <p>Username: {data.adminUsername}</p>
+        <p>Email: {data.adminEmail}</p>
+      </div>
+
+      <div className={styles.summarySection}>
+        <h4>Site Configuration</h4>
+        <p>Name: {data.siteName}</p>
+        <p>Description: {data.siteDescription}</p>
+        <p>Contact: {data.adminEmailContact}</p>
+        <p>Timezone: {data.timezone}</p>
+      </div>
+
+      <div className={styles.summarySection}>
+        <h4>Forum Structure</h4>
+        <p>Sample Data: {data.createSampleData ? 'Yes' : 'No'}</p>
+      </div>
+    </div>
+
+    <div className={styles.warning}>
+      <p><strong>Important:</strong> Once you complete the installation, these settings will be saved and the installation wizard will be disabled.</p>
+    </div>
+  </div>
+);
+
 export default InstallWizard;

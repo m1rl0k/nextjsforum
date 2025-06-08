@@ -1,7 +1,11 @@
 import { PrismaClient } from '@prisma/client';
-import { hashPassword } from '../lib/auth';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
+
+async function hashPassword(password: string): Promise<string> {
+  return await bcrypt.hash(password, 12);
+}
 
 async function main() {
   console.log('Seeding database...');
@@ -17,6 +21,8 @@ async function main() {
       role: 'ADMIN',
       bio: 'I am the administrator of this forum',
       avatar: 'https://ui-avatars.com/api/?name=Admin+User&background=random',
+      location: 'Forum HQ',
+      signature: 'Administrator - Always here to help!',
     },
   });
 
@@ -31,6 +37,8 @@ async function main() {
       role: 'USER',
       bio: 'Just a regular forum user',
       avatar: 'https://ui-avatars.com/api/?name=Test+User&background=random',
+      location: 'Somewhere',
+      signature: 'Happy to be here!',
     },
   });
 
@@ -95,6 +103,7 @@ async function main() {
           {
             content: 'This is the first post in our forum. Welcome!',
             userId: admin.id,
+            postNumber: 1,
           },
         ],
       },

@@ -1,5 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// NextJS Forum - Comprehensive Schema
+// Commercial-grade forum software schema
 
 generator client {
   provider = "prisma-client-js"
@@ -10,6 +10,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ============================================================================
+// CORE USER SYSTEM
+// ============================================================================
+
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
@@ -17,22 +21,52 @@ model User {
   username  String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Profile & Display
   bio       String?
   avatar    String?
   location  String?
-  role      Role     @default(USER)
   signature String?  // Added for vBulletin/phpBB style
-  postCount Int      @default(0)  // Added to track post count
-  joinDate  DateTime @default(now())
+  website   String?
+  birthday  DateTime?
+  displayName String?
+
+  // Account Status & Security
+  role      Role     @default(USER)
   isActive  Boolean  @default(true)  // For banning users
+  isBanned  Boolean  @default(false)
+  banReason String?
+  banExpiresAt DateTime?
+  emailVerified Boolean @default(false)
+
+  // Statistics & Activity
+  postCount Int      @default(0)  // Added to track post count
+  threadCount Int    @default(0)
+  reputationPoints Int @default(0)
+  warningPoints Int @default(0)
+  joinDate  DateTime @default(now())
   lastLogin DateTime?  // Track last login
+  lastActivity DateTime?
   ipAddress String?  // Track IP for admin purposes
 
+  // Preferences
+  timezone  String   @default("UTC")
+  language  String   @default("en")
+  emailNotifications Boolean @default(true)
+  showOnline Boolean @default(true)
+
+  // Relations
   threads         Thread[]
   posts           Post[]
   sentMessages    Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
   notifications   Notification[]
+  userGroups      UserGroupMember[]
+  moderatedSubjects SubjectModerator[]
+  subscriptions   ThreadSubscription[]
+  reactions       PostReaction[]
+  reports         Report[]
+  reportedBy      Report[] @relation("ReportedBy")
 }
 
 enum Role {
@@ -58,13 +92,36 @@ model Subject {
   icon        String?  // For subject icon
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  categoryId  Int
-  category    Category @relation(fields: [categoryId], references: [id])
-  threads     Thread[]
+
+  // Subject Properties
+  order       Int      @default(0)  // For ordering within category
+  isActive    Boolean  @default(true)
+  requiresApproval Boolean @default(false) // Posts need approval
+
+  // Permissions
+  canPost     Boolean  @default(true)
+  canReply    Boolean  @default(true)
+  guestPosting Boolean @default(false)
+
+  // Statistics (cached for performance)
   threadCount Int      @default(0)  // Counter for threads
   postCount   Int      @default(0)  // Counter for posts
   lastPost    DateTime?  // Track last post time
   lastPostUserId Int?  // Track last poster
+  lastThreadId Int?    // Track last thread
+
+  // SEO
+  slug        String?  // URL-friendly slug
+  metaDescription String?
+
+  // Relations
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id])
+  threads     Thread[]
+  moderators  SubjectModerator[]
+
+  @@index([categoryId, order])
+  @@index([slug])
 }
 
 model Thread {
@@ -73,16 +130,46 @@ model Thread {
   content     String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  // Thread Status & Properties
+  locked      Boolean  @default(false)
+  sticky      Boolean  @default(false)  // For pinned threads
+  approved    Boolean  @default(true)   // For moderation
+  deleted     Boolean  @default(false)  // Soft delete
+  deletedAt   DateTime?
+  deletedBy   Int?
+
+  // Statistics
+  viewCount   Int      @default(0)  // Track view count
+  postCount   Int      @default(0)  // Cache post count
+  replyCount  Int      @default(0)  // Replies only (excluding OP)
+
+  // Activity Tracking
+  lastPostAt  DateTime @default(now())  // Track last post time
+  lastPostUserId Int?  // Track last poster
+
+  // Thread Type & Features
+  threadType  ThreadType @default(NORMAL)
+  allowReplies Boolean  @default(true)
+  requireApproval Boolean @default(false)
+
+  // SEO & Metadata
+  slug        String?   // URL-friendly slug
+  metaDescription String?
+  tags        String?   // Comma-separated tags
+
+  // Relations
   userId      Int
   user        User     @relation(fields: [userId], references: [id])
   subjectId   Int
   subject     Subject  @relation(fields: [subjectId], references: [id])
   posts       Post[]
-  locked      Boolean  @default(false)
-  sticky      Boolean  @default(false)  // For pinned threads
-  viewCount   Int      @default(0)  // Track view count
-  lastPostAt  DateTime @default(now())  // Track last post time
-  lastPostUserId Int?  // Track last poster
+  subscriptions ThreadSubscription[]
+  reports     Report[]
+
+  @@index([subjectId, sticky, lastPostAt])
+  @@index([userId])
+  @@index([slug])
 }
 
 model Post {
@@ -90,6 +177,35 @@ model Post {
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Post Status & Moderation
+  approved  Boolean  @default(true)
+  deleted   Boolean  @default(false)
+  deletedAt DateTime?
+  deletedBy Int?
+  editedAt  DateTime?
+  editedBy  Int?
+  editReason String?
+
+  // Post Properties
+  isFirstPost Boolean @default(false) // Original thread post
+  postNumber  Int?    // Position in thread (1, 2, 3...)
+
+  // Content & Formatting
+  contentRaw  String? // Raw content before processing
+  contentHtml String? // Processed HTML content
+  attachments String? // JSON array of attachment IDs
+
+  // User Info (cached for performance)
+  userPostCount Int?    // User's post count at time of posting
+  userJoinDate  DateTime? // User's join date (cached)
+  userLocation  String?   // User's location (cached)
+
+  // IP & Security
+  ipAddress String?
+  userAgent String?
+
+  // Relations
   userId    Int
   threadId  Int
   user      User     @relation(fields: [userId], references: [id])
@@ -97,6 +213,12 @@ model Post {
   replyToId Int?
   replyTo   Post?    @relation("ReplyTo", fields: [replyToId], references: [id])
   replies   Post[]   @relation("ReplyTo")
+  reactions PostReaction[]
+  reports   Report[]
+
+  @@index([threadId, postNumber])
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model Message {
@@ -210,4 +332,139 @@ model InstallationStatus {
   version          String    @default("1.0.0")
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+}
+
+// ============================================================================
+// COMMERCIAL FORUM FEATURES
+// ============================================================================
+
+// User Groups & Permissions
+model UserGroup {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  color       String?  // Display color for group
+  isDefault   Boolean  @default(false)
+  priority    Int      @default(0) // Higher priority = more important
+
+  // Permissions
+  canPost     Boolean  @default(true)
+  canReply    Boolean  @default(true)
+  canEdit     Boolean  @default(false) // Edit own posts
+  canDelete   Boolean  @default(false) // Delete own posts
+  canModerate Boolean  @default(false)
+  canAdmin    Boolean  @default(false)
+  canViewProfiles Boolean @default(true)
+  canSendMessages Boolean @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members     UserGroupMember[]
+}
+
+model UserGroupMember {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  groupId   Int
+  joinedAt  DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  group     UserGroup @relation(fields: [groupId], references: [id])
+
+  @@unique([userId, groupId])
+}
+
+// Subject/Forum Moderation
+model SubjectModerator {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  subjectId Int
+  assignedAt DateTime @default(now())
+  assignedBy Int
+
+  user      User     @relation(fields: [userId], references: [id])
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+
+  @@unique([userId, subjectId])
+}
+
+// Thread Subscriptions
+model ThreadSubscription {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  threadId  Int
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  thread    Thread   @relation(fields: [threadId], references: [id])
+
+  @@unique([userId, threadId])
+}
+
+// Post Reactions (Like, Dislike, etc.)
+model PostReaction {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  postId    Int
+  type      ReactionType
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
+
+  @@unique([userId, postId])
+}
+
+// Reporting System
+model Report {
+  id          Int      @id @default(autoincrement())
+  reason      String
+  description String?
+  status      ReportStatus @default(PENDING)
+
+  // What's being reported
+  threadId    Int?
+  postId      Int?
+  userId      Int?     // Reported user
+
+  // Who reported it
+  reportedById Int
+
+  // Resolution
+  resolvedAt  DateTime?
+  resolvedBy  Int?
+  resolution  String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  thread      Thread?  @relation(fields: [threadId], references: [id])
+  post        Post?    @relation(fields: [postId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
+  reportedBy  User     @relation("ReportedBy", fields: [reportedById], references: [id])
+}
+
+// Enums
+enum ThreadType {
+  NORMAL
+  ANNOUNCEMENT
+  STICKY
+  POLL
+}
+
+enum ReactionType {
+  LIKE
+  DISLIKE
+  LOVE
+  LAUGH
+  ANGRY
+  SAD
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+  DISMISSED
 }

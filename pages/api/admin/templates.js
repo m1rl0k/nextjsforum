@@ -1,7 +1,6 @@
 import prisma from '../../../lib/prisma';
 import { verifyToken } from '../../../lib/auth';
-import fs from 'fs';
-import path from 'path';
+import settingsService from '../../../lib/settingsService';
 
 export default async function handler(req, res) {
   try {
@@ -22,51 +21,8 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'GET') {
-      // Get current template settings
-      const templatesDir = path.join(process.cwd(), 'templates');
-      const stylesDir = path.join(process.cwd(), 'styles');
-      
-      // Default template settings
-      const defaultSettings = {
-        theme: 'default',
-        primaryColor: '#007bff',
-        secondaryColor: '#6c757d',
-        backgroundColor: '#f8f9fa',
-        textColor: '#212529',
-        linkColor: '#007bff',
-        headerBackground: '#343a40',
-        headerText: '#ffffff',
-        sidebarBackground: '#f8f9fa',
-        borderColor: '#dee2e6',
-        buttonRadius: '4px',
-        cardRadius: '8px',
-        fontSize: '14px',
-        fontFamily: 'system-ui, -apple-system, sans-serif',
-        customCSS: '',
-        logoUrl: '',
-        faviconUrl: '/favicon.ico',
-        siteName: 'NextJS Forum',
-        siteDescription: 'A modern forum built with Next.js',
-        footerText: 'Powered by NextJS Forum',
-        enableDarkMode: false,
-        compactMode: false,
-        showAvatars: true,
-        showSignatures: true,
-        threadsPerPage: 20,
-        postsPerPage: 10
-      };
-
-      // Try to read existing settings
-      let settings = defaultSettings;
-      try {
-        const settingsPath = path.join(process.cwd(), 'config', 'template-settings.json');
-        if (fs.existsSync(settingsPath)) {
-          const fileContent = fs.readFileSync(settingsPath, 'utf8');
-          settings = { ...defaultSettings, ...JSON.parse(fileContent) };
-        }
-      } catch (error) {
-        console.log('Using default template settings');
-      }
+      // Get current template settings using hybrid service
+      const settings = await settingsService.getThemeSettings();
 
       res.status(200).json({
         status: 'success',
@@ -81,20 +37,8 @@ export default async function handler(req, res) {
         return res.status(400).json({ message: 'Invalid settings data' });
       }
 
-      // Ensure config directory exists
-      const configDir = path.join(process.cwd(), 'config');
-      if (!fs.existsSync(configDir)) {
-        fs.mkdirSync(configDir, { recursive: true });
-      }
-
-      // Save settings to file
-      const settingsPath = path.join(configDir, 'template-settings.json');
-      fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
-
-      // Generate custom CSS file
-      const customCSS = generateCustomCSS(settings);
-      const cssPath = path.join(process.cwd(), 'styles', 'custom-theme.css');
-      fs.writeFileSync(cssPath, customCSS);
+      // Save settings using hybrid service
+      await settingsService.saveThemeSettings(settings);
 
       res.status(200).json({
         status: 'success',

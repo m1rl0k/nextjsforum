@@ -52,8 +52,15 @@ function Subject({ subject }) {
       <div className="subject-lastpost">
         {lastPost ? (
           <>
-            <div>Last post by User</div>
+            <div>Last post by {subject.lastPostUser?.username || 'User'}</div>
             <div>{lastPost.toLocaleDateString()}</div>
+            {subject.lastThread && (
+              <div>
+                <Link href={`/threads/${subject.lastThread.id}`}>
+                  {subject.lastThread.title}
+                </Link>
+              </div>
+            )}
           </>
         ) : (
           <div>No posts</div>

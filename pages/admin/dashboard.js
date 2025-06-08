@@ -36,34 +36,31 @@ const AdminDashboard = () => {
           'Content-Type': 'application/json'
         };
 
-        const [statsRes, usersRes, postsRes] = await Promise.all([
-          fetch('/api/admin/stats', {
-            headers,
-            credentials: 'include'
-          }),
-          fetch('/api/admin/users?limit=5', {
-            headers,
-            credentials: 'include'
-          }),
-          fetch('/api/admin/posts?limit=5', {
-            headers,
-            credentials: 'include'
-          })
-        ]);
+        // Use new commercial forum management API
+        const dashboardRes = await fetch('/api/admin/forum-management?action=stats', {
+          headers,
+          credentials: 'include'
+        });
 
-        if (!statsRes.ok || !usersRes.ok || !postsRes.ok) {
+        if (!dashboardRes.ok) {
           throw new Error('Failed to fetch dashboard data');
         }
 
-        const [statsData, usersData, postsData] = await Promise.all([
-          statsRes.json(),
-          usersRes.json(),
-          postsRes.json()
-        ]);
+        const dashboardData = await dashboardRes.json();
 
-        setStats(statsData.data);
-        setRecentUsers(usersData.data);
-        setRecentPosts(postsData.data);
+        // Update stats with new commercial data structure
+        setStats({
+          users: dashboardData.forumStats?.totalUsers || 0,
+          threads: dashboardData.forumStats?.totalThreads || 0,
+          posts: dashboardData.forumStats?.totalPosts || 0,
+          subjects: dashboardData.contentStats?.subjects || 0,
+          categories: dashboardData.contentStats?.categories || 0,
+          onlineUsers: dashboardData.forumStats?.onlineUsers || 0,
+          pendingReports: dashboardData.contentStats?.pendingReports || 0
+        });
+
+        setRecentUsers(dashboardData.recentActivity?.users || []);
+        setRecentPosts(dashboardData.recentActivity?.threads || []); // Using threads as "posts" for now
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
         setError('Failed to load dashboard data');
@@ -100,27 +97,85 @@ const AdminDashboard = () => {
         
         <div className={styles.statsGrid}>
           <div className={styles.statCard}>
-            <h3>Users</h3>
+            <h3>👥 Users</h3>
             <p className={styles.statNumber}>{stats.users}</p>
-            <p className={styles.statLabel}>Total Registered</p>
+            <p className={styles.statLabel}>
+              {stats.onlineUsers} online now
+            </p>
           </div>
-          
+
           <div className={styles.statCard}>
-            <h3>Threads</h3>
+            <h3>💬 Threads</h3>
             <p className={styles.statNumber}>{stats.threads}</p>
-            <p className={styles.statLabel}>Total Threads</p>
+            <p className={styles.statLabel}>
+              {stats.subjects} subjects
+            </p>
           </div>
-          
+
           <div className={styles.statCard}>
-            <h3>Posts</h3>
+            <h3>📝 Posts</h3>
             <p className={styles.statNumber}>{stats.posts}</p>
-            <p className={styles.statLabel}>Total Posts</p>
+            <p className={styles.statLabel}>
+              {stats.categories} categories
+            </p>
           </div>
-          
+
           <div className={styles.statCard}>
-            <h3>Subjects</h3>
-            <p className={styles.statNumber}>{stats.subjects}</p>
-            <p className={styles.statLabel}>Total Subjects</p>
+            <h3>⚠️ Reports</h3>
+            <p className={styles.statNumber}>{stats.pendingReports}</p>
+            <p className={styles.statLabel}>
+              Pending review
+            </p>
+          </div>
+        </div>
+
+        {/* Quick Actions for Commercial Features */}
+        <div className={styles.quickActions}>
+          <h2>Quick Actions</h2>
+          <div className={styles.actionGrid}>
+            <button
+              className={styles.actionButton}
+              onClick={() => router.push('/admin/users')}
+            >
+              👥 Manage Users
+            </button>
+
+            <button
+              className={styles.actionButton}
+              onClick={() => router.push('/admin/content')}
+            >
+              📝 Manage Content
+            </button>
+
+            <button
+              className={styles.actionButton}
+              onClick={() => router.push('/admin/templates')}
+            >
+              🎨 Customize Theme
+            </button>
+
+            <button
+              className={styles.actionButton}
+              onClick={() => router.push('/admin/settings')}
+            >
+              ⚙️ Forum Settings
+            </button>
+
+            {stats.pendingReports > 0 && (
+              <button
+                className={`${styles.actionButton} ${styles.urgent}`}
+                onClick={() => router.push('/admin/reports')}
+              >
+                ⚠️ View Reports ({stats.pendingReports})
+              </button>
+            )}
+
+            <button
+              className={styles.actionButton}
+              onClick={() => router.push('/admin/backup')}
+            >
+              💾 Backup & Export
+            </button>
           </div>
         </div>
         
