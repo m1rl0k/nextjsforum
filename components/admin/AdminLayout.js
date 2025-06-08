@@ -71,6 +71,10 @@ const AdminLayout = ({ children }) => {
         
         <nav className={styles.nav}>
           <ul>
+            <li className={styles.forumLink}>
+              <Link href="/">← Back to Forum</Link>
+            </li>
+            <li className={styles.divider}></li>
             <li className={isActive('/admin/dashboard')}>
               <Link href="/admin/dashboard">Dashboard</Link>
             </li>

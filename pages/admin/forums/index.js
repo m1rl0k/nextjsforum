@@ -34,7 +34,9 @@ const AdminForums = () => {
   const fetchForums = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/admin/forums');
+      const res = await fetch('/api/admin/forums', {
+        credentials: 'include'
+      });
       const data = await res.json();
       
       if (!res.ok) {
@@ -86,6 +88,7 @@ const AdminForums = () => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           ...formData,
           order: parseInt(formData.order, 10)
@@ -139,6 +142,7 @@ const AdminForums = () => {
     try {
       const res = await fetch(`/api/admin/forums/${forumId}`, {
         method: 'DELETE',
+        credentials: 'include'
       });
       
       const data = await res.json();
