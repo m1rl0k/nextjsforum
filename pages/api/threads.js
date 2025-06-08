@@ -1,6 +1,6 @@
 import prisma from '../../lib/prisma';
 import { verifyToken } from '../../lib/auth';
-import { associateImagesWithThread } from '../../lib/imageUtils';
+import { associateImagesWithThread, associateImagesWithPost } from '../../lib/imageUtils';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
@@ -68,34 +68,49 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: 'Subject not found' });
       }
 
-      // Create the thread
-      const thread = await prisma.thread.create({
-        data: {
-          title: title.trim(),
-          content: content.trim(),
-          userId: user.id,
-          subjectId: parseInt(subjectId),
-          lastPostAt: new Date(),
-          lastPostUserId: user.id,
-          viewCount: 0,
-          sticky: false,
-          locked: false
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              username: true,
-              role: true
-            }
+      // Create the thread and initial post in a transaction
+      const result = await prisma.$transaction(async (prisma) => {
+        // Create the thread
+        const thread = await prisma.thread.create({
+          data: {
+            title: title.trim(),
+            content: content.trim(),
+            userId: user.id,
+            subjectId: parseInt(subjectId),
+            lastPostAt: new Date(),
+            lastPostUserId: user.id,
+            viewCount: 0,
+            sticky: false,
+            locked: false
           },
-          subject: {
-            select: {
-              id: true,
-              name: true
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                role: true
+              }
+            },
+            subject: {
+              select: {
+                id: true,
+                name: true
+              }
             }
           }
-        }
+        });
+
+        // Create the initial post (first post of the thread)
+        const firstPost = await prisma.post.create({
+          data: {
+            content: content.trim(),
+            userId: user.id,
+            threadId: thread.id,
+            isFirstPost: true
+          }
+        });
+
+        return { thread, firstPost };
       });
 
       // Update subject thread count
@@ -118,10 +133,11 @@ export default async function handler(req, res) {
         }
       });
 
-      // Associate any images in the content with this thread
-      await associateImagesWithThread(thread.id, content);
+      // Associate any images in the content with both thread and post
+      await associateImagesWithThread(result.thread.id, content);
+      await associateImagesWithPost(result.firstPost.id, content);
 
-      res.status(201).json(thread);
+      res.status(201).json(result.thread);
     } catch (error) {
       console.error('Error creating thread:', error);
       res.status(500).json({ error: 'Failed to create thread' });

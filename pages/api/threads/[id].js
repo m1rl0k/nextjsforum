@@ -18,17 +18,24 @@ export default async function handler(req, res) {
 
       const thread = await prisma.thread.findUnique({
         where: { id: threadId },
-      include: {
-        user: true,
-        subject: true,
-        posts: {
-          include: {
-            user: true,
-            replyTo: true,
+        include: {
+          user: true,
+          subject: {
+            include: {
+              category: true
+            }
+          },
+          posts: {
+            include: {
+              user: true,
+              replyTo: true,
+            },
+            orderBy: {
+              createdAt: 'asc'
+            }
           },
         },
-      },
-    });
+      });
 
     if (thread) {
       res.status(200).json(thread);
