@@ -84,9 +84,15 @@ export default async function handler(req, res) {
           return res.status(404).json({ message: 'Backup not found' });
         }
 
+        // Convert BigInt to number for JSON serialization
+        const backupResponse = {
+          ...backup,
+          size: Number(backup.size)
+        };
+
         res.status(200).json({
           status: 'success',
-          backup
+          backup: backupResponse
         });
       } catch (error) {
         console.error('Error getting backup:', error);

@@ -42,9 +42,15 @@ export default async function handler(req, res) {
           prisma.backup.count()
         ]);
 
+        // Convert BigInt to number for JSON serialization
+        const backupsResponse = backups.map(backup => ({
+          ...backup,
+          size: Number(backup.size)
+        }));
+
         res.status(200).json({
           status: 'success',
-          backups,
+          backups: backupsResponse,
           pagination: {
             page: pageNum,
             limit: limitNum,
