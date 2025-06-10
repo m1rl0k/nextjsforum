@@ -8,6 +8,7 @@ export default function MessagesPage() {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [deletingConversation, setDeletingConversation] = useState(null);
   const [showCompose, setShowCompose] = useState(false);
 
   useEffect(() => {
@@ -82,83 +83,185 @@ export default function MessagesPage() {
     }
   };
 
+  const handleDeleteConversation = async (conversationId, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!confirm('Are you sure you want to delete this conversation? This action cannot be undone.')) {
+      return;
+    }
+
+    setDeletingConversation(conversationId);
+
+    try {
+      const response = await fetch(`/api/messages/conversations/${conversationId}/delete`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        // Remove the conversation from the list
+        setConversations(prev => prev.filter(conv =>
+          (conv.conversationId || conv.id) !== conversationId
+        ));
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Failed to delete conversation');
+      }
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      setError('Failed to delete conversation');
+    } finally {
+      setDeletingConversation(null);
+    }
+  };
+
   return (
     <Layout>
       <div className="messages-page">
-        <div className="page-header">
-          <h1>✉️ Messages</h1>
-          <button 
-            onClick={() => setShowCompose(true)}
-            className="button primary"
-          >
-            ✏️ New Message
-          </button>
+        <div className="breadcrumbs">
+          <Link href="/">Forum Index</Link> &raquo; <span>Private Messages</span>
         </div>
 
-        <div className="messages-container">
-          <div className="conversations-list">
-            {loading ? (
-              <div className="loading">Loading conversations...</div>
-            ) : conversations.length === 0 ? (
-              <div className="no-conversations">
-                <div className="empty-state">
-                  <div className="empty-icon">💬</div>
-                  <h3>No conversations yet</h3>
-                  <p>Start a conversation by sending a message to another user.</p>
-                  <button 
-                    onClick={() => setShowCompose(true)}
-                    className="button primary"
-                  >
-                    Send Your First Message
-                  </button>
-                </div>
-              </div>
-            ) : (
-              conversations.map(conversation => {
-                const otherUser = getOtherUser(conversation, conversation.current_user_id);
-                return (
-                  <Link 
-                    key={conversation.conversation_id}
-                    href={`/messages/${conversation.conversation_id}`}
-                    className="conversation-item"
-                  >
-                    <div className="conversation-avatar">
-                      {otherUser.avatar ? (
-                        <img src={otherUser.avatar} alt={otherUser.username} />
-                      ) : (
-                        <div className="avatar-placeholder">
-                          {otherUser.username.charAt(0).toUpperCase()}
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="conversation-content">
-                      <div className="conversation-header">
-                        <span className="conversation-user">{otherUser.username}</span>
-                        <span className="conversation-time">{formatDate(conversation.created_at)}</span>
-                      </div>
-                      
-                      <div className="conversation-preview">
-                        {conversation.subject && (
-                          <span className="message-subject">{conversation.subject}</span>
-                        )}
-                        <span className="message-content">
-                          {conversation.content.length > 100 
-                            ? conversation.content.substring(0, 100) + '...'
-                            : conversation.content
-                          }
-                        </span>
-                      </div>
-                      
-                      {conversation.unread_count > 0 && (
-                        <div className="unread-badge">{conversation.unread_count}</div>
-                      )}
-                    </div>
-                  </Link>
-                );
-              })
-            )}
+        <div className="category-block">
+          <div className="category-header">
+            <div className="category-title">
+              <span className="category-icon">✉️</span>
+              Private Messages
+            </div>
+            <button
+              onClick={() => setShowCompose(true)}
+              className="new-message-btn"
+            >
+              ✏️ New Message
+            </button>
           </div>
+
+          {error && (
+            <div className="error-message">
+              <div className="error-icon">⚠️</div>
+              <div className="error-text">{error}</div>
+              <button onClick={fetchConversations} className="retry-btn">
+                Try Again
+              </button>
+            </div>
+          )}
+
+          <table className="forum-table" cellSpacing="1" cellPadding="0">
+            <thead>
+              <tr className="table-header">
+                <td className="col-icon">&nbsp;</td>
+                <td className="col-subject">Subject / Conversation</td>
+                <td className="col-user">Started By</td>
+                <td className="col-date">Last Message</td>
+                <td className="col-actions">Actions</td>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr className="table-row loading-row">
+                  <td colSpan="5" className="loading-cell">
+                    <div className="loading-content">
+                      <div className="loading-spinner">💬</div>
+                      <div>Loading conversations...</div>
+                    </div>
+                  </td>
+                </tr>
+              ) : conversations.length === 0 ? (
+                <tr className="table-row empty-row">
+                  <td colSpan="5" className="empty-cell">
+                    <div className="empty-content">
+                      <div className="empty-icon">💬</div>
+                      <h3>No conversations yet</h3>
+                      <p>Start a conversation by sending a message to another user.</p>
+                      <button
+                        onClick={() => setShowCompose(true)}
+                        className="new-message-btn"
+                      >
+                        Send Your First Message
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                conversations.map((conversation, index) => {
+                  const otherUser = getOtherUser(conversation);
+
+                  if (!otherUser) {
+                    console.warn('Could not determine other user for conversation:', conversation);
+                    return null;
+                  }
+
+                  return (
+                    <tr
+                      key={conversation.conversationId || conversation.id}
+                      className={`table-row conversation-row ${index % 2 === 0 ? 'row-even' : 'row-odd'} ${conversation.unread_count > 0 ? 'unread' : ''}`}
+                      onClick={() => window.location.href = `/messages/conversation/${conversation.conversationId || conversation.id}`}
+                    >
+                      <td className="col-icon">
+                        <div className="message-icon">
+                          {conversation.unread_count > 0 ? '📩' : '📧'}
+                        </div>
+                      </td>
+
+                      <td className="col-subject">
+                        <div className="subject-line">
+                          <Link href={`/messages/conversation/${conversation.conversationId || conversation.id}`}>
+                            {conversation.subject || 'Private Message'}
+                          </Link>
+                          {conversation.unread_count > 0 && (
+                            <span className="unread-badge">{conversation.unread_count}</span>
+                          )}
+                        </div>
+                        <div className="message-preview">
+                          {conversation.content && conversation.content.length > 60
+                            ? conversation.content.substring(0, 60) + '...'
+                            : conversation.content || 'No content'
+                          }
+                        </div>
+                      </td>
+
+                      <td className="col-user">
+                        <div className="user-info">
+                          <div className="user-avatar">
+                            {otherUser.avatar ? (
+                              <img src={otherUser.avatar} alt={otherUser.username} />
+                            ) : (
+                              <div className="avatar-placeholder">
+                                {otherUser.username ? otherUser.username.charAt(0).toUpperCase() : '?'}
+                              </div>
+                            )}
+                          </div>
+                          <div className="username">
+                            <Link href={`/profile/${otherUser.username}`}>
+                              {otherUser.username || 'Unknown User'}
+                            </Link>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="col-date">
+                        <div className="date-info">
+                          {formatDate(conversation.createdAt)}
+                        </div>
+                      </td>
+
+                      <td className="col-actions">
+                        <button
+                          onClick={(e) => handleDeleteConversation(conversation.conversationId || conversation.id, e)}
+                          className="delete-btn"
+                          disabled={deletingConversation === (conversation.conversationId || conversation.id)}
+                          title="Delete conversation"
+                        >
+                          {deletingConversation === (conversation.conversationId || conversation.id) ? '⏳' : '🗑️'}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                }).filter(Boolean)
+              )}
+            </tbody>
+          </table>
         </div>
 
         {showCompose && (
@@ -174,213 +277,384 @@ export default function MessagesPage() {
 
       <style jsx>{`
         .messages-page {
-          max-width: 800px;
+          max-width: 1000px;
           margin: 0 auto;
           padding: 20px;
         }
 
-        .page-header {
+        .breadcrumbs {
+          background-color: #F5F5F5;
+          padding: 8px 15px;
+          border-bottom: 1px solid var(--border-color);
+          font-size: 11px;
+          margin-bottom: 20px;
+        }
+
+        .breadcrumbs a {
+          color: var(--link-color);
+        }
+
+        .category-block {
+          background: white;
+          border: 1px solid var(--border-color);
+          margin-bottom: 20px;
+        }
+
+        .category-header {
+          background: var(--category-header-bg);
+          color: var(--category-header-color);
+          padding: 12px 15px;
+          font-weight: bold;
+          font-size: 12px;
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 30px;
-          padding-bottom: 20px;
-          border-bottom: 2px solid var(--border-color);
+          border-bottom: 1px solid var(--border-color);
         }
 
-        .page-header h1 {
-          margin: 0;
-          color: var(--text-color);
+        .category-title {
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
 
-        .messages-container {
-          background: white;
-          border: 1px solid var(--border-color);
-          border-radius: 8px;
-          overflow: hidden;
+        .category-icon {
+          font-size: 14px;
         }
 
-        .loading {
-          padding: 40px;
+        .new-message-btn {
+          background: var(--primary-color);
+          color: white;
+          border: none;
+          padding: 6px 12px;
+          font-size: 11px;
+          cursor: pointer;
+          border-radius: 3px;
+          transition: background-color 0.2s;
+        }
+
+        .new-message-btn:hover {
+          background: var(--secondary-color);
+        }
+
+        .error-message {
+          background: #fee2e2;
+          border: 1px solid #fecaca;
+          padding: 15px;
+          margin: 15px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          color: #991b1b;
+          font-size: 12px;
+        }
+
+        .error-icon {
+          font-size: 16px;
+        }
+
+        .error-text {
+          flex: 1;
+        }
+
+        .retry-btn {
+          background: #dc2626;
+          color: white;
+          border: none;
+          padding: 4px 8px;
+          font-size: 11px;
+          cursor: pointer;
+          border-radius: 2px;
+        }
+
+        .forum-table {
+          width: 100%;
+          border-collapse: separate;
+          border-spacing: 1px;
+          background-color: var(--border-color);
+        }
+
+        .table-header {
+          background: var(--table-header-bg);
+          color: var(--table-header-color);
+          font-size: 11px;
+          font-weight: bold;
+          text-align: left;
+        }
+
+        .table-header td {
+          padding: 8px 10px;
+          background: var(--table-header-bg);
+        }
+
+        .table-row {
+          cursor: pointer;
+          transition: background-color 0.2s;
+        }
+
+        .table-row td {
+          padding: 10px;
+          vertical-align: top;
+          font-size: 11px;
+        }
+
+        .table-row.row-even td {
+          background-color: #FAFBFC;
+        }
+
+        .table-row.row-odd td {
+          background-color: #F1F3F4;
+        }
+
+        .table-row:hover td {
+          background-color: #E8F4FD !important;
+        }
+
+        .table-row.unread td {
+          background-color: #FFFBEB !important;
+          font-weight: 500;
+        }
+
+        .table-row.unread:hover td {
+          background-color: #FEF3C7 !important;
+        }
+
+        .loading-cell,
+        .empty-cell {
           text-align: center;
+          padding: 40px 20px !important;
+          background-color: white !important;
+        }
+
+        .loading-content,
+        .empty-content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 15px;
           color: #666;
         }
 
-        .no-conversations {
-          padding: 60px 20px;
-        }
-
-        .empty-state {
-          text-align: center;
-          color: #666;
+        .loading-spinner {
+          font-size: 2rem;
+          animation: pulse 2s infinite;
         }
 
         .empty-icon {
-          font-size: 4rem;
-          margin-bottom: 20px;
+          font-size: 3rem;
         }
 
-        .empty-state h3 {
-          margin: 0 0 10px 0;
+        .empty-content h3 {
+          margin: 0;
           color: #333;
         }
 
-        .empty-state p {
-          margin-bottom: 20px;
+        .empty-content p {
+          margin: 0 0 15px 0;
         }
 
-        .conversations-list {
-          display: flex;
-          flex-direction: column;
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
         }
 
-        .conversation-item {
+        .col-icon {
+          width: 30px;
+          text-align: center;
+        }
+
+        .message-icon {
+          font-size: 14px;
+        }
+
+        .col-subject {
+          width: auto;
+          min-width: 300px;
+        }
+
+        .col-user {
+          width: 150px;
+        }
+
+        .col-date {
+          width: 120px;
+          text-align: center;
+        }
+
+        .col-actions {
+          width: 60px;
+          text-align: center;
+        }
+
+        .subject-line {
+          margin-bottom: 4px;
           display: flex;
-          padding: 15px 20px;
-          border-bottom: 1px solid #f0f0f0;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .subject-line a {
+          color: var(--link-color);
           text-decoration: none;
-          color: inherit;
-          transition: background-color 0.2s;
-          position: relative;
+          font-weight: 500;
         }
 
-        .conversation-item:hover {
-          background-color: #f8f9fa;
+        .subject-line a:hover {
+          text-decoration: underline;
         }
 
-        .conversation-item:last-child {
-          border-bottom: none;
+        .message-preview {
+          color: #666;
+          line-height: 1.3;
+          font-size: 10px;
         }
 
-        .conversation-avatar {
-          margin-right: 15px;
+        .unread-badge {
+          background: var(--primary-color);
+          color: white;
+          border-radius: 8px;
+          padding: 1px 5px;
+          font-size: 9px;
+          font-weight: 600;
+          min-width: 14px;
+          text-align: center;
+        }
+
+        .user-info {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .user-avatar {
           flex-shrink: 0;
         }
 
-        .conversation-avatar img {
-          width: 48px;
-          height: 48px;
+        .user-avatar img,
+        .avatar-placeholder {
+          width: 20px;
+          height: 20px;
           border-radius: 50%;
-          object-fit: cover;
         }
 
         .avatar-placeholder {
-          width: 48px;
-          height: 48px;
-          border-radius: 50%;
           background: var(--primary-color);
           color: white;
           display: flex;
           align-items: center;
           justify-content: center;
           font-weight: 600;
-          font-size: 1.2rem;
+          font-size: 9px;
         }
 
-        .conversation-content {
-          flex: 1;
-          min-width: 0;
-        }
-
-        .conversation-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 5px;
-        }
-
-        .conversation-user {
-          font-weight: 600;
-          color: #333;
-        }
-
-        .conversation-time {
-          font-size: 0.85rem;
-          color: #999;
-        }
-
-        .conversation-preview {
-          display: flex;
-          flex-direction: column;
-          gap: 3px;
-        }
-
-        .message-subject {
-          font-weight: 500;
-          color: #555;
-          font-size: 0.9rem;
-        }
-
-        .message-content {
-          color: #666;
-          font-size: 0.9rem;
-          line-height: 1.3;
-        }
-
-        .unread-badge {
-          position: absolute;
-          top: 15px;
-          right: 20px;
-          background: var(--primary-color);
-          color: white;
-          border-radius: 12px;
-          padding: 2px 8px;
-          font-size: 0.75rem;
-          font-weight: 600;
-          min-width: 20px;
-          text-align: center;
-        }
-
-        .button {
-          padding: 10px 20px;
-          border: 1px solid var(--border-color);
-          background: white;
-          color: var(--text-color);
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 0.9rem;
+        .username a {
+          color: var(--link-color);
           text-decoration: none;
-          display: inline-block;
-          transition: all 0.2s;
+          font-weight: 500;
         }
 
-        .button:hover {
-          background: #f5f5f5;
+        .username a:hover {
+          text-decoration: underline;
         }
 
-        .button.primary {
-          background: var(--primary-color);
-          color: white;
-          border-color: var(--primary-color);
+        .date-info {
+          color: #666;
+          white-space: nowrap;
         }
 
-        .button.primary:hover {
-          background: var(--primary-color-dark);
+        .delete-btn {
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-size: 14px;
+          padding: 4px;
+          border-radius: 3px;
+          transition: background-color 0.2s;
+        }
+
+        .delete-btn:hover {
+          background-color: #fee2e2;
+        }
+
+        .delete-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
 
         @media (max-width: 768px) {
           .messages-page {
-            padding: 15px;
+            padding: 10px;
           }
 
-          .page-header {
+          .col-user {
+            display: none;
+          }
+
+          .col-subject {
+            min-width: 200px;
+          }
+
+          .col-date {
+            width: 100px;
+          }
+
+          .col-actions {
+            width: 50px;
+          }
+
+          .category-header {
             flex-direction: column;
-            gap: 15px;
+            gap: 10px;
             align-items: flex-start;
           }
 
-          .conversation-item {
-            padding: 12px 15px;
+          .user-avatar img,
+          .avatar-placeholder {
+            width: 18px;
+            height: 18px;
           }
 
-          .conversation-avatar img,
-          .avatar-placeholder {
+          .subject-line a {
+            font-size: 10px;
+          }
+
+          .message-preview {
+            font-size: 9px;
+          }
+
+          .delete-btn {
+            font-size: 12px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .col-date {
+            display: none;
+          }
+
+          .col-subject {
+            min-width: 150px;
+          }
+
+          .col-actions {
             width: 40px;
-            height: 40px;
           }
 
-          .avatar-placeholder {
-            font-size: 1rem;
+          .subject-line a {
+            font-size: 9px;
+          }
+
+          .message-preview {
+            font-size: 8px;
+          }
+
+          .table-row td {
+            padding: 8px 5px;
+          }
+
+          .delete-btn {
+            font-size: 10px;
+            padding: 2px;
           }
         }
       `}</style>
@@ -437,50 +711,53 @@ function ComposeModal({ onClose, onSent }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>✏️ New Message</h2>
+          <div className="modal-title">✏️ New Private Message</div>
           <button onClick={onClose} className="close-button">×</button>
         </div>
 
         <form onSubmit={handleSubmit} className="compose-form">
-          {error && <div className="error-message">{error}</div>}
-          
-          <div className="form-group">
-            <label>To:</label>
+          {error && <div className="form-error">{error}</div>}
+
+          <div className="form-row">
+            <label className="form-label">To:</label>
             <input
               type="text"
               value={recipient}
               onChange={(e) => setRecipient(e.target.value)}
-              placeholder="Username"
+              placeholder="Enter username"
+              className="form-input"
               required
             />
           </div>
 
-          <div className="form-group">
-            <label>Subject:</label>
+          <div className="form-row">
+            <label className="form-label">Subject:</label>
             <input
               type="text"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Message subject (optional)"
+              className="form-input"
             />
           </div>
 
-          <div className="form-group">
-            <label>Message:</label>
+          <div className="form-row">
+            <label className="form-label">Message:</label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Type your message..."
-              rows={6}
+              className="form-textarea"
+              rows={8}
               required
             />
           </div>
 
           <div className="form-actions">
-            <button type="button" onClick={onClose} className="button">
+            <button type="button" onClick={onClose} className="btn-cancel">
               Cancel
             </button>
-            <button type="submit" disabled={sending} className="button primary">
+            <button type="submit" disabled={sending} className="btn-send">
               {sending ? 'Sending...' : 'Send Message'}
             </button>
           </div>
@@ -494,7 +771,7 @@ function ComposeModal({ onClose, onSent }) {
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
+          background: rgba(0, 0, 0, 0.6);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -505,26 +782,29 @@ function ComposeModal({ onClose, onSent }) {
 
         .modal-content {
           background: white;
-          border-radius: 8px;
+          border: 2px solid var(--border-color);
           width: 100%;
           max-width: 500px;
           max-height: 90vh;
           overflow-y: auto;
           margin: auto;
           position: relative;
-          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         .modal-header {
+          background: var(--category-header-bg);
+          color: var(--category-header-color);
+          padding: 12px 15px;
+          font-weight: bold;
+          font-size: 12px;
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 20px 20px 0 20px;
-          border-bottom: 1px solid #eee;
-          margin-bottom: 20px;
+          border-bottom: 1px solid var(--border-color);
         }
 
-        .modal-header h2 {
+        .modal-title {
           margin: 0;
           color: #333;
         }
@@ -548,7 +828,7 @@ function ComposeModal({ onClose, onSent }) {
         }
 
         .compose-form {
-          padding: 0 20px 20px 20px;
+          padding: 15px;
         }
 
         .error-message {
@@ -586,11 +866,88 @@ function ComposeModal({ onClose, onSent }) {
           min-height: 120px;
         }
 
+        .form-row {
+          margin-bottom: 15px;
+        }
+
+        .form-label {
+          display: block;
+          margin-bottom: 5px;
+          font-weight: 500;
+          color: #333;
+          font-size: 12px;
+        }
+
+        .form-input,
+        .form-textarea {
+          width: 100%;
+          padding: 8px;
+          border: 1px solid var(--border-color);
+          font-size: 12px;
+          font-family: inherit;
+          box-sizing: border-box;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+          outline: none;
+          border-color: var(--primary-color);
+          box-shadow: 0 0 0 1px var(--primary-color);
+        }
+
+        .form-textarea {
+          resize: vertical;
+          min-height: 120px;
+          line-height: 1.4;
+        }
+
         .form-actions {
           display: flex;
           gap: 10px;
           justify-content: flex-end;
           margin-top: 20px;
+        }
+
+        .btn-cancel,
+        .btn-send {
+          padding: 8px 16px;
+          font-size: 11px;
+          cursor: pointer;
+          border: 1px solid var(--border-color);
+          transition: all 0.2s;
+        }
+
+        .btn-cancel {
+          background: white;
+          color: #666;
+        }
+
+        .btn-cancel:hover {
+          background: #f5f5f5;
+        }
+
+        .btn-send {
+          background: var(--primary-color);
+          color: white;
+          border-color: var(--primary-color);
+        }
+
+        .btn-send:hover {
+          background: var(--secondary-color);
+        }
+
+        .btn-send:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .form-error {
+          background: #fee2e2;
+          color: #991b1b;
+          padding: 10px;
+          margin-bottom: 15px;
+          font-size: 11px;
+          border: 1px solid #fecaca;
         }
       `}</style>
     </div>

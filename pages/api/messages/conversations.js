@@ -77,7 +77,9 @@ export default async function handler(req, res) {
           data: { isRead: true }
         });
 
-        res.status(200).json({ messages });
+        // Serialize the messages
+        const serializedMessages = serializeBigInt(messages);
+        res.status(200).json({ messages: serializedMessages });
 
       } else {
         // Get conversation list
