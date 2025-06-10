@@ -544,8 +544,16 @@ export default function ConversationView() {
 
         .user-name {
           font-weight: 600;
-          color: #333;
           font-size: 14px;
+        }
+
+        .user-name a {
+          color: var(--link-color);
+          text-decoration: none;
+        }
+
+        .user-name a:hover {
+          text-decoration: underline;
         }
 
         .message-count {
@@ -607,8 +615,16 @@ export default function ConversationView() {
 
         .post-username {
           font-weight: 600;
-          color: var(--link-color);
           font-size: 11px;
+        }
+
+        .post-username a {
+          color: var(--link-color);
+          text-decoration: none;
+        }
+
+        .post-username a:hover {
+          text-decoration: underline;
         }
 
         .post-user-title {

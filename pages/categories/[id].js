@@ -76,6 +76,13 @@ export default function CategoryPage() {
         </div>
 
         <div className="subjects-list">
+          {/* Header Row */}
+          <div className="subject-header">
+            <div className="header-forum">Forum</div>
+            <div className="header-stats">Topics / Posts</div>
+            <div className="header-lastpost">Last Post</div>
+          </div>
+
           {subjects.length === 0 ? (
             <div className="no-subjects">
               <p>No subjects found in this category.</p>
@@ -168,6 +175,31 @@ export default function CategoryPage() {
         .subjects-list {
           background: white;
           border: 1px solid #ddd;
+        }
+
+        .subject-header {
+          display: flex;
+          align-items: center;
+          padding: 12px 20px;
+          background-color: var(--subject-header-bg);
+          color: var(--subject-header-text);
+          font-weight: bold;
+          font-size: 12px;
+          border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-forum {
+          flex: 1;
+        }
+
+        .header-stats {
+          width: 150px;
+          text-align: center;
+        }
+
+        .header-lastpost {
+          width: 200px;
+          text-align: center;
         }
 
         .subject-row {

@@ -108,11 +108,12 @@ export default function SubjectPage() {
           )}
           
           <div className="forum-table">
-            <div className="thread-header" style={{ display: 'flex', backgroundColor: 'var(--subject-header-bg)', padding: '8px', fontWeight: 'bold', borderBottom: '1px solid var(--border-color)' }}>
-              <div style={{ flex: 1 }}>Thread / Thread Starter</div>
-              <div style={{ width: '80px', textAlign: 'center' }}>Replies</div>
-              <div style={{ width: '80px', textAlign: 'center' }}>Views</div>
-              <div style={{ width: '200px', textAlign: 'center' }}>Last Post</div>
+            <div className="thread-row" style={{ backgroundColor: 'var(--subject-header-bg)', fontWeight: 'bold', borderBottom: '1px solid var(--border-color)' }}>
+              <div className="thread-icon"></div>
+              <div className="thread-info">Thread / Thread Starter</div>
+              <div className="thread-stats">Replies</div>
+              <div className="thread-stats">Views</div>
+              <div className="thread-lastpost">Last Post</div>
             </div>
             
             {loading ? (
