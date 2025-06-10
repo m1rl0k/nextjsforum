@@ -82,9 +82,13 @@ a:hover {
 /* Forum Tables */
 .forum-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
   margin-bottom: 15px;
   border: 1px solid var(--border-color);
+  table-layout: fixed;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: table;
 }
 
 .forum-table th {
@@ -112,6 +116,9 @@ a:hover {
 /* Category Block */
 .category-block {
   margin-bottom: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .category-header {
@@ -233,6 +240,10 @@ a:hover {
   border: 1px solid var(--border-color);
   border-bottom: none;
   background-color: var(--thread-bg);
+  transition: background-color 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
 }
 
 .thread-row:nth-child(even) {
@@ -253,25 +264,36 @@ a:hover {
   align-items: center;
   justify-content: center;
   width: 40px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .thread-info {
   padding: 10px;
   flex-grow: 1;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .thread-title {
   font-weight: bold;
   margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .thread-starter {
   font-size: 11px;
   color: #666;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .thread-stats {
-  width: 150px;
+  width: 80px;
   padding: 10px;
   font-size: 11px;
   text-align: center;
@@ -279,13 +301,25 @@ a:hover {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .thread-lastpost {
-  width: 200px;
+  width: 180px;
   padding: 10px;
   font-size: 11px;
   border-left: 1px solid var(--border-color);
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+/* Last post date and username styling */
+.thread-lastpost div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 /* Post Block */
@@ -586,4 +620,10 @@ a:hover {
 /* Thread Icon Enhancement */
 .thread-icon {
   font-size: 1.2rem;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  box-sizing: border-box;
 }
