@@ -1,0 +1,241 @@
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  color: #2d3748;
+}
+
+/* Filters */
+.filters {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filterButton {
+  background: none;
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #718096;
+}
+
+.filterButton:hover {
+  background-color: #f7fafc;
+  border-color: #cbd5e0;
+}
+
+.filterButton.active {
+  background-color: #4299e1;
+  color: white;
+  border-color: #4299e1;
+}
+
+/* Reports List */
+.reportsList {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.reportItem {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  transition: background-color 0.2s;
+}
+
+.reportItem:last-child {
+  border-bottom: none;
+}
+
+.reportItem:hover {
+  background-color: #f7fafc;
+}
+
+/* Report Header */
+.reportHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.reportType {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.875rem;
+}
+
+.reportDate {
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+/* Report Content */
+.reportContent {
+  margin-bottom: 1rem;
+}
+
+.reportReason {
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: #2d3748;
+}
+
+.reportDescription {
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: #4a5568;
+  line-height: 1.4;
+}
+
+.reportMeta {
+  font-size: 0.75rem;
+  color: #718096;
+}
+
+/* Report Actions */
+.reportActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.actionButton {
+  background: none;
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.actionButton:hover {
+  background-color: #f7fafc;
+  border-color: #cbd5e0;
+}
+
+.approveButton:hover {
+  background-color: #c6f6d5;
+  border-color: #9ae6b4;
+  color: #2f855a;
+}
+
+.dismissButton:hover {
+  background-color: #fed7d7;
+  border-color: #feb2b2;
+  color: #c53030;
+}
+
+/* States */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  font-size: 1.125rem;
+  color: #718096;
+}
+
+.error {
+  background-color: #fed7d7;
+  color: #c53030;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #feb2b2;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 3rem;
+  color: #718096;
+  font-size: 1rem;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1rem;
+}
+
+.pageButton {
+  background-color: #4299e1;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pageButton:hover:not(:disabled) {
+  background-color: #3182ce;
+}
+
+.pageButton:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .filters {
+    justify-content: center;
+  }
+  
+  .reportHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  
+  .reportActions {
+    justify-content: center;
+  }
+}
