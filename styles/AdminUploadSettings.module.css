@@ -1,0 +1,344 @@
+/* Container */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Header */
+.header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  color: #2d3748;
+}
+
+/* Content */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Stats Section */
+.statsSection {
+  background: white;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.statsSection h2 {
+  margin: 0 0 1.5rem;
+  font-size: 1.25rem;
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  background-color: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 0.25rem;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: #718096;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.cleanupSection {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1.5rem;
+}
+
+.cleanupButton {
+  background-color: #ed8936;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.cleanupButton:hover {
+  background-color: #dd6b20;
+}
+
+/* Form */
+.form {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+/* Sections */
+.section {
+  padding: 2rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+.section h2 {
+  margin: 0 0 1.5rem;
+  font-size: 1.25rem;
+  color: #2d3748;
+  font-weight: 600;
+}
+
+/* Form Groups */
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formGroup:last-child {
+  margin-bottom: 0;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.875rem;
+}
+
+/* Form Controls */
+.input,
+.select,
+.textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: white;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+.textarea {
+  min-height: 100px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+/* Checkbox Labels */
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: normal;
+  cursor: pointer;
+  margin-bottom: 0;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  margin: 0;
+  width: auto;
+}
+
+/* Form Actions */
+.formActions {
+  padding: 2rem;
+  background-color: #f7fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.saveButton {
+  background-color: #48bb78;
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.saveButton:hover:not(:disabled) {
+  background-color: #38a169;
+}
+
+.saveButton:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+/* States */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  font-size: 1.125rem;
+  color: #718096;
+}
+
+.error {
+  background-color: #fed7d7;
+  color: #c53030;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #feb2b2;
+}
+
+.success {
+  background-color: #c6f6d5;
+  color: #2f855a;
+  padding: 1rem;
+  border-radius: 0.375rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #9ae6b4;
+}
+
+/* File Input */
+.fileInput {
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  background: white;
+  width: 100%;
+}
+
+/* Warning sections */
+.warningSection {
+  background-color: #fef5e7;
+  border: 1px solid #f6e05e;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.warningSection h3 {
+  margin: 0 0 0.5rem;
+  color: #d69e2e;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.warningSection p {
+  margin: 0;
+  color: #744210;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+/* Info sections */
+.infoSection {
+  background-color: #ebf8ff;
+  border: 1px solid #90cdf4;
+  border-radius: 0.375rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.infoSection h3 {
+  margin: 0 0 0.5rem;
+  color: #2b6cb0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.infoSection p {
+  margin: 0;
+  color: #2c5282;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .section {
+    padding: 1.5rem;
+  }
+  
+  .formActions {
+    padding: 1.5rem;
+  }
+  
+  .saveButton {
+    width: 100%;
+  }
+  
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Focus states for accessibility */
+.input:focus,
+.select:focus,
+.textarea:focus,
+.saveButton:focus,
+.cleanupButton:focus {
+  outline: 2px solid #4299e1;
+  outline-offset: 2px;
+}
+
+/* Validation states */
+.input.error,
+.select.error,
+.textarea.error {
+  border-color: #e53e3e;
+}
+
+.input.error:focus,
+.select.error:focus,
+.textarea.error:focus {
+  border-color: #e53e3e;
+  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.2);
+}
+
+/* Help text */
+.helpText {
+  font-size: 0.75rem;
+  color: #718096;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}
