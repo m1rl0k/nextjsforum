@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { getThreadUrl } from '../lib/slugUtils';
 
 export default function ThreadList({ threads = [], subjectId }) {
   if (threads.length === 0) {
@@ -38,16 +39,29 @@ function ThreadRow({ thread }) {
   const lastPost = thread.lastPostAt ? new Date(thread.lastPostAt) : null;
   const isSticky = thread.sticky;
   const isLocked = thread.locked;
+  const isPinned = thread.threadType === 'ANNOUNCEMENT';
+  const threadUrl = getThreadUrl(thread);
+
+  // Determine icon priority: Pinned > Sticky > Locked > Normal
+  const getThreadIcon = () => {
+    if (isPinned) return '📍'; // Pin icon for announcements
+    if (isSticky) return '📌'; // Sticky icon
+    if (isLocked) return '🔒'; // Lock icon
+    return '📄'; // Normal thread icon
+  };
 
   return (
-    <tr className="thread-row">
+    <tr className={`thread-row ${isPinned ? 'pinned' : ''} ${isSticky ? 'sticky' : ''} ${isLocked ? 'locked' : ''}`}>
       <td className="thread-main">
         <div className="thread-icon">
-          {isSticky ? '📌' : isLocked ? '🔒' : '📄'}
+          {getThreadIcon()}
         </div>
         <div className="thread-details">
           <div className="thread-title">
-            <Link href={`/threads/${thread.id}`}>
+            <Link href={threadUrl}>
+              {isPinned && <span className="thread-badge pinned">📍 PINNED</span>}
+              {isSticky && !isPinned && <span className="thread-badge sticky">📌 STICKY</span>}
+              {isLocked && <span className="thread-badge locked">🔒 LOCKED</span>}
               {thread.title}
             </Link>
           </div>

@@ -1,6 +1,7 @@
 import prisma from '../../../lib/prisma';
 import { verifyToken } from '../../../lib/auth';
 import { associateImagesWithPost } from '../../../lib/imageUtils';
+import { findThreadBySlugOrId } from '../../../lib/slugUtils';
 
 export default async function handler(req, res) {
   const { id } = req.query;
@@ -16,26 +17,24 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Invalid thread ID' });
       }
 
-      const thread = await prisma.thread.findUnique({
-        where: { id: threadId },
-        include: {
-          user: true,
-          subject: {
-            include: {
-              category: true
-            }
+      // Try to find thread by slug or ID
+      let thread = await findThreadBySlugOrId(id);
+
+      if (thread) {
+        // Get posts separately to maintain the same structure
+        const posts = await prisma.post.findMany({
+          where: { threadId: thread.id },
+          include: {
+            user: true,
+            replyTo: true,
           },
-          posts: {
-            include: {
-              user: true,
-              replyTo: true,
-            },
-            orderBy: {
-              createdAt: 'asc'
-            }
-          },
-        },
-      });
+          orderBy: {
+            createdAt: 'asc'
+          }
+        });
+
+        thread.posts = posts;
+      }
 
     if (thread) {
       res.status(200).json(thread);
@@ -187,12 +186,22 @@ export default async function handler(req, res) {
       } else if (action === 'sticky') {
         await prisma.thread.update({
           where: { id: threadId },
-          data: { sticky: true },
+          data: { sticky: true, threadType: 'STICKY' },
         });
       } else if (action === 'unsticky') {
         await prisma.thread.update({
           where: { id: threadId },
-          data: { sticky: false },
+          data: { sticky: false, threadType: 'NORMAL' },
+        });
+      } else if (action === 'pin') {
+        await prisma.thread.update({
+          where: { id: threadId },
+          data: { threadType: 'ANNOUNCEMENT' },
+        });
+      } else if (action === 'unpin') {
+        await prisma.thread.update({
+          where: { id: threadId },
+          data: { threadType: 'NORMAL' },
         });
       } else {
         return res.status(400).json({ error: 'Invalid action' });

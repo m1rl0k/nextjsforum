@@ -1,6 +1,7 @@
 import prisma from '../../lib/prisma';
 import { verifyToken } from '../../lib/auth';
 import { associateImagesWithThread, associateImagesWithPost } from '../../lib/imageUtils';
+import { generateUniqueThreadSlug } from '../../lib/slugUtils';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
@@ -68,6 +69,9 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: 'Subject not found' });
       }
 
+      // Generate unique slug for the thread
+      const slug = await generateUniqueThreadSlug(title);
+
       // Create the thread and initial post in a transaction
       const result = await prisma.$transaction(async (prisma) => {
         // Create the thread
@@ -81,7 +85,8 @@ export default async function handler(req, res) {
             lastPostUserId: user.id,
             viewCount: 0,
             sticky: false,
-            locked: false
+            locked: false,
+            slug: slug
           },
           include: {
             user: {

@@ -107,7 +107,17 @@ export default async function handler(req, res) {
           OFFSET ${parseInt(offset)}
         `;
 
-        res.status(200).json({ conversations });
+        // Convert BigInt values to strings for JSON serialization
+        const serializedConversations = conversations.map(conv => ({
+          ...conv,
+          id: conv.id.toString(),
+          senderId: conv.senderId.toString(),
+          recipientId: conv.recipientId.toString(),
+          replyToId: conv.replyToId ? conv.replyToId.toString() : null,
+          unread_count: Number(conv.unread_count)
+        }));
+
+        res.status(200).json({ conversations: serializedConversations });
       }
 
     } else if (req.method === 'POST') {
@@ -188,7 +198,28 @@ export default async function handler(req, res) {
       // Send notification
       await notifyPrivateMessage(message.id, user.id, recipientUser.id);
 
-      res.status(201).json(message);
+      // Convert BigInt values to strings for JSON serialization
+      const serializedMessage = {
+        ...message,
+        id: message.id.toString(),
+        senderId: message.senderId.toString(),
+        recipientId: message.recipientId.toString(),
+        replyToId: message.replyToId ? message.replyToId.toString() : null,
+        sender: {
+          ...message.sender,
+          id: message.sender.id.toString()
+        },
+        recipient: {
+          ...message.recipient,
+          id: message.recipient.id.toString()
+        },
+        replyTo: message.replyTo ? {
+          ...message.replyTo,
+          id: message.replyTo.id.toString()
+        } : null
+      };
+
+      res.status(201).json(serializedMessage);
 
     } else if (req.method === 'PUT') {
       // Mark conversation as read
