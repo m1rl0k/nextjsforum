@@ -336,6 +336,10 @@
   gap: 1rem;
 }
 
+.quickActionsCard {
+  margin-bottom: 2rem;
+}
+
 .actionButton {
   padding: 1rem;
   background: #f7fafc;

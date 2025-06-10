@@ -2,6 +2,14 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../../context/AuthContext';
 import AdminLayout from '../../components/admin/AdminLayout';
+import {
+  AdminPageHeader,
+  AdminCard,
+  AdminStatsGrid,
+  AdminStatCard,
+  AdminLoading,
+  AdminButton
+} from '../../components/admin/AdminComponents';
 import styles from '../../styles/AdminDashboard.module.css';
 
 const AdminDashboard = () => {
@@ -16,6 +24,17 @@ const AdminDashboard = () => {
   });
   const [recentUsers, setRecentUsers] = useState([]);
   const [recentPosts, setRecentPosts] = useState([]);
+
+  // Helper function to strip HTML tags and get clean text
+  const stripHtml = (html) => {
+    if (!html) return '';
+    // Remove HTML tags
+    const text = html.replace(/<[^>]*>/g, '');
+    // Decode HTML entities
+    const textarea = document.createElement('textarea');
+    textarea.innerHTML = text;
+    return textarea.value;
+  };
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -77,7 +96,7 @@ const AdminDashboard = () => {
   if (loading || isLoading) {
     return (
       <AdminLayout>
-        <div className={styles.loading}>Loading dashboard...</div>
+        <AdminLoading size="large" text="Loading dashboard..." />
       </AdminLayout>
     );
   }
@@ -85,6 +104,7 @@ const AdminDashboard = () => {
   if (error) {
     return (
       <AdminLayout>
+        <AdminPageHeader title="Error" />
         <div className={styles.error}>{error}</div>
       </AdminLayout>
     );
@@ -92,157 +112,183 @@ const AdminDashboard = () => {
 
   return (
     <AdminLayout>
-      <div className={styles.dashboard}>
-        <h1>Admin Dashboard</h1>
-        
-        <div className={styles.statsGrid}>
-          <div className={styles.statCard}>
-            <h3>👥 Users</h3>
-            <p className={styles.statNumber}>{stats.users}</p>
-            <p className={styles.statLabel}>
-              {stats.onlineUsers} online now
-            </p>
-          </div>
+      <AdminPageHeader
+        title="Admin Dashboard"
+        description="Overview of your forum's activity and statistics"
+        actions={
+          <AdminButton
+            variant="primary"
+            onClick={() => window.open('/', '_blank')}
+            icon="🔗"
+          >
+            View Forum
+          </AdminButton>
+        }
+      />
 
-          <div className={styles.statCard}>
-            <h3>💬 Threads</h3>
-            <p className={styles.statNumber}>{stats.threads}</p>
-            <p className={styles.statLabel}>
-              {stats.subjects} subjects
-            </p>
-          </div>
+      <AdminStatsGrid>
+        <AdminStatCard
+          title="Users"
+          value={stats.users || 0}
+          icon="👥"
+          color="blue"
+          change={{
+            type: stats.onlineUsers > 0 ? 'increase' : 'neutral',
+            value: `${stats.onlineUsers || 0} online now`
+          }}
+        />
 
-          <div className={styles.statCard}>
-            <h3>📝 Posts</h3>
-            <p className={styles.statNumber}>{stats.posts}</p>
-            <p className={styles.statLabel}>
-              {stats.categories} categories
-            </p>
-          </div>
+        <AdminStatCard
+          title="Threads"
+          value={stats.threads || 0}
+          icon="💬"
+          color="green"
+          change={{
+            type: 'neutral',
+            value: `${stats.subjects || 0} subjects`
+          }}
+        />
 
-          <div className={styles.statCard}>
-            <h3>⚠️ Reports</h3>
-            <p className={styles.statNumber}>{stats.pendingReports}</p>
-            <p className={styles.statLabel}>
-              Pending review
-            </p>
-          </div>
+        <AdminStatCard
+          title="Posts"
+          value={stats.posts || 0}
+          icon="📝"
+          color="yellow"
+          change={{
+            type: 'neutral',
+            value: `${stats.categories || 0} categories`
+          }}
+        />
+
+        <AdminStatCard
+          title="Reports"
+          value={stats.pendingReports || 0}
+          icon="⚠️"
+          color={stats.pendingReports > 0 ? "red" : "green"}
+          change={{
+            type: stats.pendingReports > 0 ? 'increase' : 'neutral',
+            value: stats.pendingReports > 0 ? 'Needs attention' : 'All clear'
+          }}
+        />
+      </AdminStatsGrid>
+
+      <AdminCard title="Quick Actions" className={styles.quickActionsCard}>
+        <div className={styles.actionGrid}>
+          <AdminButton
+            variant="outline"
+            onClick={() => router.push('/admin/users')}
+            icon="👥"
+          >
+            Manage Users
+          </AdminButton>
+
+          <AdminButton
+            variant="outline"
+            onClick={() => router.push('/admin/forums')}
+            icon="🏛️"
+          >
+            Manage Forums
+          </AdminButton>
+
+          <AdminButton
+            variant="outline"
+            onClick={() => router.push('/admin/content')}
+            icon="📝"
+          >
+            Manage Content
+          </AdminButton>
+
+          <AdminButton
+            variant="outline"
+            onClick={() => router.push('/admin/templates')}
+            icon="🎨"
+          >
+            Customize Theme
+          </AdminButton>
+
+          <AdminButton
+            variant="outline"
+            onClick={() => router.push('/admin/settings')}
+            icon="⚙️"
+          >
+            Forum Settings
+          </AdminButton>
+
+          <AdminButton
+            variant="outline"
+            onClick={() => router.push('/admin/upload-settings')}
+            icon="📁"
+          >
+            Upload Settings
+          </AdminButton>
+
+          {stats.pendingReports > 0 && (
+            <AdminButton
+              variant="danger"
+              onClick={() => router.push('/admin/reports')}
+              icon="⚠️"
+            >
+              View Reports ({stats.pendingReports})
+            </AdminButton>
+          )}
+
+          <AdminButton
+            variant="outline"
+            onClick={() => router.push('/admin/backup')}
+            icon="💾"
+          >
+            Backup & Export
+          </AdminButton>
         </div>
+      </AdminCard>
 
-        {/* Quick Actions for Commercial Features */}
-        <div className={styles.quickActions}>
-          <h2>Quick Actions</h2>
-          <div className={styles.actionGrid}>
-            <button
-              className={styles.actionButton}
-              onClick={() => router.push('/admin/users')}
-            >
-              👥 Manage Users
-            </button>
+      <div className={styles.recentActivity}>
+        <AdminCard title="Recent Users">
+          {recentUsers.length > 0 ? (
+            <ul className={styles.userList}>
+              {recentUsers.map((user) => (
+                <li key={user.id} className={styles.userItem}>
+                  <span className={styles.userName}>{user.username}</span>
+                  <span className={styles.userEmail}>{user.email}</span>
+                  <span className={styles.userDate}>
+                    {new Date(user.createdAt).toLocaleDateString()}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No recent users</p>
+          )}
+        </AdminCard>
 
-            <button
-              className={styles.actionButton}
-              onClick={() => router.push('/admin/forums')}
-            >
-              🏛️ Manage Forums
-            </button>
-
-            <button
-              className={styles.actionButton}
-              onClick={() => router.push('/admin/content')}
-            >
-              📝 Manage Content
-            </button>
-
-            <button
-              className={styles.actionButton}
-              onClick={() => router.push('/admin/templates')}
-            >
-              🎨 Customize Theme
-            </button>
-
-            <button
-              className={styles.actionButton}
-              onClick={() => router.push('/admin/settings')}
-            >
-              ⚙️ Forum Settings
-            </button>
-
-            <button
-              className={styles.actionButton}
-              onClick={() => router.push('/admin/upload-settings')}
-            >
-              📁 Upload Settings
-            </button>
-
-            {stats.pendingReports > 0 && (
-              <button
-                className={`${styles.actionButton} ${styles.urgent}`}
-                onClick={() => router.push('/admin/reports')}
-              >
-                ⚠️ View Reports ({stats.pendingReports})
-              </button>
-            )}
-
-            <button
-              className={styles.actionButton}
-              onClick={() => router.push('/admin/backup')}
-            >
-              💾 Backup & Export
-            </button>
-          </div>
-        </div>
-        
-        <div className={styles.recentActivity}>
-          <div className={styles.recentSection}>
-            <h2>Recent Users</h2>
-            {recentUsers.length > 0 ? (
-              <ul className={styles.userList}>
-                {recentUsers.map((user) => (
-                  <li key={user.id} className={styles.userItem}>
-                    <span className={styles.userName}>{user.username}</span>
-                    <span className={styles.userEmail}>{user.email}</span>
-                    <span className={styles.userDate}>
-                      {new Date(user.createdAt).toLocaleDateString()}
+        <AdminCard title="Recent Posts">
+          {recentPosts.length > 0 ? (
+            <ul className={styles.postList}>
+              {recentPosts.map((post) => (
+                <li key={post.id} className={styles.postItem}>
+                  <div className={styles.postContent}>
+                    <span className={styles.postTitle}>
+                      {post.thread?.title || post.title || 'Untitled Thread'}
                     </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No recent users</p>
-            )}
-          </div>
-          
-          <div className={styles.recentSection}>
-            <h2>Recent Posts</h2>
-            {recentPosts.length > 0 ? (
-              <ul className={styles.postList}>
-                {recentPosts.map((post) => (
-                  <li key={post.id} className={styles.postItem}>
-                    <div className={styles.postContent}>
-                      <span className={styles.postTitle}>
-                        {post.thread?.title || 'Untitled Thread'}
-                      </span>
-                      <span className={styles.postExcerpt}>
-                        {post.content.substring(0, 80)}...
-                      </span>
-                    </div>
-                    <div className={styles.postMeta}>
-                      <span className={styles.postAuthor}>
-                        by {post.user?.username || 'Unknown'}
-                      </span>
-                      <span className={styles.postDate}>
-                        {new Date(post.createdAt).toLocaleString()}
-                      </span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No recent posts</p>
-            )}
-          </div>
-        </div>
+                    <span className={styles.postExcerpt}>
+                      {stripHtml(post.content).substring(0, 100)}...
+                    </span>
+                  </div>
+                  <div className={styles.postMeta}>
+                    <span className={styles.postAuthor}>
+                      by {post.user?.username || 'Unknown'}
+                    </span>
+                    <span className={styles.postDate}>
+                      {new Date(post.createdAt).toLocaleString()}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No recent posts</p>
+          )}
+        </AdminCard>
       </div>
     </AdminLayout>
   );

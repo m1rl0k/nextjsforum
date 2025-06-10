@@ -126,8 +126,12 @@ export const AdminStatCard = ({ title, value, change, icon, color = 'blue' }) =>
     </div>
     <div className={styles.statValue}>{value}</div>
     {change && (
-      <div className={`${styles.statChange} ${change.type === 'increase' ? styles.positive : styles.negative}`}>
-        {change.type === 'increase' ? '↗' : '↘'} {change.value}
+      <div className={`${styles.statChange} ${
+        change.type === 'increase' ? styles.positive :
+        change.type === 'decrease' ? styles.negative :
+        styles.neutral
+      }`}>
+        {change.type === 'increase' ? '↗' : change.type === 'decrease' ? '↘' : '•'} {change.value}
       </div>
     )}
   </div>

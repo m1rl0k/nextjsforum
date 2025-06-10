@@ -2,6 +2,17 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../../context/AuthContext';
 import AdminLayout from '../../components/admin/AdminLayout';
+import {
+  AdminPageHeader,
+  AdminCard,
+  AdminTabs,
+  AdminTable,
+  AdminPagination,
+  AdminLoading,
+  AdminButton,
+  AdminFormGroup,
+  AdminEmptyState
+} from '../../components/admin/AdminComponents';
 import styles from '../../styles/AdminContent.module.css';
 
 const AdminContent = () => {
@@ -19,6 +30,17 @@ const AdminContent = () => {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('newest');
+
+  // Helper function to strip HTML tags and get clean text
+  const stripHtml = (html) => {
+    if (!html) return '';
+    // Remove HTML tags
+    const text = html.replace(/<[^>]*>/g, '');
+    // Decode HTML entities
+    const textarea = document.createElement('textarea');
+    textarea.innerHTML = text;
+    return textarea.value;
+  };
 
   useEffect(() => {
     if (user?.role !== 'ADMIN') {
@@ -106,140 +128,159 @@ const AdminContent = () => {
   if (loading) {
     return (
       <AdminLayout>
-        <div className={styles.loading}>Loading content...</div>
+        <AdminLoading size="large" text="Loading content..." />
       </AdminLayout>
     );
   }
 
+  const columns = [
+    {
+      key: 'content',
+      label: 'Content',
+      render: (content) => (
+        <div className={styles.contentPreview}>
+          {stripHtml(content).substring(0, 100)}...
+        </div>
+      )
+    },
+    {
+      key: 'user',
+      label: 'Author',
+      render: (user) => (
+        <div className={styles.authorInfo}>
+          <div className={styles.authorName}>{user?.username || 'Unknown'}</div>
+          <div className={styles.authorRole}>{user?.role || 'USER'}</div>
+        </div>
+      )
+    },
+    {
+      key: 'thread',
+      label: 'Thread',
+      render: (thread, item) => (
+        <div className={styles.threadInfo}>
+          <div className={styles.threadTitle}>
+            {activeTab === 'threads' ? item.title : thread?.title || 'Unknown Thread'}
+          </div>
+        </div>
+      )
+    },
+    {
+      key: 'subject',
+      label: 'Subject',
+      render: (subject, item) => (
+        <div className={styles.subjectInfo}>
+          {item.subject?.name || item.thread?.subject?.name || 'General'}
+        </div>
+      )
+    },
+    {
+      key: 'createdAt',
+      label: 'Created',
+      render: (createdAt) => new Date(createdAt).toLocaleDateString()
+    }
+  ];
+
   return (
     <AdminLayout>
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h1>Manage Content</h1>
-          <form onSubmit={handleSearch} className={styles.searchForm}>
-            <input
-              type="text"
-              placeholder="Search content..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={styles.searchInput}
-            />
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className={styles.sortSelect}
-            >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="most_replies">Most Replies</option>
-              <option value="most_views">Most Views</option>
-            </select>
-            <button type="submit" className={styles.searchButton}>
-              Search
-            </button>
-          </form>
+      <AdminPageHeader
+        title="Manage Content"
+        description="View and moderate forum threads and posts"
+        breadcrumbs={[
+          { label: 'Admin', href: '/admin/dashboard' },
+          { label: 'Content Management' }
+        ]}
+      />
+
+      <AdminCard>
+        <div className={styles.controls}>
+          <AdminFormGroup label="Search">
+            <form onSubmit={handleSearch} className={styles.searchForm}>
+              <input
+                type="text"
+                placeholder="Search content..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className={styles.searchInput}
+              />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className={styles.sortSelect}
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="most_replies">Most Replies</option>
+                <option value="most_views">Most Views</option>
+              </select>
+              <AdminButton type="submit" variant="primary">
+                Search
+              </AdminButton>
+            </form>
+          </AdminFormGroup>
         </div>
 
-        <div className={styles.tabs}>
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setActiveTab(tab.id);
-                setPagination(prev => ({ ...prev, page: 1 }));
-              }}
-              className={`${styles.tab} ${activeTab === tab.id ? styles.activeTab : ''}`}
-            >
-              {tab.icon} {tab.label}
-            </button>
-          ))}
-        </div>
+        <AdminTabs
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={(tabId) => {
+            setActiveTab(tabId);
+            setPagination(prev => ({ ...prev, page: 1 }));
+          }}
+        />
 
         {error && (
           <div className={styles.error}>{error}</div>
         )}
 
-        <div className={styles.contentList}>
-          {content.length > 0 ? (
-            content.map((item) => (
-              <div key={item.id} className={styles.contentItem}>
-                <div className={styles.contentInfo}>
-                  <h3 className={styles.contentTitle}>
-                    {activeTab === 'threads' ? item.title : `Reply to: ${item.thread?.title}`}
-                  </h3>
-                  <div className={styles.contentMeta}>
-                    By {item.user?.username} • {new Date(item.createdAt).toLocaleDateString()}
-                    {activeTab === 'threads' && (
-                      <span> • {item.posts?.length || 0} replies • {item.viewCount || 0} views</span>
-                    )}
-                  </div>
-                  <div className={styles.contentPreview}>
-                    {item.content?.substring(0, 200)}...
-                  </div>
-                </div>
-                <div className={styles.contentActions}>
-                  <button
-                    onClick={() => router.push(activeTab === 'threads' ? `/threads/${item.id}` : `/threads/${item.threadId}#post-${item.id}`)}
-                    className={styles.actionButton}
-                    title="View"
-                  >
-                    👁️
-                  </button>
-                  <button
-                    onClick={() => router.push(`/admin/${activeTab}/${item.id}/edit`)}
-                    className={styles.actionButton}
-                    title="Edit"
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    onClick={() => handleContentAction(item.id, item.deleted ? 'restore' : 'delete')}
-                    className={`${styles.actionButton} ${item.deleted ? styles.restoreButton : styles.deleteButton}`}
-                    title={item.deleted ? 'Restore' : 'Delete'}
-                  >
-                    {item.deleted ? '♻️' : '🗑️'}
-                  </button>
-                  {activeTab === 'threads' && (
-                    <button
-                      onClick={() => handleContentAction(item.id, item.locked ? 'unlock' : 'lock')}
-                      className={`${styles.actionButton} ${item.locked ? styles.unlockButton : styles.lockButton}`}
-                      title={item.locked ? 'Unlock' : 'Lock'}
-                    >
-                      {item.locked ? '🔓' : '🔒'}
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className={styles.emptyState}>
-              No {activeTab} found
-            </div>
-          )}
-        </div>
+        {content.length > 0 ? (
+          <AdminTable
+            columns={columns}
+            data={content}
+            loading={loading}
+            actions={(item) => (
+              <>
+                <AdminButton
+                  size="small"
+                  variant="outline"
+                  onClick={() => router.push(activeTab === 'threads' ? `/threads/${item.id}` : `/threads/${item.threadId}#post-${item.id}`)}
+                  icon="👁️"
+                  title="View"
+                />
+                <AdminButton
+                  size="small"
+                  variant="outline"
+                  onClick={() => handleContentAction(item.id, item.deleted ? 'restore' : 'delete')}
+                  icon={item.deleted ? '♻️' : '🗑️'}
+                  title={item.deleted ? 'Restore' : 'Delete'}
+                />
+                {activeTab === 'threads' && (
+                  <AdminButton
+                    size="small"
+                    variant="outline"
+                    onClick={() => handleContentAction(item.id, item.locked ? 'unlock' : 'lock')}
+                    icon={item.locked ? '🔓' : '🔒'}
+                    title={item.locked ? 'Unlock' : 'Lock'}
+                  />
+                )}
+              </>
+            )}
+          />
+        ) : (
+          <AdminEmptyState
+            icon="📝"
+            title={`No ${activeTab} found`}
+            description={`There are no ${activeTab} to display at the moment.`}
+          />
+        )}
 
         {pagination.totalPages > 1 && (
-          <div className={styles.pagination}>
-            <button
-              onClick={() => handlePageChange(pagination.page - 1)}
-              disabled={pagination.page === 1}
-              className={styles.pageButton}
-            >
-              Previous
-            </button>
-            <div className={styles.pageInfo}>
-              Page {pagination.page} of {pagination.totalPages}
-            </div>
-            <button
-              onClick={() => handlePageChange(pagination.page + 1)}
-              disabled={pagination.page === pagination.totalPages}
-              className={styles.pageButton}
-            >
-              Next
-            </button>
-          </div>
+          <AdminPagination
+            currentPage={pagination.page}
+            totalPages={pagination.totalPages}
+            onPageChange={handlePageChange}
+          />
         )}
-      </div>
+      </AdminCard>
     </AdminLayout>
   );
 };
