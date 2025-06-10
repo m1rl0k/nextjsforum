@@ -8,13 +8,23 @@ async function hashPassword(password: string): Promise<string> {
 }
 
 async function main() {
-  console.log('Seeding database...');
+  console.log('🌱 Starting database seeding...');
+
+  // Check if database is already seeded
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: 'admin@example.com' }
+  });
+
+  if (existingAdmin) {
+    console.log('✅ Database already seeded, skipping...');
+    return;
+  }
+
+  console.log('📝 Creating fresh seed data...');
 
   // Create admin user
-  const admin = await prisma.user.upsert({
-    where: { email: 'admin@example.com' },
-    update: {},
-    create: {
+  const admin = await prisma.user.create({
+    data: {
       email: 'admin@example.com',
       username: 'admin',
       password: await hashPassword('admin123'),
@@ -27,10 +37,8 @@ async function main() {
   });
 
   // Create moderator user
-  const moderator = await prisma.user.upsert({
-    where: { email: 'moderator@example.com' },
-    update: {},
-    create: {
+  const moderator = await prisma.user.create({
+    data: {
       email: 'moderator@example.com',
       username: 'moderator',
       password: await hashPassword('mod123'),
@@ -43,10 +51,8 @@ async function main() {
   });
 
   // Create test user
-  const testUser = await prisma.user.upsert({
-    where: { email: 'user@example.com' },
-    update: {},
-    create: {
+  const testUser = await prisma.user.create({
+    data: {
       email: 'user@example.com',
       username: 'testuser',
       password: await hashPassword('user123'),
@@ -59,43 +65,31 @@ async function main() {
   });
 
   // Create categories
-  const category1 = await prisma.category.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
-      id: 1,
+  const category1 = await prisma.category.create({
+    data: {
       name: 'General Discussion',
       description: 'General discussions about anything and everything',
     },
   });
 
-  const category2 = await prisma.category.upsert({
-    where: { id: 2 },
-    update: {},
-    create: {
-      id: 2,
+  const category2 = await prisma.category.create({
+    data: {
       name: 'Help & Support',
       description: 'Get help with any issues or questions you have',
     },
   });
 
   // Create subjects
-  const subject1 = await prisma.subject.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
-      id: 1,
+  const subject1 = await prisma.subject.create({
+    data: {
       name: 'Introductions',
       description: 'Introduce yourself to the community',
       categoryId: category1.id,
     },
   });
 
-  const subject2 = await prisma.subject.upsert({
-    where: { id: 2 },
-    update: {},
-    create: {
-      id: 2,
+  const subject2 = await prisma.subject.create({
+    data: {
       name: 'Announcements',
       description: 'Important announcements and updates',
       categoryId: category1.id,
@@ -103,11 +97,8 @@ async function main() {
   });
 
   // Create a sample thread
-  const thread = await prisma.thread.upsert({
-    where: { id: 1 },
-    update: {},
-    create: {
-      id: 1,
+  const thread = await prisma.thread.create({
+    data: {
       title: 'Welcome to our forum!',
       content: 'Welcome everyone to our new forum! Feel free to introduce yourselves.',
       userId: admin.id,
@@ -129,8 +120,11 @@ async function main() {
     },
   });
 
-  console.log('Database seeded successfully!');
-  console.log({ admin, testUser, category1, category2, subject1, subject2, thread });
+  console.log('✅ Database seeded successfully!');
+  console.log('📋 Test Accounts Created:');
+  console.log('👑 Admin: admin@example.com / admin123');
+  console.log('🛡️  Moderator: moderator@example.com / mod123');
+  console.log('👤 User: user@example.com / user123');
 }
 
 main()

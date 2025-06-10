@@ -20,8 +20,13 @@ const AdminForums = () => {
     parentId: null,
     order: 0,
     isCategory: false,
-    isLocked: false
+    isLocked: false,
+    isPrivate: false,
+    allowThreads: true,
+    moderatorIds: []
   });
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+  const [draggedItem, setDraggedItem] = useState(null);
 
   useEffect(() => {
     if (user?.role !== 'ADMIN') {
@@ -109,7 +114,10 @@ const AdminForums = () => {
         parentId: null,
         order: 0,
         isCategory: false,
-        isLocked: false
+        isLocked: false,
+        isPrivate: false,
+        allowThreads: true,
+        moderatorIds: []
       });
       setIsCreating(false);
       setIsEditing(null);
@@ -128,7 +136,10 @@ const AdminForums = () => {
       parentId: forum.parentId,
       order: forum.order || 0,
       isCategory: forum.isCategory,
-      isLocked: forum.isLocked || false
+      isLocked: forum.isLocked || false,
+      isPrivate: forum.isPrivate || false,
+      allowThreads: forum.allowThreads !== false,
+      moderatorIds: forum.moderatorIds || []
     });
     setIsEditing(forum.id);
     setIsCreating(true);
@@ -165,7 +176,10 @@ const AdminForums = () => {
           <div className={styles.forumInfo}>
             <h3 className={styles.forumName}>{forum.name}</h3>
             <span className={styles.forumMeta}>
-              {forum.isCategory ? 'Category' : 'Forum'} • {forum.threads || 0} threads • {forum.posts || 0} posts
+              {forum.isCategory ? 'Category' : 'Forum'} • {forum.subjects?.length || forum.threads || 0} {forum.isCategory ? 'forums' : 'threads'} • {forum.posts || 0} posts
+              {forum.isLocked && <span className={styles.badge}>🔒 Locked</span>}
+              {forum.isPrivate && <span className={styles.badge}>🔐 Private</span>}
+              {!forum.allowThreads && !forum.isCategory && <span className={styles.badge}>📝 Read Only</span>}
             </span>
             {forum.slug && (
               <span className={styles.forumSlug}>/{forum.slug}</span>
@@ -243,7 +257,10 @@ const AdminForums = () => {
                 parentId: null,
                 order: 0,
                 isCategory: false,
-                isLocked: false
+                isLocked: false,
+                isPrivate: false,
+                allowThreads: true,
+                moderatorIds: []
               });
             }}
             className={styles.addButton}
@@ -348,6 +365,32 @@ const AdminForums = () => {
                   Locked (prevent new threads)
                 </label>
               </div>
+
+              <div className={styles.formGroup}>
+                <label>
+                  <input
+                    type="checkbox"
+                    name="isPrivate"
+                    checked={formData.isPrivate}
+                    onChange={handleInputChange}
+                  />
+                  Private (requires special permissions)
+                </label>
+              </div>
+
+              {!formData.isCategory && (
+                <div className={styles.formGroup}>
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="allowThreads"
+                      checked={formData.allowThreads}
+                      onChange={handleInputChange}
+                    />
+                    Allow new threads
+                  </label>
+                </div>
+              )}
               
               <div className={styles.formActions}>
                 <button type="submit" className={styles.saveButton}>

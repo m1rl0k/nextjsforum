@@ -142,6 +142,13 @@ const AdminDashboard = () => {
 
             <button
               className={styles.actionButton}
+              onClick={() => router.push('/admin/forums')}
+            >
+              🏛️ Manage Forums
+            </button>
+
+            <button
+              className={styles.actionButton}
               onClick={() => router.push('/admin/content')}
             >
               📝 Manage Content

@@ -6,14 +6,24 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting database seeding...');
 
+  // Check if database is already seeded
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: 'admin@forum.com' }
+  });
+
+  if (existingAdmin) {
+    console.log('✅ Database already seeded, skipping...');
+    return;
+  }
+
+  console.log('📝 Creating fresh seed data...');
+
   // Create test users
   const hashedPassword = await bcrypt.hash('password123', 10);
 
   // Create admin user
-  const admin = await prisma.user.upsert({
-    where: { email: 'admin@forum.com' },
-    update: {},
-    create: {
+  const admin = await prisma.user.create({
+    data: {
       email: 'admin@forum.com',
       username: 'admin',
       password: hashedPassword,
@@ -27,10 +37,8 @@ async function main() {
   });
 
   // Create moderator user
-  const moderator = await prisma.user.upsert({
-    where: { email: 'mod@forum.com' },
-    update: {},
-    create: {
+  const moderator = await prisma.user.create({
+    data: {
       email: 'mod@forum.com',
       username: 'moderator',
       password: hashedPassword,

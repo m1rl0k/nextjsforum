@@ -3,7 +3,7 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Install system dependencies
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat openssl
 
 # Set environment variables
 ENV NODE_ENV=development
@@ -16,12 +16,12 @@ RUN npm install
 # Copy the rest of the application
 COPY . .
 
-
-# Generate Prisma client
-RUN npx prisma generate
+# Copy and make entrypoint script executable
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Expose the port
 EXPOSE 3000
 
-# Run the application in development mode
-CMD ["npm", "run", "dev"]
+# Use the entrypoint script
+ENTRYPOINT ["/entrypoint.sh"]
