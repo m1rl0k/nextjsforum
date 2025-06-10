@@ -34,9 +34,18 @@ export default function Category({ category }) {
 
 function Subject({ subject }) {
   const lastPost = subject.lastPost ? new Date(subject.lastPost) : null;
-  
+
+  const handleRowClick = (e) => {
+    // Don't navigate if clicking on a link
+    if (e.target.tagName === 'A' || e.target.closest('a')) {
+      return;
+    }
+    // Navigate to the subject page
+    window.location.href = `/subjects/${subject.id}`;
+  };
+
   return (
-    <div className="subject-row">
+    <div className="subject-row" onClick={handleRowClick}>
       <div className="subject-icon">
         <span>📁</span>
       </div>

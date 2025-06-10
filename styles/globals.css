@@ -124,6 +124,11 @@ a:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.category-header:hover {
+  background-color: var(--secondary-color);
 }
 
 .category-title {
@@ -165,6 +170,16 @@ a:hover {
   border: 1px solid var(--border-color);
   border-bottom: none;
   background-color: var(--thread-bg);
+  transition: background-color 0.2s ease;
+}
+
+.subject-row:nth-child(even) {
+  background-color: var(--thread-alt-bg);
+}
+
+.subject-row:hover {
+  background-color: var(--thread-hover);
+  cursor: pointer;
 }
 
 .subject-row:last-child {
