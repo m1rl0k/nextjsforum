@@ -15,12 +15,14 @@ export default function ConversationView() {
   const [sending, setSending] = useState(false);
   const [otherUser, setOtherUser] = useState(null);
   const [hasInitialized, setHasInitialized] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   const fetchingRef = useRef(false);
 
   // Reset state when ID changes
   useEffect(() => {
     if (id && id !== '[id]' && typeof id === 'string') {
       setHasInitialized(false);
+      setIsReady(false);
       fetchingRef.current = false;
       setMessages([]);
       setOtherUser(null);
