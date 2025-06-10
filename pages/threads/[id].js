@@ -15,6 +15,7 @@ export default function ThreadPage() {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const postsPerPage = 10;
+  const [isPerformingAction, setIsPerformingAction] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -58,6 +59,37 @@ export default function ThreadPage() {
     }
   };
 
+  const handleThreadAction = async (action) => {
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'MODERATOR')) {
+      alert('You do not have permission to perform this action');
+      return;
+    }
+
+    setIsPerformingAction(true);
+    try {
+      const response = await fetch(`/api/threads/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ action }),
+      });
+
+      if (response.ok) {
+        // Refresh the thread data
+        await fetchThread();
+      } else {
+        throw new Error('Failed to perform action');
+      }
+    } catch (err) {
+      console.error('Error performing thread action:', err);
+      alert('Failed to perform action');
+    } finally {
+      setIsPerformingAction(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <Layout>
@@ -91,10 +123,51 @@ export default function ThreadPage() {
     <Layout title={thread.title}>
       <div className="thread-page">
         <div className="breadcrumbs">
-          <Link href="/">Forum Index</Link> &raquo; 
+          <Link href="/">Forum Index</Link> &raquo;
           <Link href={`/categories/${thread.category?.id}`}>{thread.category?.name}</Link> &raquo;
           <Link href={`/subjects/${thread.subjectId}`}>{thread.subject?.name}</Link> &raquo;
           <span> {thread.title}</span>
+        </div>
+
+        {/* Thread Status and Management */}
+        <div className="thread-header">
+          <h1 className="thread-title">
+            {thread.threadType === 'ANNOUNCEMENT' && <span className="thread-badge pinned">📍 PINNED</span>}
+            {thread.sticky && thread.threadType !== 'ANNOUNCEMENT' && <span className="thread-badge sticky">📌 STICKY</span>}
+            {thread.locked && <span className="thread-badge locked">🔒 LOCKED</span>}
+            {thread.title}
+          </h1>
+
+          {user && (user.role === 'ADMIN' || user.role === 'MODERATOR') && (
+            <div className="thread-management">
+              <h3>Thread Management</h3>
+              <div className="management-buttons">
+                <button
+                  onClick={() => handleThreadAction(thread.locked ? 'unlock' : 'lock')}
+                  className="button"
+                  disabled={isPerformingAction}
+                >
+                  {thread.locked ? '🔓 Unlock' : '🔒 Lock'} Thread
+                </button>
+
+                <button
+                  onClick={() => handleThreadAction(thread.sticky ? 'unsticky' : 'sticky')}
+                  className="button"
+                  disabled={isPerformingAction}
+                >
+                  {thread.sticky ? '📌 Unsticky' : '📌 Make Sticky'}
+                </button>
+
+                <button
+                  onClick={() => handleThreadAction(thread.threadType === 'ANNOUNCEMENT' ? 'unpin' : 'pin')}
+                  className="button"
+                  disabled={isPerformingAction}
+                >
+                  {thread.threadType === 'ANNOUNCEMENT' ? '📍 Unpin' : '📍 Pin'} Thread
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         
         <div className="thread-actions top">
