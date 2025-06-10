@@ -87,16 +87,20 @@ export default function ConversationView() {
           
           // Mark conversation as read
           markAsRead();
+          setIsReady(true);
         } else {
           setError('No messages found in this conversation');
+          setIsReady(true);
         }
       } else {
         const errorData = await res.json();
         setError(errorData.error || 'Failed to load conversation');
+        setIsReady(true);
       }
     } catch (err) {
       console.error('Error fetching conversation:', err);
       setError('Failed to load conversation');
+      setIsReady(true);
     } finally {
       setLoading(false);
       fetchingRef.current = false;
@@ -149,6 +153,7 @@ export default function ConversationView() {
         setReplyContent('');
         // Reset the initialization flag to allow refresh
         setHasInitialized(false);
+        setIsReady(false);
         fetchingRef.current = false;
         await fetchConversation(); // Refresh the conversation
       } else {
@@ -223,7 +228,7 @@ export default function ConversationView() {
     );
   }
 
-  if (loading || !hasInitialized) {
+  if (loading || !isReady) {
     return (
       <Layout>
         <div className="loading">
@@ -295,7 +300,11 @@ export default function ConversationView() {
               )}
             </div>
             <div className="conversation-details">
-              <div className="user-name">{otherUser?.username || 'Unknown User'}</div>
+              <div className="user-name">
+                <Link href={`/profile/${otherUser?.username || 'user'}`}>
+                  {otherUser?.username || 'Unknown User'}
+                </Link>
+              </div>
               <div className="message-count">{messages.length} message{messages.length !== 1 ? 's' : ''}</div>
             </div>
           </div>
@@ -309,6 +318,8 @@ export default function ConversationView() {
           <table className="messages-table" cellSpacing="1" cellPadding="0">
             {messages.map((message, index) => {
               const isCurrentUser = message.senderId === user.id.toString() || message.senderId === user.id;
+              const messageUser = isCurrentUser ? user : otherUser;
+              const messageUserData = isCurrentUser ? user : message.sender;
 
               return (
                 <tbody key={message.id} className={`message-post ${index % 2 === 0 ? 'row-even' : 'row-odd'}`}>
@@ -335,9 +346,20 @@ export default function ConversationView() {
                           )}
                         </div>
                         <div className="post-username">
-                          {isCurrentUser ? user.username : (otherUser?.username || 'Unknown User')}
+                          {isCurrentUser ? (
+                            <Link href={`/profile/${user.username}`}>
+                              {user.username}
+                            </Link>
+                          ) : (
+                            <Link href={`/profile/${otherUser?.username || 'user'}`}>
+                              {otherUser?.username || 'Unknown User'}
+                            </Link>
+                          )}
                         </div>
-                        <div className="post-user-title">Member</div>
+                        <div className="post-user-title">
+                          {messageUserData?.role === 'ADMIN' ? 'Administrator' :
+                           messageUserData?.role === 'MODERATOR' ? 'Moderator' : 'Member'}
+                        </div>
                       </div>
                     </td>
                     <td className="post-info-cell">
@@ -353,8 +375,16 @@ export default function ConversationView() {
                   <tr className="post-content-row">
                     <td className="post-user-stats">
                       <div className="user-stats">
-                        <div className="stat-item">Posts: 1</div>
-                        <div className="stat-item">Joined: Today</div>
+                        <div className="stat-item">
+                          Posts: {messageUserData?.postCount || messageUserData?._count?.posts || 0}
+                        </div>
+                        <div className="stat-item">
+                          Joined: {messageUserData?.createdAt ?
+                            new Date(messageUserData.createdAt).toLocaleDateString([], {
+                              month: 'short',
+                              year: 'numeric'
+                            }) : 'Unknown'}
+                        </div>
                       </div>
                     </td>
                     <td className="post-content-cell">

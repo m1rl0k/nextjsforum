@@ -39,14 +39,30 @@ export default async function handler(req, res) {
               select: {
                 id: true,
                 username: true,
-                avatar: true
+                avatar: true,
+                createdAt: true,
+                postCount: true,
+                role: true,
+                _count: {
+                  select: {
+                    posts: true
+                  }
+                }
               }
             },
             recipient: {
               select: {
                 id: true,
                 username: true,
-                avatar: true
+                avatar: true,
+                createdAt: true,
+                postCount: true,
+                role: true,
+                _count: {
+                  select: {
+                    posts: true
+                  }
+                }
               }
             },
             replyTo: {
@@ -93,14 +109,30 @@ export default async function handler(req, res) {
                   select: {
                     id: true,
                     username: true,
-                    avatar: true
+                    avatar: true,
+                    createdAt: true,
+                    postCount: true,
+                    role: true,
+                    _count: {
+                      select: {
+                        posts: true
+                      }
+                    }
                   }
                 },
                 recipient: {
                   select: {
                     id: true,
                     username: true,
-                    avatar: true
+                    avatar: true,
+                    createdAt: true,
+                    postCount: true,
+                    role: true,
+                    _count: {
+                      select: {
+                        posts: true
+                      }
+                    }
                   }
                 },
                 replyTo: {
