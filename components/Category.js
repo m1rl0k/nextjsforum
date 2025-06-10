@@ -6,12 +6,15 @@ export default function Category({ category }) {
 
   return (
     <div className="category-block">
-      <div 
-        className="category-header" 
+      <div
+        className="category-header"
         onClick={() => setIsExpanded(!isExpanded)}
         style={{ cursor: 'pointer' }}
       >
-        {category.name}
+        <span className="category-title">{category.name}</span>
+        <span className="category-toggle">
+          {isExpanded ? '−' : '+'}
+        </span>
       </div>
       {category.description && (
         <div className="category-description">
@@ -52,7 +55,9 @@ function Subject({ subject }) {
       <div className="subject-lastpost">
         {lastPost ? (
           <>
-            <div>Last post by {subject.lastPostUser?.username || 'User'}</div>
+            <div>Last post by <Link href={`/profile/${subject.lastPostUser?.username || 'user'}`}>
+              {subject.lastPostUser?.username || 'User'}
+            </Link></div>
             <div>{lastPost.toLocaleDateString()}</div>
             {subject.lastThread && (
               <div>

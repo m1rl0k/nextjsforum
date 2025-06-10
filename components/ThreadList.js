@@ -66,7 +66,7 @@ function ThreadRow({ thread }) {
             </Link>
           </div>
           <div className="thread-starter">
-            Started by <Link href={`/users/${thread.userId}`}>{thread.user?.username || 'Deleted User'}</Link>
+            Started by <Link href={`/profile/${thread.user?.username || 'deleted'}`}>{thread.user?.username || 'Deleted User'}</Link>
           </div>
         </div>
       </td>
@@ -80,7 +80,7 @@ function ThreadRow({ thread }) {
         {lastPost ? (
           <>
             <div>{lastPost.toLocaleDateString()}</div>
-            <div>by <Link href={`/users/${thread.lastPostUserId}`}>
+            <div>by <Link href={`/profile/${thread.lastPostUser?.username || 'user'}`}>
               {thread.lastPostUser?.username || 'User'}
             </Link></div>
           </>

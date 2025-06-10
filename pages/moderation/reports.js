@@ -168,7 +168,11 @@ export default function ReportsManagement() {
     {
       key: 'reportedBy',
       label: 'Reported By',
-      render: (reportedBy) => reportedBy?.username || 'Unknown'
+      render: (reportedBy) => reportedBy?.username ? (
+        <Link href={`/profile/${reportedBy.username}`} style={{ color: '#3b82f6' }}>
+          {reportedBy.username}
+        </Link>
+      ) : 'Unknown'
     },
     {
       key: 'createdAt',

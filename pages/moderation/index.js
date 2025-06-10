@@ -115,7 +115,11 @@ const ModerationDashboard = () => {
     {
       key: 'reportedBy',
       label: 'Reported By',
-      render: (reportedBy) => reportedBy?.username || 'Unknown'
+      render: (reportedBy) => reportedBy?.username ? (
+        <Link href={`/profile/${reportedBy.username}`} style={{ color: '#3b82f6' }}>
+          {reportedBy.username}
+        </Link>
+      ) : 'Unknown'
     },
     {
       key: 'createdAt',
@@ -140,7 +144,11 @@ const ModerationDashboard = () => {
     {
       key: 'user',
       label: 'Author',
-      render: (user) => user?.username || 'Unknown'
+      render: (user) => user?.username ? (
+        <Link href={`/profile/${user.username}`} style={{ color: '#3b82f6' }}>
+          {user.username}
+        </Link>
+      ) : 'Unknown'
     },
     {
       key: 'createdAt',

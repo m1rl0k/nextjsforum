@@ -198,7 +198,11 @@ export default function ContentManagement() {
     {
       key: 'user',
       label: 'Author',
-      render: (user) => user?.username || 'Unknown'
+      render: (user) => user?.username ? (
+        <Link href={`/profile/${user.username}`} style={{ color: '#3b82f6' }}>
+          {user.username}
+        </Link>
+      ) : 'Unknown'
     },
     {
       key: 'createdAt',

@@ -171,7 +171,9 @@ export default function PendingContent() {
                   fontSize: '0.9rem',
                   color: '#666'
                 }}>
-                  <span><strong>By:</strong> {item.user?.username}</span>
+                  <span><strong>By:</strong> <Link href={`/profile/${item.user?.username || 'user'}`} style={{ color: '#3b82f6' }}>
+                    {item.user?.username}
+                  </Link></span>
                   {item.subject && <span><strong>In:</strong> {item.subject}</span>}
                   {item.threadId && (
                     <span>
