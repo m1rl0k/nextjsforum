@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 import Link from 'next/link';
 
 export default function MessagesPage() {
+  const { user } = useAuth();
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [showCompose, setShowCompose] = useState(false);
 
   useEffect(() => {
@@ -13,42 +16,66 @@ export default function MessagesPage() {
 
   const fetchConversations = async () => {
     try {
-      const response = await fetch('/api/messages/conversations');
+      setLoading(true);
+      setError('');
+      const response = await fetch('/api/messages/conversations', {
+        credentials: 'include'
+      });
+
       if (response.ok) {
         const data = await response.json();
+        console.log('Conversations data:', data); // Debug log
         setConversations(data.conversations || []);
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to load conversations');
       }
     } catch (error) {
       console.error('Error fetching conversations:', error);
+      setError('Failed to load conversations');
     } finally {
       setLoading(false);
     }
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = (now - date) / (1000 * 60 * 60);
+    if (!dateString) return '';
 
-    if (diffInHours < 24) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } else if (diffInHours < 168) { // 7 days
-      return date.toLocaleDateString([], { weekday: 'short' });
-    } else {
-      return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '';
+
+      const now = new Date();
+      const diffInHours = (now - date) / (1000 * 60 * 60);
+
+      if (diffInHours < 1) {
+        return 'Just now';
+      } else if (diffInHours < 24) {
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      } else if (diffInHours < 168) { // 7 days
+        return date.toLocaleDateString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+      } else {
+        return date.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+    } catch (error) {
+      console.error('Date formatting error:', error);
+      return '';
     }
   };
 
-  const getOtherUser = (conversation, currentUserId) => {
-    if (conversation.sender_id === currentUserId) {
+  const getOtherUser = (conversation) => {
+    if (!user || !conversation) return null;
+
+    // Check if current user is the sender
+    if (conversation.senderId === user.id.toString() || conversation.senderId === user.id) {
       return {
-        id: conversation.recipient_id,
+        id: conversation.recipientId,
         username: conversation.recipient_username,
         avatar: conversation.recipient_avatar
       };
     } else {
       return {
-        id: conversation.sender_id,
+        id: conversation.senderId,
         username: conversation.sender_username,
         avatar: conversation.sender_avatar
       };

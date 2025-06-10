@@ -1,5 +1,6 @@
 import prisma from '../../../lib/prisma';
 import { verifyToken } from '../../../lib/auth';
+import { serializeBigInt } from '../../../lib/bigintUtils';
 
 export default async function handler(req, res) {
   const { id } = req.query;
@@ -51,7 +52,9 @@ export default async function handler(req, res) {
         return res.status(403).json({ error: 'Access denied' });
       }
 
-      res.status(200).json({ message });
+      // Convert BigInt values to strings for JSON serialization
+      const serializedMessage = serializeBigInt(message);
+      res.status(200).json({ message: serializedMessage });
     } catch (error) {
       console.error('Error fetching message:', error);
       res.status(500).json({ error: 'Failed to fetch message' });
