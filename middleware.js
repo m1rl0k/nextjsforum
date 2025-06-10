@@ -14,6 +14,18 @@ export function middleware(request) {
     return NextResponse.next();
   }
 
+  // Check moderation access
+  if (pathname.startsWith('/moderation')) {
+    const token = request.cookies.get('token')?.value;
+
+    if (!token) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+
+    // Note: In a real implementation, you would verify the token and check user role here
+    // For now, we'll let the page component handle the role check
+  }
+
   // For production, check installation status
   if (process.env.NODE_ENV === 'production' || process.env.USE_DATABASE_SETTINGS === 'true') {
     // In a real implementation, you would check the database here

@@ -103,9 +103,21 @@ const AdminPosts = () => {
     }
   };
 
+  // Helper function to strip HTML tags and get clean text
+  const stripHtml = (html) => {
+    if (!html) return '';
+    // Remove HTML tags
+    const text = html.replace(/<[^>]*>/g, '');
+    // Decode HTML entities
+    const textarea = document.createElement('textarea');
+    textarea.innerHTML = text;
+    return textarea.value;
+  };
+
   const truncateContent = (content, maxLength = 150) => {
-    if (content.length <= maxLength) return content;
-    return content.substring(0, maxLength) + '...';
+    const cleanContent = stripHtml(content);
+    if (cleanContent.length <= maxLength) return cleanContent;
+    return cleanContent.substring(0, maxLength) + '...';
   };
 
   if (loading || isLoading) {

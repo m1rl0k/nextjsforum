@@ -93,9 +93,6 @@ const AdminLayout = ({ children }) => {
             <li className={isActive('/admin/reports')}>
               <Link href="/admin/reports">Reports</Link>
             </li>
-            <li className={isActive('/admin/moderation')}>
-              <Link href="/admin/moderation">Moderation</Link>
-            </li>
             <li className={isActive('/admin/content')}>
               <Link href="/admin/content">Content Management</Link>
             </li>

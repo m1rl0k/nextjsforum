@@ -107,7 +107,7 @@ const Navigation = () => {
                     <Link href="/notifications">Notifications</Link>
                     <Link href="/messages">Messages</Link>
                     {(user.role === 'ADMIN' || user.role === 'MODERATOR') && (
-                      <Link href="/admin/moderation">Moderation</Link>
+                      <Link href="/moderation">Moderation</Link>
                     )}
                     {user.role === 'ADMIN' && (
                       <Link href="/admin/dashboard">Admin Panel</Link>
