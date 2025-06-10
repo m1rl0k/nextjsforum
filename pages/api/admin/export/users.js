@@ -21,6 +21,8 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
       try {
+        console.log('Starting users export...');
+
         // Get all users
         const users = await prisma.user.findMany({
           select: {
@@ -34,7 +36,7 @@ export default async function handler(req, res) {
             isActive: true,
             createdAt: true,
             updatedAt: true,
-            lastLoginAt: true
+            lastLogin: true
           },
           orderBy: { createdAt: 'desc' }
         });
@@ -65,7 +67,7 @@ export default async function handler(req, res) {
           user.isActive ? 'Yes' : 'No',
           user.createdAt ? new Date(user.createdAt).toISOString() : '',
           user.updatedAt ? new Date(user.updatedAt).toISOString() : '',
-          user.lastLoginAt ? new Date(user.lastLoginAt).toISOString() : ''
+          user.lastLogin ? new Date(user.lastLogin).toISOString() : ''
         ]);
 
         const csvContent = [
@@ -76,7 +78,11 @@ export default async function handler(req, res) {
         // Set headers for CSV download
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', `attachment; filename="users-export-${new Date().toISOString().split('T')[0]}.csv"`);
-        
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+        console.log('Sending CSV with', users.length, 'users');
         res.status(200).send(csvContent);
       } catch (error) {
         console.error('Error exporting users:', error);

@@ -324,12 +324,57 @@
   }
 }
 
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.paginationButton {
+  background-color: #4299e1;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background-color: #3182ce;
+}
+
+.paginationButton:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.paginationInfo {
+  font-size: 0.875rem;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+.backupDescription {
+  font-size: 0.75rem;
+  color: #718096;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
 /* Focus states for accessibility */
 .createButton:focus,
 .downloadButton:focus,
 .deleteButton:focus,
 .importButton:focus,
-.exportButton:focus {
+.exportButton:focus,
+.paginationButton:focus {
   outline: 2px solid #4299e1;
   outline-offset: 2px;
 }

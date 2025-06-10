@@ -1,5 +1,6 @@
 import prisma from '../../../../lib/prisma';
 import { verifyToken } from '../../../../lib/auth';
+import { deleteBackupFile } from '../../../../lib/backupStorage';
 
 export default async function handler(req, res) {
   try {
@@ -23,20 +24,32 @@ export default async function handler(req, res) {
 
     if (req.method === 'DELETE') {
       try {
-        // In a real implementation, you would delete the backup file from storage
-        // For now, we'll just simulate the deletion
-        
         // Validate backup ID
         if (!id || isNaN(parseInt(id))) {
           return res.status(400).json({ message: 'Invalid backup ID' });
         }
 
-        // In a real system, you would:
-        // 1. Check if backup exists in storage
-        // 2. Delete the backup file
-        // 3. Remove backup record from database
-        
-        // For simulation, we'll just return success
+        const backupId = parseInt(id);
+
+        // Check if backup exists
+        const backup = await prisma.backup.findUnique({
+          where: { id: backupId }
+        });
+
+        if (!backup) {
+          return res.status(404).json({ message: 'Backup not found' });
+        }
+
+        // Delete backup file from storage
+        if (backup.filename) {
+          await deleteBackupFile(backup.filename);
+        }
+
+        // Delete backup from database
+        await prisma.backup.delete({
+          where: { id: backupId }
+        });
+
         res.status(200).json({
           status: 'success',
           message: 'Backup deleted successfully'
@@ -50,15 +63,26 @@ export default async function handler(req, res) {
       }
     } else if (req.method === 'GET') {
       try {
-        // Get backup details
-        // In a real implementation, you would fetch from storage/database
-        const backup = {
-          id: parseInt(id),
-          createdAt: new Date().toISOString(),
-          size: 1024 * 1024 * 5, // 5MB
-          includes: ['Users', 'Threads', 'Posts', 'Categories', 'Settings'],
-          createdBy: user.id
-        };
+        // Validate backup ID
+        if (!id || isNaN(parseInt(id))) {
+          return res.status(400).json({ message: 'Invalid backup ID' });
+        }
+
+        const backupId = parseInt(id);
+
+        // Get backup details from database
+        const backup = await prisma.backup.findUnique({
+          where: { id: backupId },
+          include: {
+            creator: {
+              select: { id: true, username: true }
+            }
+          }
+        });
+
+        if (!backup) {
+          return res.status(404).json({ message: 'Backup not found' });
+        }
 
         res.status(200).json({
           status: 'success',

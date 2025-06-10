@@ -12,6 +12,12 @@ const AdminBackup = () => {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1
+  });
   const [backupOptions, setBackupOptions] = useState({
     includeUsers: true,
     includeThreads: true,
@@ -28,21 +34,24 @@ const AdminBackup = () => {
       return;
     }
     fetchBackups();
-  }, []);
+  }, [pagination.page]);
 
-  const fetchBackups = async () => {
+  const fetchBackups = async (page = pagination.page) => {
     try {
       setLoading(true);
-      const res = await fetch('/api/admin/backup', {
+      const res = await fetch(`/api/admin/backup?page=${page}&limit=${pagination.limit}`, {
         credentials: 'include'
       });
       const data = await res.json();
-      
+
       if (!res.ok) {
         throw new Error(data.message || 'Failed to fetch backups');
       }
-      
+
       setBackups(data.backups || []);
+      if (data.pagination) {
+        setPagination(data.pagination);
+      }
     } catch (err) {
       setError(err.message || 'Failed to load backups');
       console.error('Error fetching backups:', err);
@@ -83,24 +92,43 @@ const AdminBackup = () => {
 
   const handleDownloadBackup = async (backupId) => {
     try {
+      setError('');
+
       const res = await fetch(`/api/admin/backup/${backupId}/download`, {
+        method: 'GET',
         credentials: 'include'
       });
 
       if (!res.ok) {
-        throw new Error('Failed to download backup');
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to download backup');
       }
 
+      // Get the filename from the Content-Disposition header
+      const contentDisposition = res.headers.get('Content-Disposition');
+      let filename = `forum-backup-${backupId}.json`;
+
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      // Create blob and download
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `forum-backup-${backupId}.zip`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
+
+      setSuccess('Backup downloaded successfully!');
     } catch (err) {
+      console.error('Download error:', err);
       setError(err.message || 'Failed to download backup');
     }
   };
@@ -124,6 +152,50 @@ const AdminBackup = () => {
       fetchBackups(); // Refresh the list
     } catch (err) {
       setError(err.message || 'Failed to delete backup');
+    }
+  };
+
+  const handleExport = async (type) => {
+    try {
+      setError('');
+
+      const res = await fetch(`/api/admin/export/${type}`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to export ${type}`);
+      }
+
+      // Get the filename from the Content-Disposition header
+      const contentDisposition = res.headers.get('Content-Disposition');
+      let filename = `${type}-export-${new Date().toISOString().split('T')[0]}`;
+
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      } else {
+        // Add appropriate extension
+        filename += type === 'settings' ? '.json' : '.csv';
+      }
+
+      // Create blob and download
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      setSuccess(`${type.charAt(0).toUpperCase() + type.slice(1)} exported successfully!`);
+    } catch (err) {
+      setError(err.message || `Failed to export ${type}`);
     }
   };
 
@@ -255,12 +327,20 @@ const AdminBackup = () => {
                       <div className={styles.backupMeta}>
                         Created: {new Date(backup.createdAt).toLocaleString()}
                         {backup.size && (
-                          <span> • Size: {formatFileSize(backup.size)}</span>
+                          <span> • Size: {formatFileSize(Number(backup.size))}</span>
+                        )}
+                        {backup.creator && (
+                          <span> • By: {backup.creator.username}</span>
                         )}
                       </div>
                       <div className={styles.backupIncludes}>
                         Includes: {backup.includes?.join(', ') || 'All data'}
                       </div>
+                      {backup.description && (
+                        <div className={styles.backupDescription}>
+                          {backup.description}
+                        </div>
+                      )}
                     </div>
                     <div className={styles.backupActions}>
                       <button
@@ -284,6 +364,39 @@ const AdminBackup = () => {
             ) : (
               <div className={styles.emptyState}>
                 No backups found. Create your first backup above.
+              </div>
+            )}
+
+            {/* Pagination */}
+            {pagination.totalPages > 1 && (
+              <div className={styles.pagination}>
+                <button
+                  onClick={() => {
+                    const newPage = pagination.page - 1;
+                    setPagination(prev => ({ ...prev, page: newPage }));
+                    fetchBackups(newPage);
+                  }}
+                  disabled={pagination.page <= 1}
+                  className={styles.paginationButton}
+                >
+                  ← Previous
+                </button>
+
+                <span className={styles.paginationInfo}>
+                  Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
+                </span>
+
+                <button
+                  onClick={() => {
+                    const newPage = pagination.page + 1;
+                    setPagination(prev => ({ ...prev, page: newPage }));
+                    fetchBackups(newPage);
+                  }}
+                  disabled={pagination.page >= pagination.totalPages}
+                  className={styles.paginationButton}
+                >
+                  Next →
+                </button>
               </div>
             )}
           </div>
@@ -323,37 +436,25 @@ const AdminBackup = () => {
             <h2>Quick Export</h2>
             <div className={styles.exportGrid}>
               <button
-                onClick={() => {
-                  // Export users
-                  window.open('/api/admin/export/users', '_blank');
-                }}
+                onClick={() => handleExport('users')}
                 className={styles.exportButton}
               >
                 👥 Export Users (CSV)
               </button>
               <button
-                onClick={() => {
-                  // Export threads
-                  window.open('/api/admin/export/threads', '_blank');
-                }}
+                onClick={() => handleExport('threads')}
                 className={styles.exportButton}
               >
                 💬 Export Threads (CSV)
               </button>
               <button
-                onClick={() => {
-                  // Export posts
-                  window.open('/api/admin/export/posts', '_blank');
-                }}
+                onClick={() => handleExport('posts')}
                 className={styles.exportButton}
               >
                 📝 Export Posts (CSV)
               </button>
               <button
-                onClick={() => {
-                  // Export settings
-                  window.open('/api/admin/export/settings', '_blank');
-                }}
+                onClick={() => handleExport('settings')}
                 className={styles.exportButton}
               >
                 ⚙️ Export Settings (JSON)

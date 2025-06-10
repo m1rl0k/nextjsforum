@@ -55,6 +55,7 @@ model User {
   triggeredNotifications  Notification[]           @relation("TriggeredNotifications")
   notifications           Notification[]
   uploadedImages          Image[]
+  backups                 Backup[]
 }
 
 model Category {
@@ -550,4 +551,21 @@ model ThreadImage {
   image    Image  @relation(fields: [imageId], references: [id], onDelete: Cascade)
 
   @@unique([threadId, imageId])
+}
+
+model Backup {
+  id          Int      @id @default(autoincrement())
+  filename    String   @unique
+  originalName String
+  size        BigInt
+  includes    String[] // Array of what was included (users, threads, posts, etc.)
+  status      String   @default("completed") // completed, failed, in_progress
+  createdBy   Int
+  createdAt   DateTime @default(now())
+  filePath    String?  // Path to the backup file
+  description String?
+
+  creator     User     @relation(fields: [createdBy], references: [id])
+
+  @@map("backups")
 }

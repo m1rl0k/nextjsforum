@@ -1,5 +1,6 @@
 import prisma from '../../../lib/prisma';
 import { verifyToken } from '../../../lib/auth';
+import { saveBackupFile } from '../../../lib/backupStorage';
 
 export default async function handler(req, res) {
   try {
@@ -20,20 +21,44 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'GET') {
-      // Get list of backups (placeholder - would need backup storage system)
-      const backups = [
-        {
-          id: 1,
-          createdAt: new Date().toISOString(),
-          size: 1024 * 1024 * 5, // 5MB
-          includes: ['Users', 'Threads', 'Posts', 'Categories', 'Settings']
-        }
-      ];
+      // Get list of backups with pagination
+      const { page = 1, limit = 10 } = req.query;
+      const pageNum = parseInt(page);
+      const limitNum = parseInt(limit);
+      const offset = (pageNum - 1) * limitNum;
 
-      res.status(200).json({
-        status: 'success',
-        backups
-      });
+      try {
+        const [backups, total] = await Promise.all([
+          prisma.backup.findMany({
+            include: {
+              creator: {
+                select: { id: true, username: true }
+              }
+            },
+            orderBy: { createdAt: 'desc' },
+            skip: offset,
+            take: limitNum
+          }),
+          prisma.backup.count()
+        ]);
+
+        res.status(200).json({
+          status: 'success',
+          backups,
+          pagination: {
+            page: pageNum,
+            limit: limitNum,
+            total,
+            totalPages: Math.ceil(total / limitNum)
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching backups:', error);
+        res.status(500).json({
+          status: 'error',
+          message: 'Failed to fetch backups'
+        });
+      }
     } else if (req.method === 'POST') {
       // Create new backup
       const {
@@ -124,17 +149,39 @@ export default async function handler(req, res) {
           includes: Object.keys(backupData).filter(key => key !== 'metadata')
         };
 
-        // In a real implementation, you would save this to a file or cloud storage
-        // For now, we'll just return success
+        // Save backup file to storage
+        const filename = `forum-backup-${Date.now()}.json`;
+        const { filePath, size } = await saveBackupFile(filename, backupData);
+
+        // Create backup record in database
+        const backup = await prisma.backup.create({
+          data: {
+            filename,
+            originalName: `Forum Backup ${new Date().toLocaleDateString()}`,
+            size: BigInt(size),
+            includes: backupData.metadata.includes,
+            status: 'completed',
+            createdBy: user.id,
+            filePath,
+            description: `Backup created on ${new Date().toLocaleString()}`
+          },
+          include: {
+            creator: {
+              select: { id: true, username: true }
+            }
+          }
+        });
+
+        // Convert BigInt to number for JSON serialization
+        const backupResponse = {
+          ...backup,
+          size: Number(backup.size)
+        };
+
         res.status(200).json({
           status: 'success',
           message: 'Backup created successfully',
-          backup: {
-            id: Date.now(),
-            size: JSON.stringify(backupData).length,
-            includes: backupData.metadata.includes,
-            createdAt: new Date().toISOString()
-          }
+          backup: backupResponse
         });
       } catch (error) {
         console.error('Error creating backup:', error);

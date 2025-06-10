@@ -76,7 +76,11 @@ export default async function handler(req, res) {
         // Set headers for CSV download
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', `attachment; filename="posts-export-${new Date().toISOString().split('T')[0]}.csv"`);
-        
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+        console.log('Sending CSV with', posts.length, 'posts');
         res.status(200).send(csvContent);
       } catch (error) {
         console.error('Error exporting posts:', error);

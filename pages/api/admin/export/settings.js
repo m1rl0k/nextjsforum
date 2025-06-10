@@ -82,7 +82,11 @@ export default async function handler(req, res) {
         // Set headers for JSON download
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Content-Disposition', `attachment; filename="forum-settings-${new Date().toISOString().split('T')[0]}.json"`);
-        
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+        console.log('Sending settings export with', Object.keys(exportData).length, 'sections');
         res.status(200).json(exportData);
       } catch (error) {
         console.error('Error exporting settings:', error);
