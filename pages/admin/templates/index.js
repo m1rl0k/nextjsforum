@@ -15,6 +15,7 @@ const AdminTemplates = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('colors');
+  const [previewMode, setPreviewMode] = useState(false);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -156,8 +157,28 @@ const AdminTemplates = () => {
     <AdminLayout>
       <div className={styles.container}>
         <div className={styles.header}>
-          <h1>Template & Styling</h1>
-          <p>Customize the appearance and layout of your forum.</p>
+          <div className={styles.headerContent}>
+            <div>
+              <h1>Template & Styling</h1>
+              <p>Customize the appearance and layout of your forum.</p>
+            </div>
+            <div className={styles.headerActions}>
+              <button
+                type="button"
+                onClick={() => setPreviewMode(!previewMode)}
+                className={styles.previewButton}
+              >
+                {previewMode ? '👁️ Exit Preview' : '👁️ Live Preview'}
+              </button>
+              <button
+                type="button"
+                onClick={() => window.open('/', '_blank')}
+                className={styles.previewButton}
+              >
+                🔗 Open Forum
+              </button>
+            </div>
+          </div>
         </div>
 
         {message && (
@@ -514,20 +535,34 @@ const AdminTemplates = () => {
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="logoUrl">Logo URL (optional)</label>
-                <input
-                  type="url"
-                  id="logoUrl"
-                  name="logoUrl"
-                  value={settings.logoUrl || ''}
-                  onChange={handleInputChange}
-                  className={styles.input}
-                  placeholder="https://example.com/logo.png"
-                />
-                <small className={styles.helpText}>
-                  Leave empty to show site name as text. Logo will be displayed in the navigation bar.
-                </small>
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    name="logoEnabled"
+                    checked={settings.logoEnabled || false}
+                    onChange={handleInputChange}
+                  />
+                  Enable custom logo (disabled by default)
+                </label>
               </div>
+
+              {settings.logoEnabled && (
+                <div className={styles.formGroup}>
+                  <label htmlFor="logoUrl">Logo URL</label>
+                  <input
+                    type="url"
+                    id="logoUrl"
+                    name="logoUrl"
+                    value={settings.logoUrl || ''}
+                    onChange={handleInputChange}
+                    className={styles.input}
+                    placeholder="https://example.com/logo.png"
+                  />
+                  <small className={styles.helpText}>
+                    Logo will be displayed in the navigation bar and match theme colors consistently.
+                  </small>
+                </div>
+              )}
 
               <div className={styles.formGroup}>
                 <label htmlFor="footerText">Footer Text</label>
@@ -715,21 +750,21 @@ const AdminTemplates = () => {
               className={styles.saveButton}
               disabled={isSaving}
             >
-              {isSaving ? 'Saving...' : 'Save Changes'}
+              {isSaving ? '💾 Saving...' : '💾 Save Theme Settings'}
             </button>
             <button
               type="button"
               className={styles.previewButton}
               onClick={() => window.open('/', '_blank')}
             >
-              Preview Forum
+              🔗 Preview Forum
             </button>
             <button
               type="button"
               className={styles.resetButton}
               onClick={resetToDefaults}
             >
-              Reset to Defaults
+              🔄 Reset to Defaults
             </button>
           </div>
         </form>

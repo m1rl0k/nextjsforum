@@ -90,8 +90,20 @@ const AdminLayout = ({ children }) => {
             <li className={isActive('/admin/posts')}>
               <Link href="/admin/posts">Posts</Link>
             </li>
+            <li className={isActive('/admin/reports')}>
+              <Link href="/admin/reports">Reports</Link>
+            </li>
+            <li className={isActive('/admin/moderation')}>
+              <Link href="/admin/moderation">Moderation</Link>
+            </li>
             <li className={isActive('/admin/templates')}>
               <Link href="/admin/templates">Templates</Link>
+            </li>
+            <li className={isActive('/admin/upload-settings')}>
+              <Link href="/admin/upload-settings">Upload Settings</Link>
+            </li>
+            <li className={isActive('/admin/backup')}>
+              <Link href="/admin/backup">Backup & Export</Link>
             </li>
             <li className={isActive('/admin/settings')}>
               <Link href="/admin/settings">Settings</Link>
