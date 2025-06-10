@@ -101,9 +101,10 @@ export default function MessagesPage() {
 
       if (response.ok) {
         // Remove the conversation from the list
-        setConversations(prev => prev.filter(conv =>
-          (conv.conversationId || conv.id) !== conversationId
-        ));
+        setConversations(prev => prev.filter(conv => {
+          const convId = conv.conversationId || conv.id;
+          return convId !== conversationId;
+        }));
       } else {
         const data = await response.json();
         setError(data.error || 'Failed to delete conversation');
@@ -192,11 +193,18 @@ export default function MessagesPage() {
                     return null;
                   }
 
+                  // Ensure we have a valid conversation ID
+                  const conversationId = conversation.conversationId || conversation.id;
+                  if (!conversationId) {
+                    console.warn('No valid conversation ID found:', conversation);
+                    return null;
+                  }
+
                   return (
                     <tr
-                      key={conversation.conversationId || conversation.id}
+                      key={conversationId}
                       className={`table-row conversation-row ${index % 2 === 0 ? 'row-even' : 'row-odd'} ${conversation.unread_count > 0 ? 'unread' : ''}`}
-                      onClick={() => window.location.href = `/messages/conversation/${conversation.conversationId || conversation.id}`}
+                      onClick={() => window.location.href = `/messages/conversation/${conversationId}`}
                     >
                       <td className="col-icon">
                         <div className="message-icon">
@@ -206,7 +214,7 @@ export default function MessagesPage() {
 
                       <td className="col-subject">
                         <div className="subject-line">
-                          <Link href={`/messages/conversation/${conversation.conversationId || conversation.id}`}>
+                          <Link href={`/messages/conversation/${conversationId}`}>
                             {conversation.subject || 'Private Message'}
                           </Link>
                           {conversation.unread_count > 0 && (
@@ -248,12 +256,12 @@ export default function MessagesPage() {
 
                       <td className="col-actions">
                         <button
-                          onClick={(e) => handleDeleteConversation(conversation.conversationId || conversation.id, e)}
+                          onClick={(e) => handleDeleteConversation(conversationId, e)}
                           className="delete-btn"
-                          disabled={deletingConversation === (conversation.conversationId || conversation.id)}
+                          disabled={deletingConversation === conversationId}
                           title="Delete conversation"
                         >
-                          {deletingConversation === (conversation.conversationId || conversation.id) ? '⏳' : '🗑️'}
+                          {deletingConversation === conversationId ? '⏳' : '🗑️'}
                         </button>
                       </td>
                     </tr>

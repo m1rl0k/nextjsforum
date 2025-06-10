@@ -285,7 +285,7 @@ export default function UserManagement() {
                       Unban
                     </AdminButton>
                   )}
-                  {user?.role === 'ADMIN' && targetUser.role !== 'ADMIN' && (
+                  {user?.role === 'ADMIN' && targetUser.role !== 'ADMIN' && targetUser.role !== 'MODERATOR' && (
                     <AdminButton
                       size="small"
                       variant="secondary"
@@ -295,6 +295,18 @@ export default function UserManagement() {
                       icon="⬆️"
                     >
                       Promote
+                    </AdminButton>
+                  )}
+                  {user?.role === 'ADMIN' && targetUser.role === 'MODERATOR' && (
+                    <AdminButton
+                      size="small"
+                      variant="warning"
+                      onClick={() => handleUserAction(targetUser.id, 'demote')}
+                      disabled={actionLoading[`demote-${targetUser.id}`]}
+                      loading={actionLoading[`demote-${targetUser.id}`]}
+                      icon="⬇️"
+                    >
+                      Demote
                     </AdminButton>
                   )}
                 </>

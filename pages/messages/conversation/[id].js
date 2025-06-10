@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Layout from '../../../components/Layout';
@@ -7,37 +7,60 @@ import { useAuth } from '../../../context/AuthContext';
 export default function ConversationView() {
   const router = useRouter();
   const { id } = router.query;
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [replyContent, setReplyContent] = useState('');
   const [sending, setSending] = useState(false);
   const [otherUser, setOtherUser] = useState(null);
+  const [hasInitialized, setHasInitialized] = useState(false);
+  const fetchingRef = useRef(false);
+
+  // Reset state when ID changes
+  useEffect(() => {
+    if (id && id !== '[id]' && typeof id === 'string') {
+      setHasInitialized(false);
+      fetchingRef.current = false;
+      setMessages([]);
+      setOtherUser(null);
+      setError('');
+    }
+  }, [id]);
 
   useEffect(() => {
+    // Wait for router and auth to be ready
+    if (!router.isReady || authLoading) return;
+
     if (!user) {
       router.push('/login?redirect=' + encodeURIComponent(router.asPath));
       return;
     }
-    
-    if (id) {
+
+    // Only fetch once when we have a valid ID and haven't initialized yet
+    if (id && id !== '[id]' && typeof id === 'string' && !hasInitialized) {
+      setHasInitialized(true);
       fetchConversation();
     }
-  }, [id, user]);
+  }, [router.isReady, authLoading, id, user, hasInitialized]);
 
   const fetchConversation = async () => {
+    // Don't fetch if ID is invalid or already fetching
+    if (!id || id === '[id]' || typeof id !== 'string' || fetchingRef.current) {
+      return;
+    }
+
     try {
+      fetchingRef.current = true;
       setLoading(true);
       setError('');
-      
+
       const res = await fetch(`/api/messages/conversations?conversationId=${id}`, {
         credentials: 'include'
       });
-      
+
       if (res.ok) {
         const data = await res.json();
-        console.log('Conversation data:', data);
         
         if (data.messages && data.messages.length > 0) {
           setMessages(data.messages);
@@ -74,10 +97,13 @@ export default function ConversationView() {
       setError('Failed to load conversation');
     } finally {
       setLoading(false);
+      fetchingRef.current = false;
     }
   };
 
   const markAsRead = async () => {
+    if (!id || id === '[id]') return;
+
     try {
       await fetch('/api/messages/conversations', {
         method: 'PUT',
@@ -119,6 +145,9 @@ export default function ConversationView() {
 
       if (res.ok) {
         setReplyContent('');
+        // Reset the initialization flag to allow refresh
+        setHasInitialized(false);
+        fetchingRef.current = false;
         await fetchConversation(); // Refresh the conversation
       } else {
         const data = await res.json();
@@ -160,11 +189,39 @@ export default function ConversationView() {
     }
   };
 
+  // Don't render anything if router is not ready or auth is loading
+  if (!router.isReady || authLoading) {
+    return (
+      <Layout>
+        <div className="loading">
+          <div className="loading-spinner">💬</div>
+          <div>Loading...</div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Redirect to login if not authenticated
   if (!user) {
     return null; // Will redirect to login
   }
 
-  if (loading) {
+  // Don't render if we don't have a valid conversation ID
+  if (!id || id === '[id]' || typeof id !== 'string') {
+    return (
+      <Layout>
+        <div className="error-message">
+          <div className="error-icon">⚠️</div>
+          <div className="error-text">Invalid conversation ID</div>
+          <Link href="/messages" className="button">
+            Back to Messages
+          </Link>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (loading || !hasInitialized) {
     return (
       <Layout>
         <div className="loading">
@@ -351,6 +408,28 @@ export default function ConversationView() {
           max-width: 800px;
           margin: 0 auto;
           padding: 20px;
+          min-height: 400px;
+          opacity: 1;
+          transition: opacity 0.2s ease-in-out;
+        }
+
+        .loading {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 400px;
+          gap: 15px;
+        }
+
+        .loading-spinner {
+          font-size: 2rem;
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
         }
 
         .breadcrumbs {

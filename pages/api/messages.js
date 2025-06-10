@@ -91,11 +91,16 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Cannot send message to yourself' });
       }
 
+      // Generate conversation ID
+      const userIds = [sender.id, recipientUser.id].sort();
+      const conversationId = `conv_${userIds[0]}_${userIds[1]}`;
+
       const message = await prisma.message.create({
         data: {
           content,
           senderId: sender.id,
           recipientId: recipientUser.id,
+          conversationId,
         },
         include: {
           sender: {

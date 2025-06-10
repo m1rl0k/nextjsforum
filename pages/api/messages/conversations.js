@@ -66,6 +66,82 @@ export default async function handler(req, res) {
           skip: parseInt(offset)
         });
 
+        // If no messages found with exact conversation ID, try to find messages between users
+        if (messages.length === 0) {
+          // Extract user IDs from conversation ID if it follows the conv_X_Y format
+          const convMatch = conversationId.match(/^conv_(\d+)_(\d+)$/);
+          if (convMatch) {
+            const [, userId1, userId2] = convMatch;
+            const userIds = [parseInt(userId1), parseInt(userId2)];
+
+            // Find messages between these users
+            const fallbackMessages = await prisma.message.findMany({
+              where: {
+                OR: [
+                  { senderId: userIds[0], recipientId: userIds[1] },
+                  { senderId: userIds[1], recipientId: userIds[0] }
+                ],
+                AND: {
+                  OR: [
+                    { senderId: user.id },
+                    { recipientId: user.id }
+                  ]
+                }
+              },
+              include: {
+                sender: {
+                  select: {
+                    id: true,
+                    username: true,
+                    avatar: true
+                  }
+                },
+                recipient: {
+                  select: {
+                    id: true,
+                    username: true,
+                    avatar: true
+                  }
+                },
+                replyTo: {
+                  select: {
+                    id: true,
+                    content: true,
+                    sender: {
+                      select: {
+                        username: true
+                      }
+                    }
+                  }
+                }
+              },
+              orderBy: { createdAt: 'asc' },
+              take: parseInt(limit),
+              skip: parseInt(offset)
+            });
+
+
+
+            if (fallbackMessages.length > 0) {
+              // Update these messages to have the correct conversation ID
+              await prisma.message.updateMany({
+                where: {
+                  OR: [
+                    { senderId: userIds[0], recipientId: userIds[1] },
+                    { senderId: userIds[1], recipientId: userIds[0] }
+                  ]
+                },
+                data: { conversationId }
+              });
+
+              // Use the fallback messages
+              const serializedMessages = serializeBigInt(fallbackMessages);
+              res.status(200).json({ messages: serializedMessages });
+              return;
+            }
+          }
+        }
+
         // Mark messages as read
         await prisma.message.updateMany({
           where: {
@@ -81,7 +157,17 @@ export default async function handler(req, res) {
         res.status(200).json({ messages: serializedMessages });
 
       } else {
-        // Get conversation list
+        // Get conversation list - first update any messages without conversation IDs
+        await prisma.$executeRaw`
+          UPDATE messages
+          SET "conversationId" = CASE
+            WHEN "senderId" < "recipientId" THEN CONCAT('conv_', "senderId", '_', "recipientId")
+            ELSE CONCAT('conv_', "recipientId", '_', "senderId")
+          END
+          WHERE "conversationId" IS NULL
+            AND ("senderId" = ${user.id} OR "recipientId" = ${user.id})
+        `;
+
         const conversations = await prisma.$queryRaw`
           WITH latest_messages AS (
             SELECT DISTINCT ON ("conversationId")
@@ -145,9 +231,25 @@ export default async function handler(req, res) {
       // Generate conversation ID if not provided
       let finalConversationId = conversationId;
       if (!finalConversationId) {
-        // Create conversation ID based on user IDs (consistent ordering)
-        const userIds = [user.id, recipientUser.id].sort();
-        finalConversationId = `conv_${userIds[0]}_${userIds[1]}_${Date.now()}`;
+        // Check if a conversation already exists between these users
+        const existingMessage = await prisma.message.findFirst({
+          where: {
+            OR: [
+              { senderId: user.id, recipientId: recipientUser.id },
+              { senderId: recipientUser.id, recipientId: user.id }
+            ],
+            conversationId: { not: null }
+          },
+          select: { conversationId: true }
+        });
+
+        if (existingMessage && existingMessage.conversationId) {
+          finalConversationId = existingMessage.conversationId;
+        } else {
+          // Create conversation ID based on user IDs (consistent ordering, no timestamp)
+          const userIds = [user.id, recipientUser.id].sort();
+          finalConversationId = `conv_${userIds[0]}_${userIds[1]}`;
+        }
       }
 
       const message = await prisma.message.create({
