@@ -32,8 +32,7 @@ export default async function handler(req, res) {
             OR: [
               { senderId: user.id },
               { recipientId: user.id }
-            ],
-            isDeleted: false
+            ]
           },
           include: {
             sender: {
@@ -91,7 +90,6 @@ export default async function handler(req, res) {
             FROM messages m
             WHERE (m."senderId" = ${user.id} OR m."recipientId" = ${user.id})
               AND m."conversationId" IS NOT NULL
-              AND m."isDeleted" = false
             ORDER BY "conversationId", "createdAt" DESC
           )
           SELECT
