@@ -136,14 +136,49 @@ export default async function handler(req, res) {
       });
     }
   } else if (req.method === 'POST') {
-    const { name } = req.body;
-
+    // Authentication and authorization required for creating categories
     try {
-      const category = await prisma.category.create({
-        data: { name },
+      const token = req.cookies.token;
+      if (!token) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
+      const decoded = verifyToken(token);
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.userId },
       });
+
+      if (!user || !user.isActive) {
+        return res.status(401).json({ error: 'User not authenticated' });
+      }
+
+      // Only ADMIN can create categories
+      if (user.role !== 'ADMIN') {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const { name, description, order } = req.body;
+
+      // Validate input
+      if (!name || name.trim().length < 2) {
+        return res.status(400).json({ error: 'Category name must be at least 2 characters' });
+      }
+
+      if (name.trim().length > 100) {
+        return res.status(400).json({ error: 'Category name must be at most 100 characters' });
+      }
+
+      const category = await prisma.category.create({
+        data: {
+          name: name.trim(),
+          description: description?.trim() || null,
+          order: order ? Number.parseInt(order, 10) : 0
+        },
+      });
+
       res.status(201).json(category);
     } catch (error) {
+      console.error('Error creating category:', error);
       res.status(500).json({ error: 'Failed to create category' });
     }
   } else {

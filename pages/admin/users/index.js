@@ -75,15 +75,22 @@ const AdminUsers = () => {
     setPagination(prev => ({ ...prev, page: newPage }));
   };
 
-  const handleUserAction = async (userId, action) => {
+  const handleUserAction = async (userId, action, role = null) => {
     try {
+      const payload = { action };
+
+      // Include role for promotion actions
+      if (action === 'promote' && role) {
+        payload.role = role;
+      }
+
       const res = await fetch(`/api/admin/users/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
         credentials: 'include',
-        body: JSON.stringify({ action })
+        body: JSON.stringify(payload)
       });
 
       const data = await res.json();
@@ -204,7 +211,7 @@ const AdminUsers = () => {
                         </button>
                         {user.role !== 'ADMIN' && (
                           <button
-                            onClick={() => handleUserAction(user.id, 'promote')}
+                            onClick={() => handleUserAction(user.id, 'promote', 'ADMIN')}
                             className={`${styles.actionButton} ${styles.promoteButton}`}
                             title="Promote to Admin"
                           >

@@ -36,7 +36,18 @@ const AdminContent = () => {
     if (!html) return '';
     // Remove HTML tags
     const text = html.replace(/<[^>]*>/g, '');
-    // Decode HTML entities
+    // Decode HTML entities (safe for SSR)
+    if (typeof document === 'undefined') {
+      // Server-side: use regex to decode common entities
+      return text
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'")
+        .replace(/&nbsp;/g, ' ');
+    }
+    // Client-side: use DOM API
     const textarea = document.createElement('textarea');
     textarea.innerHTML = text;
     return textarea.value;

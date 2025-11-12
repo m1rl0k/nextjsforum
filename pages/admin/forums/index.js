@@ -106,7 +106,7 @@ const AdminForums = () => {
         credentials: 'include',
         body: JSON.stringify({
           ...formData,
-          order: parseInt(formData.order, 10)
+          order: Number.parseInt(formData.order, 10)
         }),
       });
       

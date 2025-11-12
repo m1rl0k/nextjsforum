@@ -88,37 +88,37 @@ export default async function handler(req, res) {
       // Delete category or subject
       
       // First check if it's a category or subject
-      const category = await prisma.category.findUnique({ where: { id: parseInt(id) } });
-      
+      const category = await prisma.category.findUnique({ where: { id: Number.parseInt(id, 10) } });
+
       if (category) {
         // Check if category has subjects
         const subjectCount = await prisma.subject.count({
-          where: { categoryId: parseInt(id) }
+          where: { categoryId: Number.parseInt(id, 10) }
         });
-        
+
         if (subjectCount > 0) {
-          return res.status(400).json({ 
-            message: 'Cannot delete category with existing forums. Please delete or move the forums first.' 
+          return res.status(400).json({
+            message: 'Cannot delete category with existing forums. Please delete or move the forums first.'
           });
         }
-        
+
         await prisma.category.delete({
-          where: { id: parseInt(id) }
+          where: { id: Number.parseInt(id, 10) }
         });
       } else {
         // Check if subject has threads
         const threadCount = await prisma.thread.count({
-          where: { subjectId: parseInt(id) }
+          where: { subjectId: Number.parseInt(id, 10) }
         });
-        
+
         if (threadCount > 0) {
-          return res.status(400).json({ 
-            message: 'Cannot delete forum with existing threads. Please delete or move the threads first.' 
+          return res.status(400).json({
+            message: 'Cannot delete forum with existing threads. Please delete or move the threads first.'
           });
         }
-        
+
         await prisma.subject.delete({
-          where: { id: parseInt(id) }
+          where: { id: Number.parseInt(id, 10) }
         });
       }
 
