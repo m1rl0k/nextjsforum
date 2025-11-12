@@ -87,30 +87,65 @@ export default async function handler(req, res) {
     } else if (req.method === 'DELETE') {
       // Delete category or subject
       const numericId = Number.parseInt(id, 10);
+      const { type, cascade } = req.query;
 
       if (Number.isNaN(numericId)) {
         return res.status(400).json({ message: 'Invalid ID' });
       }
 
-      // First check if it's a category
-      const category = await prisma.category.findUnique({
-        where: { id: numericId },
-        include: {
-          subjects: true
+      // Check what type we're deleting based on the type parameter
+      if (type === 'category') {
+        // Deleting a category
+        const category = await prisma.category.findUnique({
+          where: { id: numericId },
+          include: {
+            subjects: true
+          }
+        });
+
+        if (!category) {
+          return res.status(404).json({ message: 'Category not found' });
         }
-      });
 
-      if (category) {
-        // It's a category - check if it has subjects
-        console.log(`Attempting to delete category ${numericId}:`, category.name);
-        console.log(`Category has ${category.subjects?.length || 0} subjects:`, category.subjects?.map(s => s.name));
-
+        // Check if it has subjects
         if (category.subjects && category.subjects.length > 0) {
-          return res.status(400).json({
-            message: `Cannot delete category "${category.name}" with existing forums. Please delete or move these forums first: ${category.subjects.map(s => s.name).join(', ')}`
-          });
+          if (cascade === 'true') {
+            // Cascade delete - delete all subjects first, then the category
+            console.log(`Cascade deleting category ${numericId} with ${category.subjects.length} subjects`);
+
+            // Delete all threads in all subjects first
+            for (const subject of category.subjects) {
+              await prisma.thread.deleteMany({
+                where: { subjectId: subject.id }
+              });
+            }
+
+            // Delete all subjects
+            await prisma.subject.deleteMany({
+              where: { categoryId: numericId }
+            });
+
+            // Now delete the category
+            await prisma.category.delete({
+              where: { id: numericId }
+            });
+
+            return res.status(200).json({
+              status: 'success',
+              message: `Category and ${category.subjects.length} forum(s) deleted successfully`
+            });
+          } else {
+            // Return error with child info for confirmation
+            return res.status(400).json({
+              message: `Cannot delete category "${category.name}" with existing forums.`,
+              hasChildren: true,
+              childCount: category.subjects.length,
+              children: category.subjects.map(s => s.name)
+            });
+          }
         }
 
+        // No subjects, safe to delete
         await prisma.category.delete({
           where: { id: numericId }
         });
