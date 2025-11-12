@@ -4,11 +4,22 @@ export default function handler(req, res) {
   }
 
   try {
-    // Clear the HTTP-only cookie
-    res.setHeader(
-      'Set-Cookie',
-      'token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; SameSite=L'
-    );
+    // Clear the HTTP-only cookie with proper SameSite and Secure attributes
+    const isProduction = process.env.NODE_ENV === 'production';
+    const cookieOptions = [
+      'token=',
+      'Path=/',
+      'Expires=Thu, 01 Jan 1970 00:00:00 GMT',
+      'HttpOnly',
+      'SameSite=Strict'
+    ];
+
+    // Add Secure flag in production
+    if (isProduction) {
+      cookieOptions.push('Secure');
+    }
+
+    res.setHeader('Set-Cookie', cookieOptions.join('; '));
 
     res.status(200).json({
       status: 'success',

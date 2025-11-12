@@ -69,12 +69,12 @@ export default async function handler(req, res) {
           } else if (action === 'lock') {
             result = await prisma.thread.update({
               where: { id: targetId },
-              data: { locked: true }
+              data: { isLocked: true }
             });
           } else if (action === 'unlock') {
             result = await prisma.thread.update({
               where: { id: targetId },
-              data: { locked: false }
+              data: { isLocked: false }
             });
           } else if (action === 'approve') {
             result = await prisma.thread.update({

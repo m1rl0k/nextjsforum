@@ -4,41 +4,47 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting database seeding...');
+  console.log('Starting database seeding...');
 
   // Check if database is already seeded
-  const existingAdmin = await prisma.user.findUnique({
-    where: { email: 'admin@forum.com' }
-  });
+  const existingCategories = await prisma.category.count();
 
-  if (existingAdmin) {
-    console.log('✅ Database already seeded, skipping...');
+  if (existingCategories > 0) {
+    console.log('Database already seeded, skipping...');
     return;
   }
 
-  console.log('📝 Creating fresh seed data...');
+  console.log('Creating fresh seed data...');
 
   // Create test users
   const hashedPassword = await bcrypt.hash('password123', 10);
 
-  // Create admin user
-  const admin = await prisma.user.create({
-    data: {
-      email: 'admin@forum.com',
-      username: 'admin',
-      password: hashedPassword,
-      role: 'ADMIN',
-      bio: 'Forum Administrator - keeping things running smoothly!',
-      location: 'Forum HQ',
-      signature: 'Best regards,\nForum Admin Team',
-      postCount: 25,
-      isActive: true,
-    },
+  // Get or create admin user
+  let admin = await prisma.user.findFirst({
+    where: { role: 'ADMIN' }
   });
 
+  if (!admin) {
+    admin = await prisma.user.create({
+      data: {
+        email: 'admin@forum.com',
+        username: 'forumadmin',
+        password: hashedPassword,
+        role: 'ADMIN',
+        bio: 'Forum Administrator - keeping things running smoothly!',
+        location: 'Forum HQ',
+        signature: 'Best regards,\nForum Admin Team',
+        postCount: 25,
+        isActive: true,
+      },
+    });
+  }
+
   // Create moderator user
-  const moderator = await prisma.user.create({
-    data: {
+  const moderator = await prisma.user.upsert({
+    where: { email: 'mod@forum.com' },
+    update: {},
+    create: {
       email: 'mod@forum.com',
       username: 'moderator',
       password: hashedPassword,
@@ -72,7 +78,7 @@ async function main() {
     users.push(user);
   }
 
-  console.log('✅ Users created');
+  console.log('Users created');
 
   // Create categories
   const generalCategory = await prisma.category.upsert({
@@ -105,7 +111,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Categories created');
+  console.log('Categories created');
 
   // Create subjects (forums)
   const introSubject = await prisma.subject.upsert({
@@ -144,7 +150,7 @@ async function main() {
     },
   });
 
-  const mobileDevSubject = await prisma.subject.upsert({
+  await prisma.subject.upsert({
     where: { id: 4 },
     update: {},
     create: {
@@ -156,7 +162,7 @@ async function main() {
     },
   });
 
-  const pcGamingSubject = await prisma.subject.upsert({
+  await prisma.subject.upsert({
     where: { id: 5 },
     update: {},
     create: {
@@ -168,7 +174,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Subjects created');
+  console.log('Subjects created');
 
   // Create sample threads
   const welcomeThread = await prisma.thread.create({
@@ -177,7 +183,7 @@ async function main() {
       content: 'Welcome everyone to our new forum! This is a place where we can discuss various topics, share knowledge, and build a great community together.\n\nPlease take a moment to read our rules and introduce yourself in the Introductions section.\n\nHappy posting!',
       userId: admin.id,
       subjectId: announcementsSubject.id,
-      sticky: true,
+      isSticky: true,
       viewCount: 45,
       lastPostAt: new Date(),
       lastPostUserId: admin.id,
@@ -208,7 +214,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Threads created');
+  console.log('Threads created');
 
   // Create sample posts (replies)
   await prisma.post.create({
@@ -243,7 +249,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Posts created');
+  console.log('Posts created');
 
   // Update thread and subject counters
   await prisma.subject.update({
@@ -261,18 +267,18 @@ async function main() {
     data: { threadCount: 1, postCount: 2 },
   });
 
-  console.log('✅ Counters updated');
+  console.log('Counters updated');
 
-  console.log('🎉 Database seeding completed!');
-  console.log('\n📋 Test Accounts Created:');
-  console.log('👑 Admin: admin@forum.com / password123');
-  console.log('🛡️  Moderator: mod@forum.com / password123');
-  console.log('👤 Users: user1@forum.com to user5@forum.com / password123');
+  console.log('\nDatabase seeding completed!');
+  console.log('\nTest Accounts Created:');
+  console.log('Admin: admin@forum.com / password123');
+  console.log('Moderator: mod@forum.com / password123');
+  console.log('Users: user1@forum.com to user5@forum.com / password123');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Error during seeding:', e);
+    console.error('Error during seeding:', e);
     process.exit(1);
   })
   .finally(async () => {

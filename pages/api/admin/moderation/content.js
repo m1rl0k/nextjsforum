@@ -77,8 +77,8 @@ export default async function handler(req, res) {
         subject: thread.subject?.name,
         createdAt: thread.createdAt,
         deleted: thread.deleted,
-        locked: thread.locked,
-        sticky: thread.sticky
+        locked: thread.isLocked,
+        sticky: thread.isSticky
       })));
     }
 

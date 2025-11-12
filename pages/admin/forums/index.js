@@ -137,13 +137,15 @@ const AdminForums = () => {
       name: forum.name,
       description: forum.description || '',
       slug: forum.slug || '',
-      parentId: forum.parentId,
+      categoryId: forum.categoryId || null,
       order: forum.order || 0,
-      isCategory: forum.isCategory,
-      isLocked: forum.isLocked || false,
-      isPrivate: forum.isPrivate || false,
-      allowThreads: forum.allowThreads !== false,
-      moderatorIds: forum.moderatorIds || []
+      isCategory: forum.isCategory || false,
+      canPost: forum.canPost !== false,
+      canReply: forum.canReply !== false,
+      requiresApproval: forum.requiresApproval || false,
+      guestPosting: forum.guestPosting || false,
+      isActive: forum.isActive !== false,
+      icon: forum.icon || ''
     });
     setIsEditing(forum.id);
     setIsCreating(true);
@@ -178,48 +180,51 @@ const AdminForums = () => {
       <div key={forum.id} className={styles.forumItem} style={{ marginLeft: `${level * 20}px` }}>
         <div className={styles.forumHeader}>
           <div className={styles.forumInfo}>
-            <h3 className={styles.forumName}>{forum.name}</h3>
+            <h3 className={styles.forumName}>
+              {forum.icon && <span>{forum.icon} </span>}
+              {forum.name}
+            </h3>
             <span className={styles.forumMeta}>
-              {forum.isCategory ? 'Category' : 'Forum'} • {forum.subjects?.length || forum.threads || 0} {forum.isCategory ? 'forums' : 'threads'} • {forum.posts || 0} posts
-              {forum.isLocked && <span className={styles.badge}>🔒 Locked</span>}
-              {forum.isPrivate && <span className={styles.badge}>🔐 Private</span>}
-              {!forum.allowThreads && !forum.isCategory && <span className={styles.badge}>📝 Read Only</span>}
+              {forum.isCategory ? 'Category' : 'Forum'} • {forum.isCategory ? (forum.children?.length || 0) + ' forums' : (forum.threadCount || 0) + ' threads'} • {forum.postCount || 0} posts
+              {!forum.isActive && <span className={styles.badge}>Inactive</span>}
+              {!forum.canPost && !forum.isCategory && <span className={styles.badge}>Read Only</span>}
+              {forum.requiresApproval && <span className={styles.badge}>Moderated</span>}
             </span>
             {forum.slug && (
               <span className={styles.forumSlug}>/{forum.slug}</span>
             )}
           </div>
           <div className={styles.forumActions}>
-            <button 
+            <button
               onClick={() => handleEdit(forum)}
               className={styles.actionButton}
               title="Edit"
             >
-              ✏️
+              Edit
             </button>
-            <button 
+            <button
               onClick={() => handleDelete(forum.id)}
               className={`${styles.actionButton} ${styles.deleteButton}`}
               title="Delete"
             >
-              🗑️
+              Delete
             </button>
             {forum.isCategory && (
-              <button 
+              <button
                 onClick={() => toggleCategory(forum.id)}
                 className={styles.actionButton}
                 title={expandedCategories[forum.id] ? 'Collapse' : 'Expand'}
               >
-                {expandedCategories[forum.id] ? '▼' : '▶'}
+                {expandedCategories[forum.id] ? 'Collapse' : 'Expand'}
               </button>
             )}
           </div>
         </div>
-        
+
         {forum.description && (
           <p className={styles.forumDescription}>{forum.description}</p>
         )}
-        
+
         {forum.isCategory && expandedCategories[forum.id] && forum.children && forum.children.length > 0 && (
           <div className={styles.forumChildren}>
             {renderForums(forum.children, level + 1)}

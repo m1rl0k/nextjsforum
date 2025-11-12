@@ -30,9 +30,35 @@ export default async function handler(req, res) {
         orderBy: { order: 'asc' }
       });
 
+      // Normalize the response to match UI expectations
+      const normalizedData = categories.map(category => ({
+        id: category.id,
+        name: category.name,
+        description: category.description,
+        order: category.order,
+        isCategory: true,
+        children: category.subjects.map(subject => ({
+          id: subject.id,
+          name: subject.name,
+          description: subject.description,
+          slug: subject.slug,
+          categoryId: subject.categoryId,
+          order: subject.order,
+          canPost: subject.canPost,
+          canReply: subject.canReply,
+          requiresApproval: subject.requiresApproval,
+          guestPosting: subject.guestPosting,
+          isActive: subject.isActive,
+          icon: subject.icon,
+          threadCount: subject.threadCount,
+          postCount: subject.postCount,
+          isCategory: false
+        }))
+      }));
+
       res.status(200).json({
         status: 'success',
-        data: categories
+        data: normalizedData
       });
     } else if (req.method === 'POST') {
       // Create new category or subject

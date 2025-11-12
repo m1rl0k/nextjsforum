@@ -60,19 +60,32 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Content must be at least 10 characters' });
       }
 
-      // Check if subject exists
+      // Check if subject exists and verify posting permissions
       const subject = await prisma.subject.findUnique({
-        where: { id: parseInt(subjectId) }
+        where: { id: Number.parseInt(subjectId, 10) }
       });
 
       if (!subject) {
         return res.status(404).json({ error: 'Subject not found' });
       }
 
+      if (!subject.isActive) {
+        return res.status(403).json({ error: 'This forum is not active' });
+      }
+
+      if (!subject.canPost) {
+        return res.status(403).json({ error: 'Creating threads is not allowed in this forum' });
+      }
+
+      // Check if guest posting is allowed (for future use)
+      if (!subject.guestPosting && user.role === 'GUEST') {
+        return res.status(403).json({ error: 'Guest posting is not allowed in this forum' });
+      }
+
       // Generate unique slug for the thread
       const slug = await generateUniqueThreadSlug(title);
 
-      // Create the thread and initial post in a transaction
+      // Create the thread and initial post in a transaction with counter updates
       const result = await prisma.$transaction(async (prisma) => {
         // Create the thread
         const thread = await prisma.thread.create({
@@ -80,12 +93,14 @@ export default async function handler(req, res) {
             title: title.trim(),
             content: content.trim(),
             userId: user.id,
-            subjectId: parseInt(subjectId),
+            subjectId: Number.parseInt(subjectId, 10),
             lastPostAt: new Date(),
             lastPostUserId: user.id,
             viewCount: 0,
-            sticky: false,
-            locked: false,
+            replyCount: 0,
+            postCount: 1, // Initial post counts as 1
+            isSticky: false,
+            isLocked: false,
             slug: slug
           },
           include: {
@@ -115,27 +130,24 @@ export default async function handler(req, res) {
           }
         });
 
+        // Update subject counters
+        await prisma.subject.update({
+          where: { id: Number.parseInt(subjectId, 10) },
+          data: {
+            threadCount: { increment: 1 },
+            postCount: { increment: 1 }
+          }
+        });
+
+        // Update user post count (thread creation counts as a post)
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            postCount: { increment: 1 }
+          }
+        });
+
         return { thread, firstPost };
-      });
-
-      // Update subject thread count
-      await prisma.subject.update({
-        where: { id: parseInt(subjectId) },
-        data: {
-          threadCount: {
-            increment: 1
-          }
-        }
-      });
-
-      // Update user post count (thread creation counts as a post)
-      await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          postCount: {
-            increment: 1
-          }
-        }
       });
 
       // Associate any images in the content with both thread and post

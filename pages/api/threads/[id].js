@@ -176,22 +176,22 @@ export default async function handler(req, res) {
       if (action === 'lock') {
         await prisma.thread.update({
           where: { id: threadId },
-          data: { locked: true },
+          data: { isLocked: true },
         });
       } else if (action === 'unlock') {
         await prisma.thread.update({
           where: { id: threadId },
-          data: { locked: false },
+          data: { isLocked: false },
         });
       } else if (action === 'sticky') {
         await prisma.thread.update({
           where: { id: threadId },
-          data: { sticky: true, threadType: 'STICKY' },
+          data: { isSticky: true, threadType: 'STICKY' },
         });
       } else if (action === 'unsticky') {
         await prisma.thread.update({
           where: { id: threadId },
-          data: { sticky: false, threadType: 'NORMAL' },
+          data: { isSticky: false, threadType: 'NORMAL' },
         });
       } else if (action === 'pin') {
         await prisma.thread.update({

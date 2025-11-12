@@ -61,24 +61,20 @@ export default async function handler(req, res) {
 }
 
 async function processDatabaseStep(data) {
-  // For SQLite, no additional configuration needed
-  // For other databases, we would test the connection here
-  if (data.dbType !== 'sqlite') {
-    // In a real implementation, you would test the database connection
-    // and potentially create the database if it doesn't exist
-    console.log(`Database configuration: ${data.dbType} at ${data.dbHost}:${data.dbPort}`);
+  // Database connection is configured via DATABASE_URL environment variable
+  // We don't store credentials in the database for security reasons
+
+  // Test the database connection by attempting a simple query
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    console.log('Database connection test successful');
+  } catch (error) {
+    throw new Error('Database connection failed. Please check your DATABASE_URL environment variable.');
   }
-  
-  // Store database configuration (in production, you might write to .env file)
-  await settingsService.saveSiteSetting('db_type', data.dbType);
-  if (data.dbType !== 'sqlite') {
-    await settingsService.saveSiteSetting('db_host', data.dbHost);
-    await settingsService.saveSiteSetting('db_port', data.dbPort);
-    await settingsService.saveSiteSetting('db_name', data.dbName);
-    await settingsService.saveSiteSetting('db_user', data.dbUser);
-    // Note: In production, encrypt the password
-    await settingsService.saveSiteSetting('db_password', data.dbPassword);
-  }
+
+  // Only store non-sensitive metadata about the database type
+  await settingsService.saveSiteSetting('db_type', data.dbType || 'postgresql');
+  await settingsService.saveSiteSetting('db_configured', 'true');
 }
 
 async function processAdminStep(data) {
@@ -181,7 +177,7 @@ Visit the Admin Panel to get started with customization.
 Happy posting!`,
             userId: adminUser.id,
             subjectId: generalCategory.subjects[0].id,
-            sticky: true
+            isSticky: true
           }
         });
       }

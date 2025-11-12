@@ -26,10 +26,10 @@ export default async function handler(req, res) {
       
       // Build orderBy object
       const orderBy = [];
-      
+
       // Always put sticky threads first
-      orderBy.push({ sticky: 'desc' });
-      
+      orderBy.push({ isSticky: 'desc' });
+
       // Then sort by the requested field
       if (sortBy === 'lastPostAt') {
         orderBy.push({ lastPostAt: sortOrder });

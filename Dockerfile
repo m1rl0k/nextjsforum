@@ -1,27 +1,54 @@
-FROM node:18-alpine
+# Multi-stage build for production
+FROM node:18-alpine AS base
 
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
-# Install system dependencies
-RUN apk add --no-cache libc6-compat openssl
-
-# Set environment variables
-ENV NODE_ENV=development
-ENV NEXT_TELEMETRY_DISABLED=1
-
-# Install dependencies
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
-# Copy the rest of the application
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Copy and make entrypoint script executable
+# Generate Prisma Client
+RUN npx prisma generate
+
+# Build Next.js
+ENV NEXT_TELEMETRY_DISABLED 1
+RUN npm run build
+
+# Production image, copy all the files and run next
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copy necessary files
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+
+# Copy entrypoint for migrations
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Expose the port
+USER nextjs
+
 EXPOSE 3000
 
-# Use the entrypoint script
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+
 ENTRYPOINT ["/entrypoint.sh"]
