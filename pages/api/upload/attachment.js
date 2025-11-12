@@ -59,6 +59,8 @@ export default async function handler(req, res) {
       'image/jpeg',
       'image/jpg',
       'image/png',
+      'image/gif',
+      'application/pdf',
       'text/plain',
       'application/zip',
       'application/x-zip-compressed'
@@ -66,7 +68,7 @@ export default async function handler(req, res) {
 
     if (!allowedTypes.includes(file.mimetype)) {
       return res.status(400).json({
-        error: 'Invalid file type. Allowed: JPG, PNG, TXT, and ZIP files only.'
+        error: 'Invalid file type. Allowed: JPG, PNG, GIF, PDF, TXT, and ZIP files only.'
       });
     }
 

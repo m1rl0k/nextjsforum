@@ -293,7 +293,8 @@ export default async function handler(req, res) {
           recipientId: recipientUser.id,
           conversationId: finalConversationId,
           replyToId: replyToId ? parseInt(replyToId) : null,
-          priority
+          priority,
+          attachments: attachments ? JSON.stringify(attachments) : null
         },
         include: {
           sender: {

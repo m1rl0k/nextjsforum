@@ -17,6 +17,8 @@ export default function ConversationView() {
   const [hasInitialized, setHasInitialized] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const fetchingRef = useRef(false);
+  const [attachments, setAttachments] = useState([]);
+  const [uploading, setUploading] = useState(false);
 
   // Reset state when ID changes
   useEffect(() => {
@@ -134,13 +136,69 @@ export default function ConversationView() {
     }
   };
 
+  const handleFileUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    setUploading(true);
+    const uploadedFiles = [];
+
+    for (const file of files) {
+      // Validate file size (3MB)
+      if (file.size > 3 * 1024 * 1024) {
+        alert(`${file.name} is too large. Maximum file size is 3MB.`);
+        continue;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch('/api/upload/attachment', {
+          method: 'POST',
+          credentials: 'include',
+          body: formData,
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          uploadedFiles.push({
+            url: data.url,
+            filename: data.originalName,
+            size: data.size,
+            type: data.type
+          });
+        } else {
+          const error = await res.json();
+          alert(`Failed to upload ${file.name}: ${error.error}`);
+        }
+      } catch (err) {
+        console.error('Upload error:', err);
+        alert(`Failed to upload ${file.name}`);
+      }
+    }
+
+    setAttachments([...attachments, ...uploadedFiles]);
+    setUploading(false);
+    e.target.value = ''; // Reset file input
+  };
+
+  const removeAttachment = (index) => {
+    setAttachments(attachments.filter((_, i) => i !== index));
+  };
+
   const handleSendReply = async (e) => {
     e.preventDefault();
-    
-    if (!replyContent.trim() || !otherUser) {
+
+    if (!replyContent.trim() && attachments.length === 0) {
+      setError('Please enter a message or attach a file');
       return;
     }
-    
+
+    if (!otherUser) {
+      return;
+    }
+
     setSending(true);
 
     try {
@@ -152,13 +210,15 @@ export default function ConversationView() {
         credentials: 'include',
         body: JSON.stringify({
           recipientUsername: otherUser.username,
-          content: replyContent.trim(),
-          conversationId: id
+          content: replyContent.trim() || '(Attachment)',
+          conversationId: id,
+          attachments: attachments.length > 0 ? attachments : null
         }),
       });
 
       if (res.ok) {
         setReplyContent('');
+        setAttachments([]);
         // Reset the initialization flag to allow refresh
         setHasInitialized(false);
         setIsReady(false);
@@ -403,6 +463,34 @@ export default function ConversationView() {
                           </div>
                         ))}
                       </div>
+                      {message.attachments && (() => {
+                        try {
+                          const attachmentList = JSON.parse(message.attachments);
+                          if (Array.isArray(attachmentList) && attachmentList.length > 0) {
+                            return (
+                              <div className="message-attachments">
+                                <div className="attachments-label">📎 Attachments:</div>
+                                {attachmentList.map((att, idx) => (
+                                  <div key={idx} className="attachment-item">
+                                    {att.type?.startsWith('image/') ? (
+                                      <a href={att.url} target="_blank" rel="noopener noreferrer">
+                                        <img src={att.url} alt={att.filename} className="attachment-image" />
+                                      </a>
+                                    ) : (
+                                      <a href={att.url} download className="attachment-link">
+                                        📄 {att.filename} ({(att.size / 1024).toFixed(1)} KB)
+                                      </a>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            );
+                          }
+                        } catch (e) {
+                          console.error('Error parsing attachments:', e);
+                        }
+                        return null;
+                      })()}
                     </td>
                   </tr>
                 </tbody>
@@ -425,15 +513,49 @@ export default function ConversationView() {
                   placeholder="Type your reply..."
                   className="reply-textarea"
                   rows="6"
-                  required
                   disabled={sending}
                 />
               </div>
+
+              {attachments.length > 0 && (
+                <div className="attachment-preview">
+                  <div className="attachments-label">📎 Attachments:</div>
+                  {attachments.map((att, idx) => (
+                    <div key={idx} className="attachment-preview-item">
+                      {att.type?.startsWith('image/') ? (
+                        <img src={att.url} alt={att.filename} className="preview-image" />
+                      ) : (
+                        <span>📄 {att.filename}</span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeAttachment(idx)}
+                        className="remove-attachment-btn"
+                        title="Remove attachment"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <div className="form-actions">
+                <label className="attach-file-btn">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/jpeg,image/jpg,image/png,image/gif,application/pdf,text/plain,application/zip"
+                    onChange={handleFileUpload}
+                    disabled={uploading || sending}
+                    style={{ display: 'none' }}
+                  />
+                  {uploading ? '⏳ Uploading...' : '📎 Attach File'}
+                </label>
                 <button
                   type="submit"
                   className="reply-btn"
-                  disabled={sending || !replyContent.trim()}
+                  disabled={sending || (!replyContent.trim() && attachments.length === 0)}
                 >
                   {sending ? 'Sending...' : 'Send Reply'}
                 </button>
