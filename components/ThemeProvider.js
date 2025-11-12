@@ -51,6 +51,21 @@ const ThemeProvider = ({ children }) => {
 
   const loadThemeSettings = async () => {
     try {
+      // Check if we're in preview mode
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const isPreview = urlParams.get('preview') === 'true';
+
+        if (isPreview) {
+          const previewTheme = sessionStorage.getItem('previewTheme');
+          if (previewTheme) {
+            const previewSettings = JSON.parse(previewTheme);
+            setThemeSettings(prev => ({ ...prev, ...previewSettings }));
+            return;
+          }
+        }
+      }
+
       const res = await fetch('/api/theme-settings');
       if (res.ok) {
         const data = await res.json();
@@ -83,7 +98,7 @@ const ThemeProvider = ({ children }) => {
 
     const root = document.documentElement;
 
-    // Apply CSS custom properties
+    // Apply CSS custom properties - Colors
     root.style.setProperty('--primary-color', themeSettings.primaryColor);
     root.style.setProperty('--secondary-color', themeSettings.secondaryColor);
     root.style.setProperty('--header-bg', themeSettings.headerBackground || themeSettings.headerBg);
@@ -98,6 +113,25 @@ const ThemeProvider = ({ children }) => {
     root.style.setProperty('--button-text', themeSettings.buttonText);
     root.style.setProperty('--button-hover-bg', themeSettings.buttonHoverBackground || themeSettings.buttonHoverBg);
     root.style.setProperty('--border-color', themeSettings.borderColor);
+
+    // Apply Layout Variables
+    root.style.setProperty('--header-height', themeSettings.headerHeight || '60px');
+    root.style.setProperty('--header-padding', themeSettings.headerPadding || '0 20px');
+    root.style.setProperty('--logo-max-height', themeSettings.logoMaxHeight || '40px');
+    root.style.setProperty('--container-max-width', themeSettings.containerMaxWidth || '1200px');
+    root.style.setProperty('--content-padding', themeSettings.contentPadding || '20px');
+    root.style.setProperty('--button-radius', themeSettings.buttonRadius || '4px');
+    root.style.setProperty('--card-radius', themeSettings.cardRadius || '0px');
+    root.style.setProperty('--border-width', themeSettings.borderWidth || '1px');
+
+    // Apply Shadow Style
+    const shadowStyles = {
+      none: 'none',
+      subtle: '0 1px 3px rgba(0,0,0,0.1)',
+      medium: '0 2px 8px rgba(0,0,0,0.15)',
+      strong: '0 4px 12px rgba(0,0,0,0.2)'
+    };
+    root.style.setProperty('--box-shadow', shadowStyles[themeSettings.shadowStyle] || shadowStyles.none);
 
     // Apply body styles
     document.body.style.fontFamily = themeSettings.fontFamily || 'Verdana, Arial, sans-serif';

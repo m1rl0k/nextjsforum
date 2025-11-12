@@ -15,7 +15,6 @@ const AdminTemplates = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('colors');
-  const [previewMode, setPreviewMode] = useState(false);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -59,6 +58,13 @@ const AdminTemplates = () => {
     }));
   };
 
+  const handleLivePreview = () => {
+    // Save current settings to sessionStorage
+    sessionStorage.setItem('previewTheme', JSON.stringify(settings));
+    // Open forum in new tab
+    window.open('/?preview=true', '_blank');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSaving(true);
@@ -76,13 +82,15 @@ const AdminTemplates = () => {
       });
 
       const data = await res.json();
-      
+
       if (res.ok) {
-        setMessage('Template settings saved successfully! Changes applied.');
+        setMessage('✅ Template settings saved successfully! Changes applied.');
         // Refresh theme settings to apply changes immediately
         if (refreshThemeSettings) {
           await refreshThemeSettings();
         }
+        // Auto-hide success message after 3 seconds
+        setTimeout(() => setMessage(''), 3000);
       } else {
         setError(data.message || 'Failed to save settings');
       }
@@ -94,7 +102,9 @@ const AdminTemplates = () => {
   };
 
   const resetToDefaults = () => {
-    if (confirm('Are you sure you want to reset all template settings to defaults?')) {
+    if (confirm('⚠️ Are you sure you want to reset all template settings to defaults? This will overwrite all your current customizations.')) {
+      setMessage('');
+      setError('');
       setSettings({
         theme: 'classic',
         primaryColor: '#2B4F81',
@@ -142,6 +152,8 @@ const AdminTemplates = () => {
         threadsPerPage: 20,
         postsPerPage: 10
       });
+      setMessage('✅ Settings reset to defaults. Click "Save Theme Settings" to apply.');
+      setTimeout(() => setMessage(''), 5000);
     }
   };
 
@@ -165,10 +177,10 @@ const AdminTemplates = () => {
             <div className={styles.headerActions}>
               <button
                 type="button"
-                onClick={() => setPreviewMode(!previewMode)}
+                onClick={handleLivePreview}
                 className={styles.previewButton}
               >
-                {previewMode ? '👁️ Exit Preview' : '👁️ Live Preview'}
+                👁️ Live Preview
               </button>
               <button
                 type="button"
@@ -634,7 +646,8 @@ const AdminTemplates = () => {
           {activeTab === 'layout' && (
             <div className={styles.section}>
               <h2>Layout & Typography</h2>
-              
+
+              <h3 style={{ marginBottom: '15px', marginTop: '0', color: '#495057' }}>Typography</h3>
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
                   <label htmlFor="fontSize">Font Size</label>
@@ -646,6 +659,7 @@ const AdminTemplates = () => {
                     className={styles.select}
                   >
                     <option value="12px">Small (12px)</option>
+                    <option value="13px">Classic (13px)</option>
                     <option value="14px">Medium (14px)</option>
                     <option value="16px">Large (16px)</option>
                     <option value="18px">Extra Large (18px)</option>
@@ -657,20 +671,128 @@ const AdminTemplates = () => {
                   <select
                     id="fontFamily"
                     name="fontFamily"
-                    value={settings.fontFamily || 'system-ui, -apple-system, sans-serif'}
+                    value={settings.fontFamily || 'Verdana, Arial, sans-serif'}
                     onChange={handleInputChange}
                     className={styles.select}
                   >
+                    <option value="Verdana, Arial, sans-serif">Verdana (Classic)</option>
                     <option value="system-ui, -apple-system, sans-serif">System Default</option>
                     <option value="Arial, sans-serif">Arial</option>
                     <option value="Helvetica, sans-serif">Helvetica</option>
                     <option value="Georgia, serif">Georgia</option>
                     <option value="'Times New Roman', serif">Times New Roman</option>
                     <option value="'Courier New', monospace">Courier New</option>
+                    <option value="'Inter', sans-serif">Inter (Modern)</option>
+                    <option value="'Roboto', sans-serif">Roboto</option>
                   </select>
                 </div>
               </div>
 
+              <h3 style={{ marginBottom: '15px', marginTop: '25px', color: '#495057' }}>Header Layout</h3>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="headerHeight">Header Height</label>
+                  <select
+                    id="headerHeight"
+                    name="headerHeight"
+                    value={settings.headerHeight || '60px'}
+                    onChange={handleInputChange}
+                    className={styles.select}
+                  >
+                    <option value="50px">Compact (50px)</option>
+                    <option value="60px">Standard (60px)</option>
+                    <option value="80px">Tall (80px)</option>
+                    <option value="100px">Extra Tall (100px)</option>
+                  </select>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="headerLayout">Header Layout</label>
+                  <select
+                    id="headerLayout"
+                    name="headerLayout"
+                    value={settings.headerLayout || 'left'}
+                    onChange={handleInputChange}
+                    className={styles.select}
+                  >
+                    <option value="left">Logo Left, Nav Right</option>
+                    <option value="center">Centered Logo & Nav</option>
+                    <option value="stacked">Stacked (Logo Top, Nav Below)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="headerPadding">Header Padding</label>
+                  <select
+                    id="headerPadding"
+                    name="headerPadding"
+                    value={settings.headerPadding || '0 20px'}
+                    onChange={handleInputChange}
+                    className={styles.select}
+                  >
+                    <option value="0 10px">Tight (10px)</option>
+                    <option value="0 20px">Standard (20px)</option>
+                    <option value="0 40px">Spacious (40px)</option>
+                    <option value="0 60px">Extra Spacious (60px)</option>
+                  </select>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="logoMaxHeight">Logo Max Height</label>
+                  <select
+                    id="logoMaxHeight"
+                    name="logoMaxHeight"
+                    value={settings.logoMaxHeight || '40px'}
+                    onChange={handleInputChange}
+                    className={styles.select}
+                  >
+                    <option value="30px">Small (30px)</option>
+                    <option value="40px">Medium (40px)</option>
+                    <option value="50px">Large (50px)</option>
+                    <option value="60px">Extra Large (60px)</option>
+                  </select>
+                </div>
+              </div>
+
+              <h3 style={{ marginBottom: '15px', marginTop: '25px', color: '#495057' }}>Content Layout</h3>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="containerMaxWidth">Container Max Width</label>
+                  <select
+                    id="containerMaxWidth"
+                    name="containerMaxWidth"
+                    value={settings.containerMaxWidth || '1200px'}
+                    onChange={handleInputChange}
+                    className={styles.select}
+                  >
+                    <option value="960px">Narrow (960px)</option>
+                    <option value="1200px">Standard (1200px)</option>
+                    <option value="1400px">Wide (1400px)</option>
+                    <option value="1600px">Extra Wide (1600px)</option>
+                    <option value="100%">Full Width</option>
+                  </select>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="contentPadding">Content Padding</label>
+                  <select
+                    id="contentPadding"
+                    name="contentPadding"
+                    value={settings.contentPadding || '20px'}
+                    onChange={handleInputChange}
+                    className={styles.select}
+                  >
+                    <option value="10px">Tight (10px)</option>
+                    <option value="20px">Standard (20px)</option>
+                    <option value="30px">Comfortable (30px)</option>
+                    <option value="40px">Spacious (40px)</option>
+                  </select>
+                </div>
+              </div>
+
+              <h3 style={{ marginBottom: '15px', marginTop: '25px', color: '#495057' }}>Border & Spacing</h3>
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
                   <label htmlFor="buttonRadius">Button Border Radius</label>
@@ -681,10 +803,12 @@ const AdminTemplates = () => {
                     onChange={handleInputChange}
                     className={styles.select}
                   >
-                    <option value="0px">Square</option>
-                    <option value="4px">Slightly Rounded</option>
-                    <option value="8px">Rounded</option>
-                    <option value="16px">Very Rounded</option>
+                    <option value="0px">Square (0px)</option>
+                    <option value="2px">Subtle (2px)</option>
+                    <option value="4px">Slightly Rounded (4px)</option>
+                    <option value="6px">Rounded (6px)</option>
+                    <option value="8px">Very Rounded (8px)</option>
+                    <option value="12px">Extra Rounded (12px)</option>
                     <option value="50px">Pill Shape</option>
                   </select>
                 </div>
@@ -694,14 +818,49 @@ const AdminTemplates = () => {
                   <select
                     id="cardRadius"
                     name="cardRadius"
-                    value={settings.cardRadius || '8px'}
+                    value={settings.cardRadius || '0px'}
                     onChange={handleInputChange}
                     className={styles.select}
                   >
-                    <option value="0px">Square</option>
-                    <option value="4px">Slightly Rounded</option>
-                    <option value="8px">Rounded</option>
-                    <option value="12px">Very Rounded</option>
+                    <option value="0px">Square (0px)</option>
+                    <option value="4px">Slightly Rounded (4px)</option>
+                    <option value="8px">Rounded (8px)</option>
+                    <option value="12px">Very Rounded (12px)</option>
+                    <option value="16px">Extra Rounded (16px)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="borderWidth">Border Width</label>
+                  <select
+                    id="borderWidth"
+                    name="borderWidth"
+                    value={settings.borderWidth || '1px'}
+                    onChange={handleInputChange}
+                    className={styles.select}
+                  >
+                    <option value="0px">None</option>
+                    <option value="1px">Thin (1px)</option>
+                    <option value="2px">Medium (2px)</option>
+                    <option value="3px">Thick (3px)</option>
+                  </select>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="shadowStyle">Shadow Style</label>
+                  <select
+                    id="shadowStyle"
+                    name="shadowStyle"
+                    value={settings.shadowStyle || 'none'}
+                    onChange={handleInputChange}
+                    className={styles.select}
+                  >
+                    <option value="none">No Shadows</option>
+                    <option value="subtle">Subtle Shadows</option>
+                    <option value="medium">Medium Shadows</option>
+                    <option value="strong">Strong Shadows</option>
                   </select>
                 </div>
               </div>

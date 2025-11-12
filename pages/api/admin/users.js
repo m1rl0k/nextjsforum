@@ -1,8 +1,9 @@
 import prisma from '../../../lib/prisma';
 import { verifyToken } from '../../../lib/auth';
+import bcrypt from 'bcryptjs';
 
 export default async function handler(req, res) {
-  if (req.method !== 'GET') {
+  if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
@@ -23,6 +24,80 @@ export default async function handler(req, res) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
 
+    // Handle POST - Create new user
+    if (req.method === 'POST') {
+      const { username, email, password, role = 'USER', sendWelcomeEmail = false } = req.body;
+
+      // Validate required fields
+      if (!username || !email || !password) {
+        return res.status(400).json({ message: 'Username, email, and password are required' });
+      }
+
+      // Validate username length
+      if (username.length < 3 || username.length > 30) {
+        return res.status(400).json({ message: 'Username must be between 3 and 30 characters' });
+      }
+
+      // Validate password length
+      if (password.length < 6) {
+        return res.status(400).json({ message: 'Password must be at least 6 characters' });
+      }
+
+      // Validate role
+      if (!['USER', 'MODERATOR', 'ADMIN'].includes(role)) {
+        return res.status(400).json({ message: 'Invalid role' });
+      }
+
+      // Check if user already exists
+      const existingUser = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { email: email.toLowerCase() },
+            { username: username }
+          ]
+        }
+      });
+
+      if (existingUser) {
+        if (existingUser.email === email.toLowerCase()) {
+          return res.status(400).json({ message: 'Email already in use' });
+        }
+        if (existingUser.username === username) {
+          return res.status(400).json({ message: 'Username already taken' });
+        }
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create user
+      const newUser = await prisma.user.create({
+        data: {
+          username,
+          email: email.toLowerCase(),
+          password: hashedPassword,
+          role,
+          banned: false
+        },
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          role: true,
+          createdAt: true
+        }
+      });
+
+      // TODO: Send welcome email if sendWelcomeEmail is true
+      // This would require email service integration
+
+      return res.status(201).json({
+        message: 'User created successfully',
+        user: newUser
+      });
+    }
+
+    // Handle GET - List users
     // Get query parameters
     const { limit = 10, page = 1, search = '', sort = 'newest' } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);

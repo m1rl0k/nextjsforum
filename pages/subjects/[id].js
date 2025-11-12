@@ -117,9 +117,21 @@ export default function SubjectPage() {
             </div>
             
             {loading ? (
-              <div style={{ padding: '20px', textAlign: 'center' }}>Loading threads...</div>
+              <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>
+                <div style={{ fontSize: '24px', marginBottom: '10px' }}>💬</div>
+                Loading threads...
+              </div>
             ) : threads.length === 0 ? (
-              <div style={{ padding: '20px', textAlign: 'center' }}>No threads in this forum yet.</div>
+              <div style={{ padding: '60px 20px', textAlign: 'center' }}>
+                <div style={{ fontSize: '48px', marginBottom: '20px', opacity: 0.3 }}>💬</div>
+                <h3 style={{ color: '#666', marginBottom: '10px' }}>No threads yet</h3>
+                <p style={{ color: '#999', marginBottom: '20px' }}>Be the first to start a discussion in this forum!</p>
+                {user && subject.canPost && (
+                  <Link href={`/subjects/${id}/new-thread`} className="button">
+                    ✏️ Start New Thread
+                  </Link>
+                )}
+              </div>
             ) : (
               threads.map(thread => (
                 <div key={thread.id} className="thread-row">

@@ -18,6 +18,14 @@ const AdminUsers = () => {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('newest');
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [newUser, setNewUser] = useState({
+    username: '',
+    email: '',
+    password: '',
+    role: 'USER',
+    sendWelcomeEmail: true
+  });
 
   useEffect(() => {
     if (authLoading) return;
@@ -75,8 +83,58 @@ const AdminUsers = () => {
     setPagination(prev => ({ ...prev, page: newPage }));
   };
 
-  const handleUserAction = async (userId, action, role = null) => {
+  const handleAddUser = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    // Validate
+    if (!newUser.username || !newUser.email || !newUser.password) {
+      setError('Username, email, and password are required');
+      return;
+    }
+
     try {
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify(newUser)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to create user');
+      }
+
+      alert('✅ User created successfully!');
+      setShowAddUserModal(false);
+      setNewUser({
+        username: '',
+        email: '',
+        password: '',
+        role: 'USER',
+        sendWelcomeEmail: true
+      });
+      fetchUsers();
+    } catch (err) {
+      setError(err.message || 'Failed to create user');
+    }
+  };
+
+  const handleUserAction = async (userId, action, role = null) => {
+    // Confirm destructive actions
+    if (action === 'ban' || action === 'delete') {
+      const actionName = action === 'ban' ? 'ban' : 'permanently delete';
+      if (!confirm(`Are you sure you want to ${actionName} this user? This action cannot be undone.`)) {
+        return;
+      }
+    }
+
+    try {
+      setError(''); // Clear previous errors
       const payload = { action };
 
       // Include role for promotion actions
@@ -98,6 +156,15 @@ const AdminUsers = () => {
       if (!res.ok) {
         throw new Error(data.message || 'Failed to perform action');
       }
+
+      // Show success message
+      const actionMessages = {
+        'ban': 'User banned successfully',
+        'unban': 'User unbanned successfully',
+        'promote': `User promoted to ${role} successfully`,
+        'delete': 'User deleted successfully'
+      };
+      alert(actionMessages[action] || 'Action completed successfully');
 
       // Refresh users after action
       await fetchUsers();
@@ -127,7 +194,15 @@ const AdminUsers = () => {
     <AdminLayout>
       <div className={styles.container}>
         <div className={styles.header}>
-          <h1>Manage Users</h1>
+          <div className={styles.headerTop}>
+            <h1>Manage Users</h1>
+            <button
+              onClick={() => setShowAddUserModal(true)}
+              className={styles.addButton}
+            >
+              ➕ Add User
+            </button>
+          </div>
           <form onSubmit={handleSearch} className={styles.searchForm}>
             <input
               type="text"
@@ -252,6 +327,107 @@ const AdminUsers = () => {
             >
               Next
             </button>
+          </div>
+        )}
+
+        {/* Add User Modal */}
+        {showAddUserModal && (
+          <div className={styles.modal} onClick={() => setShowAddUserModal(false)}>
+            <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+              <div className={styles.modalHeader}>
+                <h2>Add New User</h2>
+                <button
+                  className={styles.closeButton}
+                  onClick={() => setShowAddUserModal(false)}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleAddUser} className={styles.addUserForm}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="username">Username *</label>
+                  <input
+                    type="text"
+                    id="username"
+                    value={newUser.username}
+                    onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                    placeholder="Enter username"
+                    required
+                    minLength={3}
+                    maxLength={30}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="email">Email *</label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={newUser.email}
+                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                    placeholder="user@example.com"
+                    required
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="password">Password *</label>
+                  <input
+                    type="password"
+                    id="password"
+                    value={newUser.password}
+                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                    placeholder="Enter password"
+                    required
+                    minLength={6}
+                  />
+                  <small>Minimum 6 characters</small>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="role">Role</label>
+                  <select
+                    id="role"
+                    value={newUser.role}
+                    onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                  >
+                    <option value="USER">User</option>
+                    <option value="MODERATOR">Moderator</option>
+                    <option value="ADMIN">Admin</option>
+                  </select>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      checked={newUser.sendWelcomeEmail}
+                      onChange={(e) => setNewUser({ ...newUser, sendWelcomeEmail: e.target.checked })}
+                    />
+                    <span>Send welcome email</span>
+                  </label>
+                </div>
+
+                {error && <div className={styles.error}>{error}</div>}
+
+                <div className={styles.modalActions}>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddUserModal(false)}
+                    className={styles.cancelButton}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className={styles.submitButton}
+                  >
+                    Create User
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
       </div>

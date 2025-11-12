@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
-import Layout from '../../components/Layout';
-import Link from 'next/link';
+import AdminLayout from '../../components/admin/AdminLayout';
+import { useAuth } from '../../context/AuthContext';
+import { useRouter } from 'next/router';
 
 export default function UploadSettings() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [settings, setSettings] = useState({
     useS3: false,
     maxFileSize: 10,
@@ -17,6 +20,13 @@ export default function UploadSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+
+  // Redirect if not admin
+  useEffect(() => {
+    if (!authLoading && (!user || user.role !== 'ADMIN')) {
+      router.push('/');
+    }
+  }, [user, authLoading, router]);
 
   useEffect(() => {
     fetchSettings();
@@ -78,23 +88,24 @@ export default function UploadSettings() {
     }));
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
-      <Layout>
+      <AdminLayout>
         <div className="upload-settings-page">
           <div className="loading">Loading upload settings...</div>
         </div>
-      </Layout>
+      </AdminLayout>
     );
   }
 
+  if (!user || user.role !== 'ADMIN') {
+    return null;
+  }
+
   return (
-    <Layout>
+    <AdminLayout>
       <div className="upload-settings-page">
         <div className="page-header">
-          <Link href="/admin/dashboard" className="back-link">
-            ← Back to Admin Dashboard
-          </Link>
           <h1>📁 Upload Settings</h1>
           <p>Configure image upload and storage options</p>
         </div>
@@ -457,6 +468,6 @@ export default function UploadSettings() {
           }
         }
       `}</style>
-    </Layout>
+    </AdminLayout>
   );
 }

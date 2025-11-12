@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 export default function Category({ category }) {
@@ -33,6 +34,7 @@ export default function Category({ category }) {
 }
 
 function Subject({ subject }) {
+  const router = useRouter();
   const lastPost = subject.lastPost ? new Date(subject.lastPost) : null;
 
   const handleRowClick = (e) => {
@@ -41,7 +43,7 @@ function Subject({ subject }) {
       return;
     }
     // Navigate to the subject page
-    window.location.href = `/subjects/${subject.id}`;
+    router.push(`/subjects/${subject.id}`);
   };
 
   return (

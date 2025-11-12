@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Navigation from './Navigation';
+import PreviewBanner from './PreviewBanner';
 
 export default function Layout({ children, title = 'NextJS Forum' }) {
   const router = useRouter();
@@ -36,6 +37,7 @@ export default function Layout({ children, title = 'NextJS Forum' }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <PreviewBanner />
       <Navigation />
 
       <div className="container">

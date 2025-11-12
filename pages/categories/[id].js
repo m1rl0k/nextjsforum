@@ -84,11 +84,15 @@ export default function CategoryPage() {
           </div>
 
           {subjects.length === 0 ? (
-            <div className="no-subjects">
-              <p>No subjects found in this category.</p>
+            <div className="no-subjects" style={{ padding: '60px 20px', textAlign: 'center' }}>
+              <div style={{ fontSize: '48px', marginBottom: '20px', opacity: 0.3 }}>📁</div>
+              <h3 style={{ color: '#666', marginBottom: '10px' }}>No forums yet</h3>
+              <p style={{ color: '#999', marginBottom: '20px' }}>
+                This category doesn't have any forums yet.
+              </p>
               {user && user.role === 'ADMIN' && (
                 <Link href="/admin/forums" className="button">
-                  Manage Forums
+                  ⚙️ Manage Forums
                 </Link>
               )}
             </div>

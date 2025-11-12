@@ -62,7 +62,15 @@ const AdminReports = () => {
   };
 
   const handleReportAction = async (reportId, action) => {
+    // Confirm dismissal
+    if (action === 'dismiss') {
+      if (!confirm('Are you sure you want to dismiss this report?')) {
+        return;
+      }
+    }
+
     try {
+      setError(''); // Clear previous errors
       const res = await fetch(`/api/admin/moderation/reports/${reportId}`, {
         method: 'PUT',
         headers: {
@@ -76,6 +84,16 @@ const AdminReports = () => {
 
       if (!res.ok) {
         throw new Error(data.message || 'Failed to perform action');
+      }
+
+      // Show success message
+      const actionMessages = {
+        'resolve': 'Report resolved successfully',
+        'dismiss': 'Report dismissed successfully'
+      };
+
+      if (actionMessages[action]) {
+        alert(actionMessages[action]);
       }
 
       await fetchReports();

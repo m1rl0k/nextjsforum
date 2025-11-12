@@ -24,6 +24,18 @@ export default function PendingContent() {
   const stripHtml = (html) => {
     if (!html) return '';
     const text = html.replace(/<[^>]*>/g, '');
+    // Decode HTML entities (safe for SSR)
+    if (typeof document === 'undefined') {
+      // Server-side: use regex to decode common entities
+      return text
+        .replaceAll('&amp;', '&')
+        .replaceAll('&lt;', '<')
+        .replaceAll('&gt;', '>')
+        .replaceAll('&quot;', '"')
+        .replaceAll('&#039;', "'")
+        .replaceAll('&nbsp;', ' ');
+    }
+    // Client-side: use DOM API
     const textarea = document.createElement('textarea');
     textarea.innerHTML = text;
     return textarea.value;

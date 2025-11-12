@@ -99,7 +99,16 @@ const AdminContent = () => {
   };
 
   const handleContentAction = async (contentId, action) => {
+    // Confirm destructive actions
+    if (action === 'delete') {
+      const itemType = activeTab === 'threads' ? 'thread' : 'post';
+      if (!confirm(`Are you sure you want to delete this ${itemType}? This action cannot be undone.`)) {
+        return;
+      }
+    }
+
     try {
+      setError(''); // Clear previous errors
       const endpoint = activeTab === 'threads' ? 'threads' : 'posts';
       const res = await fetch(`/api/admin/${endpoint}/${contentId}`, {
         method: 'PUT',
@@ -114,6 +123,20 @@ const AdminContent = () => {
 
       if (!res.ok) {
         throw new Error(data.message || 'Failed to perform action');
+      }
+
+      // Show success message
+      const actionMessages = {
+        'sticky': 'Thread stickied successfully',
+        'unsticky': 'Thread unstickied successfully',
+        'lock': 'Thread locked successfully',
+        'unlock': 'Thread unlocked successfully',
+        'delete': 'Content deleted successfully',
+        'restore': 'Content restored successfully'
+      };
+
+      if (actionMessages[action]) {
+        alert(actionMessages[action]);
       }
 
       await fetchContent();
