@@ -120,19 +120,22 @@ export default async function handler(req, res) {
       }
 
       const updatedUser = await prisma.user.update({
-        where: { id: parseInt(id) },
+        where: { id: Number.parseInt(id, 10) },
         data: updateData,
         select: {
           id: true,
           username: true,
           email: true,
+          displayName: true,
           role: true,
           isActive: true,
           bio: true,
           location: true,
           signature: true,
           createdAt: true,
-          lastLogin: true
+          lastLogin: true,
+          postCount: true,
+          threadCount: true
         }
       });
 
