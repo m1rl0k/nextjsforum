@@ -56,6 +56,12 @@ model User {
   notifications           Notification[]
   uploadedImages          Image[]
   backups                 Backup[]
+
+  @@index([email])
+  @@index([username])
+  @@index([role, isActive])
+  @@index([lastActivity])
+  @@index([createdAt])
 }
 
 model Category {
@@ -66,6 +72,8 @@ model Category {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   subjects    Subject[]
+
+  @@index([order])
 }
 
 model Subject {
@@ -168,8 +176,11 @@ model Post {
   images        PostImage[]
 
   @@index([threadId, postNumber])
+  @@index([threadId, createdAt])
   @@index([userId])
+  @@index([userId, createdAt])
   @@index([createdAt])
+  @@index([deleted])
 }
 
 model Message {

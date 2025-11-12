@@ -42,42 +42,76 @@ export default async function handler(req, res) {
         }
       });
 
-      // Get post counts and last post info for each subject
-      const subjectsWithStats = await Promise.all(
-        subjects.map(async (subject) => {
-          // Get post count for this subject
-          const postCount = await prisma.post.count({
-            where: {
-              thread: {
-                subjectId: subject.id
-              }
-            }
-          });
+      // Get all thread IDs for these subjects
+      const subjectIds = subjects.map(s => s.id);
 
-          // Get last thread info
-          const lastThread = await prisma.thread.findFirst({
-            where: { subjectId: subject.id },
-            orderBy: { lastPostAt: 'desc' },
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  username: true
-                }
-              }
-            }
-          });
+      // Get post counts for all subjects in one query
+      const postCounts = await prisma.post.groupBy({
+        by: ['threadId'],
+        where: {
+          thread: {
+            subjectId: { in: subjectIds },
+            deleted: false
+          },
+          deleted: false
+        },
+        _count: {
+          id: true
+        }
+      });
 
-          return {
-            ...subject,
-            postCount,
-            threadCount: subject._count.threads,
-            lastPost: lastThread?.lastPostAt || null,
-            lastPostUser: lastThread?.user || null,
-            lastThreadId: lastThread?.id || null
-          };
-        })
+      // Create a map of thread counts per subject
+      const threadsBySubject = await prisma.thread.groupBy({
+        by: ['subjectId'],
+        where: {
+          subjectId: { in: subjectIds },
+          deleted: false
+        },
+        _count: {
+          id: true
+        }
+      });
+
+      const threadCountMap = new Map(
+        threadsBySubject.map(item => [item.subjectId, item._count.id])
       );
+
+      // Get last threads for all subjects in one query
+      const lastThreads = await prisma.thread.findMany({
+        where: {
+          subjectId: { in: subjectIds },
+          deleted: false
+        },
+        orderBy: { lastPostAt: 'desc' },
+        distinct: ['subjectId'],
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true
+            }
+          }
+        }
+      });
+
+      const lastThreadMap = new Map(
+        lastThreads.map(thread => [thread.subjectId, thread])
+      );
+
+      // Combine the data
+      const subjectsWithStats = subjects.map(subject => {
+        const lastThread = lastThreadMap.get(subject.id);
+        const threadCount = threadCountMap.get(subject.id) || 0;
+
+        return {
+          ...subject,
+          postCount: subject.postCount || 0,
+          threadCount,
+          lastPost: lastThread?.lastPostAt || null,
+          lastPostUser: lastThread?.user || null,
+          lastThreadId: lastThread?.id || null
+        };
+      });
 
       res.status(200).json(subjectsWithStats);
     } catch (error) {

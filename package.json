@@ -1,7 +1,9 @@
 {
-  "name": "my-app",
-  "version": "0.1.0",
+  "name": "nextjs-forum",
+  "version": "1.0.0",
   "private": true,
+  "description": "A commercial-grade forum software built with Next.js",
+  "author": "NextJS Forum Team",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -17,7 +19,9 @@
     "@prisma/client": "^5.15.0",
     "bcryptjs": "^2.4.3",
     "emoji-picker-react": "^4.12.2",
+    "express-rate-limit": "^8.2.1",
     "formidable": "^3.5.4",
+    "isomorphic-dompurify": "^2.30.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.1",
     "next": "14.2.10",
@@ -26,7 +30,8 @@
     "react": "^18",
     "react-dom": "^18",
     "react-quill-new": "^3.4.6",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

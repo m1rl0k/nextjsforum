@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import ReportButton from './ReportButton';
+import { sanitizeHtml } from '../lib/sanitize';
 
 export default function Post({ post, isFirstPost = false }) {
   const postDate = post.createdAt ? new Date(post.createdAt) : new Date();
@@ -50,7 +51,7 @@ export default function Post({ post, isFirstPost = false }) {
           )}
         </div>
         <div className="post-content">
-          <div className="post-message" dangerouslySetInnerHTML={{ __html: formatPostContent(post.content) }} />
+          <div className="post-message" dangerouslySetInnerHTML={{ __html: sanitizeHtml(formatPostContent(post.content)) }} />
           
           {post.updatedBy && post.updatedAt && (
             <div className="post-edit-note">

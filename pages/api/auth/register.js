@@ -1,34 +1,33 @@
 import { hashPassword, generateToken } from '../../../lib/auth';
 import prisma from '../../../lib/prisma';
+import { registerSchema, validate } from '../../../lib/validation';
+import { authRateLimit } from '../../../lib/rateLimit';
+import { isProduction } from '../../../lib/env';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Apply rate limiting
+  await new Promise((resolve, reject) => {
+    authRateLimit(req, res, (err) => {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
+
   try {
-    const { email, username, password } = req.body;
-
     // Validate input
-    if (!email || !username || !password) {
-      return res.status(400).json({ error: 'Please provide email, username, and password' });
+    const validation = validate(registerSchema, req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: validation.errors
+      });
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: 'Please provide a valid email address' });
-    }
-
-    // Validate password length
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
-    }
-
-    // Validate username length
-    if (username.length < 3) {
-      return res.status(400).json({ error: 'Username must be at least 3 characters long' });
-    }
+    const { email, username, password } = validation.data;
 
     // Check if user already exists
     const existingUser = await prisma.user.findFirst({
@@ -81,10 +80,16 @@ export default async function handler(req, res) {
     const token = generateToken(user);
 
     // Set HTTP-only cookie with token
-    res.setHeader(
-      'Set-Cookie',
-      `token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=604800` // 7 days
-    );
+    const cookieOptions = [
+      `token=${token}`,
+      'Path=/',
+      'HttpOnly',
+      'SameSite=Strict',
+      'Max-Age=604800', // 7 days
+      isProduction() ? 'Secure' : '' // Only use Secure flag in production
+    ].filter(Boolean).join('; ');
+
+    res.setHeader('Set-Cookie', cookieOptions);
 
     res.status(201).json({
       success: true,
