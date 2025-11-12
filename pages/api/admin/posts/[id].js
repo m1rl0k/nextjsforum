@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       // Get specific post details
       const post = await prisma.post.findUnique({
-        where: { id: parseInt(id) },
+        where: { id: Number.parseInt(id, 10) },
         include: {
           user: {
             select: {
@@ -58,13 +58,13 @@ export default async function handler(req, res) {
         data: post
       });
     } else if (req.method === 'PUT') {
-      // Update post (edit content, etc.)
+      // Update post (edit content, soft delete, restore, etc.)
       const { action, content } = req.body;
 
       if (action === 'delete') {
-        // Delete the post
+        // Soft delete the post
         const post = await prisma.post.findUnique({
-          where: { id: parseInt(id) },
+          where: { id: Number.parseInt(id, 10) },
           include: {
             thread: true
           }
@@ -74,9 +74,14 @@ export default async function handler(req, res) {
           return res.status(404).json({ message: 'Post not found' });
         }
 
-        // Delete the post
-        await prisma.post.delete({
-          where: { id: parseInt(id) }
+        // Soft delete the post
+        await prisma.post.update({
+          where: { id: Number.parseInt(id, 10) },
+          data: {
+            deleted: true,
+            deletedAt: new Date(),
+            deletedBy: user.id
+          }
         });
 
         // Update thread post count and last post info
@@ -131,10 +136,41 @@ export default async function handler(req, res) {
           status: 'success',
           message: 'Post deleted successfully'
         });
+      } else if (action === 'restore') {
+        // Restore a soft-deleted post
+        const updatedPost = await prisma.post.update({
+          where: { id: Number.parseInt(id, 10) },
+          data: {
+            deleted: false,
+            deletedAt: null,
+            deletedBy: null
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                role: true
+              }
+            },
+            thread: {
+              select: {
+                id: true,
+                title: true
+              }
+            }
+          }
+        });
+
+        res.status(200).json({
+          status: 'success',
+          data: updatedPost,
+          message: 'Post restored successfully'
+        });
       } else if (action === 'edit' && content) {
         // Edit post content
         const updatedPost = await prisma.post.update({
-          where: { id: parseInt(id) },
+          where: { id: Number.parseInt(id, 10) },
           data: { 
             content,
             updatedAt: new Date()
@@ -172,9 +208,9 @@ export default async function handler(req, res) {
         res.status(400).json({ message: 'Invalid action or missing content' });
       }
     } else if (req.method === 'DELETE') {
-      // Direct delete
+      // Hard delete (admin only)
       const post = await prisma.post.findUnique({
-        where: { id: parseInt(id) },
+        where: { id: Number.parseInt(id, 10) },
         include: {
           thread: true
         }
@@ -184,9 +220,9 @@ export default async function handler(req, res) {
         return res.status(404).json({ message: 'Post not found' });
       }
 
-      // Delete the post
+      // Hard delete the post
       await prisma.post.delete({
-        where: { id: parseInt(id) }
+        where: { id: Number.parseInt(id, 10) }
       });
 
       // Update counters (same logic as above)

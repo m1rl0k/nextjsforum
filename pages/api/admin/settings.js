@@ -41,20 +41,20 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       // Get current settings
       try {
-        const settings = await prisma.setting.findMany();
-        
+        const settings = await prisma.siteSettings.findMany();
+
         // Convert array of settings to object
         const settingsObj = { ...defaultSettings };
         settings.forEach(setting => {
           let value = setting.value;
-          
+
           // Parse JSON values
           try {
             value = JSON.parse(value);
           } catch (e) {
             // Keep as string if not valid JSON
           }
-          
+
           settingsObj[setting.key] = value;
         });
 
@@ -81,35 +81,20 @@ export default async function handler(req, res) {
         }
       });
 
-      try {
-        // Try to create settings table if it doesn't exist
-        await prisma.$executeRaw`
-          CREATE TABLE IF NOT EXISTS "Setting" (
-            "id" SERIAL PRIMARY KEY,
-            "key" TEXT UNIQUE NOT NULL,
-            "value" TEXT NOT NULL,
-            "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
-          );
-        `;
-      } catch (error) {
-        // Table might already exist, continue
-      }
-
-      // Update each setting
+      // Update each setting using SiteSettings model
       for (const [key, value] of Object.entries(validatedSettings)) {
         const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
-        
+
         try {
-          await prisma.setting.upsert({
+          await prisma.siteSettings.upsert({
             where: { key },
-            update: { 
+            update: {
               value: stringValue,
               updatedAt: new Date()
             },
-            create: { 
-              key, 
-              value: stringValue 
+            create: {
+              key,
+              value: stringValue
             }
           });
         } catch (error) {
