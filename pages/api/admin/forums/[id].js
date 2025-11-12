@@ -187,9 +187,19 @@ export default async function handler(req, res) {
       // Check if it has threads
       if (subject._count.threads > 0) {
         if (cascade === 'true') {
-          // Cascade delete - delete all threads first
+          // Cascade delete - delete posts first, then threads
           console.log(`Cascade deleting subject ${numericId} with ${subject._count.threads} threads`);
 
+          // First delete all posts in all threads
+          await prisma.post.deleteMany({
+            where: {
+              thread: {
+                subjectId: numericId
+              }
+            }
+          });
+
+          // Then delete all threads
           await prisma.thread.deleteMany({
             where: { subjectId: numericId }
           });

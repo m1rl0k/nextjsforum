@@ -90,14 +90,15 @@ const AdminForums = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setError(''); // Clear previous errors
+
     try {
-      const url = isEditing 
+      const url = isEditing
         ? `/api/admin/forums/${isEditing}`
         : '/api/admin/forums';
-      
+
       const method = isEditing ? 'PUT' : 'POST';
-      
+
       const res = await fetch(url, {
         method,
         headers: {
@@ -109,13 +110,13 @@ const AdminForums = () => {
           order: Number.parseInt(formData.order, 10)
         }),
       });
-      
+
       const data = await res.json();
-      
+
       if (!res.ok) {
         throw new Error(data.message || 'Failed to save forum');
       }
-      
+
       // Reset form and refresh data
       setFormData({
         name: '',
@@ -133,7 +134,12 @@ const AdminForums = () => {
       });
       setIsCreating(false);
       setIsEditing(null);
-      fetchForums();
+
+      // Refresh forums list
+      await fetchForums();
+
+      // Show success message
+      alert(`${formData.isCategory ? 'Category' : 'Forum'} ${isEditing ? 'updated' : 'created'} successfully!`);
     } catch (err) {
       setError(err.message || 'Failed to save forum');
       console.error('Error saving forum:', err);
@@ -160,7 +166,7 @@ const AdminForums = () => {
   };
 
   const handleDelete = async (forumId, isCategory = false, cascade = false) => {
-    if (!cascade && !confirm('Are you sure you want to delete this forum? This action cannot be undone.')) {
+    if (!cascade && !confirm(`Are you sure you want to delete this ${isCategory ? 'category' : 'forum'}? This action cannot be undone.`)) {
       return;
     }
 
@@ -173,11 +179,23 @@ const AdminForums = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        // If it's a category with children and cascade wasn't requested, ask user
+        // If it has children and cascade wasn't requested, ask user
         if (data.hasChildren && !cascade) {
-          const confirmCascade = confirm(
-            `${data.message}\n\nDo you want to delete this category and all ${data.childCount} forum(s) under it?\n\nForums to be deleted:\n${data.children?.join('\n- ')}`
-          );
+          const itemType = isCategory ? 'category' : 'forum';
+          const childType = isCategory ? 'forum(s)' : 'thread(s)';
+
+          let confirmMessage = `${data.message}\n\n⚠️ WARNING: This will permanently delete:\n`;
+          confirmMessage += `- 1 ${itemType}\n`;
+          confirmMessage += `- ${data.childCount} ${childType}\n`;
+
+          if (isCategory && data.children) {
+            const childList = data.children.map(c => `  • ${c}`).join('\n');
+            confirmMessage += `\nForums to be deleted:\n${childList}`;
+          }
+
+          confirmMessage += `\n\nThis action CANNOT be undone!\n\nDo you want to proceed?`;
+
+          const confirmCascade = confirm(confirmMessage);
 
           if (confirmCascade) {
             // Retry with cascade=true
@@ -186,13 +204,21 @@ const AdminForums = () => {
           return;
         }
 
-        throw new Error(data.message || 'Failed to delete forum');
+        throw new Error(data.message || 'Failed to delete');
       }
 
+      // Show success message
+      const successMsg = data.message || `${isCategory ? 'Category' : 'Forum'} deleted successfully`;
+      setError(''); // Clear any previous errors
+
+      // Refresh the forums list
       fetchForums();
+
+      // Optional: Show a temporary success notification
+      alert(successMsg);
     } catch (err) {
-      setError(err.message || 'Failed to delete forum');
-      console.error('Error deleting forum:', err);
+      setError(err.message || 'Failed to delete');
+      console.error('Error deleting:', err);
     }
   };
 
