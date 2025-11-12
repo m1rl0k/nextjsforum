@@ -16,7 +16,7 @@ import {
 import styles from '../../styles/AdminContent.module.css';
 
 const AdminContent = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('threads');
   const [content, setContent] = useState([]);
