@@ -14,16 +14,21 @@ export function middleware(request) {
     return NextResponse.next();
   }
 
-  // Check moderation access
-  if (pathname.startsWith('/moderation')) {
+  // Protected routes that require authentication
+  const protectedRoutes = ['/moderation', '/admin', '/profile', '/messages', '/settings'];
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+
+  if (isProtectedRoute) {
     const token = request.cookies.get('token')?.value;
 
     if (!token) {
-      return NextResponse.redirect(new URL('/login', request.url));
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
     }
 
-    // Note: In a real implementation, you would verify the token and check user role here
-    // For now, we'll let the page component handle the role check
+    // Token verification is handled by API routes and page components
+    // Middleware just checks for token presence to avoid unnecessary redirects
   }
 
   // For production, check installation status

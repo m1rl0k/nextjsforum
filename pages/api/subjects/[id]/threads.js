@@ -1,12 +1,22 @@
 import prisma from '../../../../lib/prisma';
+import { paginationSchema, validateQuery } from '../../../../lib/validation';
 
 export default async function handler(req, res) {
   const { id } = req.query;
-  const { page = 1, limit = 20, sortBy = 'lastPostAt', sortOrder = 'desc' } = req.query;
 
   if (req.method === 'GET') {
     try {
-      const skip = (parseInt(page) - 1) * parseInt(limit);
+      // Validate pagination parameters
+      const validation = validateQuery(paginationSchema, req.query);
+      if (!validation.success) {
+        return res.status(400).json({
+          error: 'Invalid parameters',
+          details: validation.errors
+        });
+      }
+
+      const { page, limit, sortBy = 'lastPostAt', sortOrder = 'desc' } = validation.data;
+      const skip = (page - 1) * limit;
       
       // Build orderBy object
       const orderBy = [];
@@ -27,10 +37,11 @@ export default async function handler(req, res) {
 
       const threads = await prisma.thread.findMany({
         where: {
-          subjectId: parseInt(id)
+          subjectId: parseInt(id),
+          deleted: false
         },
         skip,
-        take: parseInt(limit),
+        take: limit,
         orderBy,
         include: {
           user: {
