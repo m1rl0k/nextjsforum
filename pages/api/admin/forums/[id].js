@@ -113,8 +113,18 @@ export default async function handler(req, res) {
             // Cascade delete - delete all subjects first, then the category
             console.log(`Cascade deleting category ${numericId} with ${category.subjects.length} subjects`);
 
-            // Delete all threads in all subjects first
+            // Delete all posts, then threads, then subjects
             for (const subject of category.subjects) {
+              // First delete all posts in all threads of this subject
+              await prisma.post.deleteMany({
+                where: {
+                  thread: {
+                    subjectId: subject.id
+                  }
+                }
+              });
+
+              // Then delete all threads
               await prisma.thread.deleteMany({
                 where: { subjectId: subject.id }
               });
