@@ -102,9 +102,12 @@ export default async function handler(req, res) {
 
       if (category) {
         // It's a category - check if it has subjects
+        console.log(`Attempting to delete category ${numericId}:`, category.name);
+        console.log(`Category has ${category.subjects?.length || 0} subjects:`, category.subjects?.map(s => s.name));
+
         if (category.subjects && category.subjects.length > 0) {
           return res.status(400).json({
-            message: 'Cannot delete category with existing forums. Please delete or move the forums first.'
+            message: `Cannot delete category "${category.name}" with existing forums. Please delete or move these forums first: ${category.subjects.map(s => s.name).join(', ')}`
           });
         }
 

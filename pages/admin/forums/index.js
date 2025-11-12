@@ -159,23 +159,36 @@ const AdminForums = () => {
     setIsCreating(true);
   };
 
-  const handleDelete = async (forumId) => {
-    if (!confirm('Are you sure you want to delete this forum? This action cannot be undone.')) {
+  const handleDelete = async (forumId, isCategory = false, cascade = false) => {
+    if (!cascade && !confirm('Are you sure you want to delete this forum? This action cannot be undone.')) {
       return;
     }
-    
+
     try {
-      const res = await fetch(`/api/admin/forums/${forumId}`, {
+      const res = await fetch(`/api/admin/forums/${forumId}?type=${isCategory ? 'category' : 'subject'}${cascade ? '&cascade=true' : ''}`, {
         method: 'DELETE',
         credentials: 'include'
       });
-      
+
       const data = await res.json();
-      
+
       if (!res.ok) {
+        // If it's a category with children and cascade wasn't requested, ask user
+        if (data.hasChildren && !cascade) {
+          const confirmCascade = confirm(
+            `${data.message}\n\nDo you want to delete this category and all ${data.childCount} forum(s) under it?\n\nForums to be deleted:\n${data.children?.join('\n- ')}`
+          );
+
+          if (confirmCascade) {
+            // Retry with cascade=true
+            return handleDelete(forumId, isCategory, true);
+          }
+          return;
+        }
+
         throw new Error(data.message || 'Failed to delete forum');
       }
-      
+
       fetchForums();
     } catch (err) {
       setError(err.message || 'Failed to delete forum');
@@ -211,7 +224,7 @@ const AdminForums = () => {
               Edit
             </button>
             <button
-              onClick={() => handleDelete(forum.id)}
+              onClick={() => handleDelete(forum.id, forum.isCategory)}
               className={`${styles.actionButton} ${styles.deleteButton}`}
               title="Delete"
             >
