@@ -121,7 +121,7 @@ export default function UserProfile() {
                 <div style={{ fontSize: '12px', lineHeight: '1.6' }}>
                   <div><strong>Joined:</strong> {getJoinDate(user.createdAt)}</div>
                   <div><strong>Posts:</strong> {user.postCount || 0}</div>
-                  <div><strong>Threads:</strong> {user.threads?.length || 0}</div>
+                  <div><strong>Threads:</strong> {user.threadCount || user.threads?.length || 0}</div>
                   {user.location && <div><strong>Location:</strong> {user.location}</div>}
                 </div>
 
@@ -132,10 +132,27 @@ export default function UserProfile() {
                   </div>
                 )}
 
+                {user.website && (
+                  <div style={{ marginTop: '15px', fontSize: '12px' }}>
+                    <strong>Website:</strong><br />
+                    <a href={user.website} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--link-color)', wordBreak: 'break-all' }}>
+                      {user.website}
+                    </a>
+                  </div>
+                )}
+
+                {currentUser && currentUser.id === user.id && (
+                  <div style={{ marginTop: '15px' }}>
+                    <Link href="/account/settings" className="button" style={{ width: '100%', textAlign: 'center', display: 'block', background: 'var(--primary-color)', color: 'white' }}>
+                      ✏️ Edit Profile
+                    </Link>
+                  </div>
+                )}
+
                 {currentUser && currentUser.id !== user.id && (
                   <div style={{ marginTop: '15px' }}>
                     <Link href={`/messages/new?to=${user.username}`} className="button" style={{ width: '100%', textAlign: 'center', display: 'block' }}>
-                      Send Message
+                      ✉️ Send Message
                     </Link>
                   </div>
                 )}

@@ -520,30 +520,16 @@ const AdminTemplates = () => {
             <div className={styles.section}>
               <h2>Branding</h2>
 
-              <div className={styles.formGroup}>
-                <label htmlFor="siteName">Site Name</label>
-                <input
-                  type="text"
-                  id="siteName"
-                  name="siteName"
-                  value={settings.siteName || ''}
-                  onChange={handleInputChange}
-                  className={styles.input}
-                  placeholder="NextJS Forum"
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="siteDescription">Site Description</label>
-                <textarea
-                  id="siteDescription"
-                  name="siteDescription"
-                  value={settings.siteDescription || ''}
-                  onChange={handleInputChange}
-                  className={styles.textarea}
-                  rows="3"
-                  placeholder="A modern forum built with Next.js"
-                />
+              <div className={styles.infoBox} style={{
+                background: '#e3f2fd',
+                border: '1px solid #90caf9',
+                borderRadius: '6px',
+                padding: '12px 16px',
+                marginBottom: '20px',
+                fontSize: '14px',
+                color: '#1565c0'
+              }}>
+                ℹ️ <strong>Note:</strong> Site name and description are managed in <a href="/admin/settings" style={{ color: '#1565c0', textDecoration: 'underline' }}>Site Settings</a>
               </div>
 
               <div className={styles.formGroup}>

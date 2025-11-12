@@ -12,6 +12,23 @@ const Navigation = () => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [siteSettings, setSiteSettings] = useState(null);
+
+  // Fetch site settings for site name (separate from theme)
+  useEffect(() => {
+    const fetchSiteSettings = async () => {
+      try {
+        const res = await fetch('/api/site-info');
+        if (res.ok) {
+          const data = await res.json();
+          setSiteSettings(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch site settings:', error);
+      }
+    };
+    fetchSiteSettings();
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -42,12 +59,12 @@ const Navigation = () => {
             {themeSettings?.logoUrl ? (
               <img
                 src={themeSettings.logoUrl}
-                alt={themeSettings.siteName || 'NextJS Forum'}
+                alt={siteSettings?.siteName || 'NextJS Forum'}
                 className={styles.logoImage}
               />
             ) : (
               <span className={styles.logoText}>
-                {themeSettings?.siteName || 'NextJS Forum'}
+                {siteSettings?.siteName || 'NextJS Forum'}
               </span>
             )}
           </Link>

@@ -77,7 +77,9 @@ export default async function handler(req, res) {
           email: email.toLowerCase(),
           password: hashedPassword,
           role,
-          banned: false
+          isBanned: false,
+          isActive: true,
+          emailVerified: true
         },
         select: {
           id: true,

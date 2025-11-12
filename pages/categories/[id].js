@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Layout from '../../components/Layout';
+import CreateForumModal from '../../components/CreateForumModal';
 import { useAuth } from '../../context/AuthContext';
 
 export default function CategoryPage() {
@@ -11,6 +12,7 @@ export default function CategoryPage() {
   const [category, setCategory] = useState(null);
   const [subjects, setSubjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showForumModal, setShowForumModal] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -69,10 +71,23 @@ export default function CategoryPage() {
         </div>
 
         <div className="category-header">
-          <h1>{category.name}</h1>
-          {category.description && (
-            <p className="category-description">{category.description}</p>
-          )}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <h1>{category.name}</h1>
+              {category.description && (
+                <p className="category-description">{category.description}</p>
+              )}
+            </div>
+            {user && (user.role === 'ADMIN' || user.role === 'MODERATOR') && (
+              <button
+                onClick={() => setShowForumModal(true)}
+                className="button"
+                style={{ background: '#4299e1', color: 'white', marginTop: '10px' }}
+              >
+                ➕ New Forum
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="subjects-list">
@@ -90,10 +105,14 @@ export default function CategoryPage() {
               <p style={{ color: '#999', marginBottom: '20px' }}>
                 This category doesn't have any forums yet.
               </p>
-              {user && user.role === 'ADMIN' && (
-                <Link href="/admin/forums" className="button">
-                  ⚙️ Manage Forums
-                </Link>
+              {user && (user.role === 'ADMIN' || user.role === 'MODERATOR') && (
+                <button
+                  onClick={() => setShowForumModal(true)}
+                  className="button"
+                  style={{ background: '#4299e1', color: 'white' }}
+                >
+                  ➕ Create First Forum
+                </button>
               )}
             </div>
           ) : (
@@ -151,6 +170,25 @@ export default function CategoryPage() {
           )}
         </div>
       </div>
+
+      {/* Modal */}
+      <CreateForumModal
+        isOpen={showForumModal}
+        onClose={() => setShowForumModal(false)}
+        onSuccess={() => {
+          setShowForumModal(false);
+          // Refresh subjects
+          if (id) {
+            fetch(`/api/categories/${id}`)
+              .then(res => res.json())
+              .then(data => {
+                setSubjects(data.subjects || []);
+              })
+              .catch(err => console.error('Failed to refresh subjects:', err));
+          }
+        }}
+        categoryId={category?.id}
+      />
 
       <style jsx>{`
         .category-page {

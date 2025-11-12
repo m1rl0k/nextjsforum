@@ -152,9 +152,9 @@ export default async function handler(req, res) {
         return res.status(401).json({ error: 'User not authenticated' });
       }
 
-      // Only ADMIN can create categories
-      if (user.role !== 'ADMIN') {
-        return res.status(403).json({ error: 'Admin access required' });
+      // Only ADMIN and MODERATOR can create categories
+      if (user.role !== 'ADMIN' && user.role !== 'MODERATOR') {
+        return res.status(403).json({ error: 'Admin or moderator access required' });
       }
 
       const { name, description, order } = req.body;

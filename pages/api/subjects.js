@@ -27,12 +27,20 @@ export default async function handler(req, res) {
         return res.status(401).json({ error: 'User not authenticated' });
       }
 
-      // Only ADMIN can create subjects
-      if (user.role !== 'ADMIN') {
-        return res.status(403).json({ error: 'Admin access required' });
+      // Only ADMIN and MODERATOR can create subjects
+      if (user.role !== 'ADMIN' && user.role !== 'MODERATOR') {
+        return res.status(403).json({ error: 'Admin or moderator access required' });
       }
 
-      const { name, categoryId } = req.body;
+      const {
+        name,
+        categoryId,
+        description,
+        order,
+        canPost = true,
+        canReply = true,
+        slug
+      } = req.body;
 
       if (!name || !categoryId) {
         return res.status(400).json({ error: 'Name and categoryId are required' });
@@ -42,6 +50,12 @@ export default async function handler(req, res) {
         data: {
           name,
           categoryId: Number.parseInt(categoryId, 10),
+          description: description || null,
+          slug: slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+          order: order ? Number.parseInt(order, 10) : 0,
+          canPost,
+          canReply,
+          isActive: true
         },
       });
       res.status(201).json(subject);

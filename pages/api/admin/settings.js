@@ -43,6 +43,25 @@ export default async function handler(req, res) {
       try {
         const settings = await prisma.siteSettings.findMany();
 
+        // Map snake_case to camelCase
+        const reverseKeyMapping = {
+          site_name: 'siteName',
+          site_description: 'siteDescription',
+          registration_enabled: 'allowRegistration',
+          email_verification: 'requireEmailVerification',
+          default_user_role: 'defaultUserRole',
+          posts_per_page: 'postsPerPage',
+          threads_per_page: 'threadsPerPage',
+          max_upload_size: 'maxFileSize',
+          allowed_file_types: 'allowedFileTypes',
+          enable_notifications: 'enableNotifications',
+          enable_private_messages: 'enablePrivateMessages',
+          moderation_mode: 'moderationMode',
+          spam_filter_enabled: 'spamFilterEnabled',
+          maintenance_mode: 'maintenanceMode',
+          maintenance_message: 'maintenanceMessage'
+        };
+
         // Convert array of settings to object
         const settingsObj = { ...defaultSettings };
         settings.forEach(setting => {
@@ -55,7 +74,9 @@ export default async function handler(req, res) {
             // Keep as string if not valid JSON
           }
 
-          settingsObj[setting.key] = value;
+          // Convert snake_case key to camelCase
+          const camelKey = reverseKeyMapping[setting.key] || setting.key;
+          settingsObj[camelKey] = value;
         });
 
         res.status(200).json({
@@ -73,11 +94,31 @@ export default async function handler(req, res) {
       // Update settings
       const newSettings = req.body;
 
-      // Validate settings
+      // Map camelCase to snake_case for database
+      const keyMapping = {
+        siteName: 'site_name',
+        siteDescription: 'site_description',
+        allowRegistration: 'registration_enabled',
+        requireEmailVerification: 'email_verification',
+        defaultUserRole: 'default_user_role',
+        postsPerPage: 'posts_per_page',
+        threadsPerPage: 'threads_per_page',
+        maxFileSize: 'max_upload_size',
+        allowedFileTypes: 'allowed_file_types',
+        enableNotifications: 'enable_notifications',
+        enablePrivateMessages: 'enable_private_messages',
+        moderationMode: 'moderation_mode',
+        spamFilterEnabled: 'spam_filter_enabled',
+        maintenanceMode: 'maintenance_mode',
+        maintenanceMessage: 'maintenance_message'
+      };
+
+      // Validate and convert settings
       const validatedSettings = {};
       Object.keys(defaultSettings).forEach(key => {
         if (newSettings.hasOwnProperty(key)) {
-          validatedSettings[key] = newSettings[key];
+          const dbKey = keyMapping[key] || key;
+          validatedSettings[dbKey] = newSettings[key];
         }
       });
 
@@ -99,6 +140,31 @@ export default async function handler(req, res) {
           });
         } catch (error) {
           console.error(`Error updating setting ${key}:`, error);
+        }
+      }
+
+      // Also update theme settings if site name or description changed
+      // This keeps them in sync for backward compatibility
+      if (validatedSettings.siteName || validatedSettings.siteDescription) {
+        try {
+          const themeSettings = await prisma.themeSettings.findFirst();
+          if (themeSettings) {
+            const updateData = {};
+            if (validatedSettings.siteName) {
+              updateData.siteName = validatedSettings.siteName;
+            }
+            if (validatedSettings.siteDescription) {
+              updateData.siteDescription = validatedSettings.siteDescription;
+            }
+
+            await prisma.themeSettings.update({
+              where: { id: themeSettings.id },
+              data: updateData
+            });
+          }
+        } catch (error) {
+          console.error('Error syncing theme settings:', error);
+          // Don't fail the request if theme sync fails
         }
       }
 

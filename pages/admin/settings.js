@@ -90,11 +90,14 @@ const AdminSettings = () => {
         throw new Error(data.message || 'Failed to save settings');
       }
 
-      setSuccess('Settings saved successfully!');
-      setTimeout(() => setSuccess(''), 3000);
+      setSuccess('✅ Settings saved successfully! Refreshing...');
+
+      // Force reload the page to refresh all cached data including navigation
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (err) {
       setError(err.message || 'Failed to save settings');
-    } finally {
       setSaving(false);
     }
   };
@@ -125,9 +128,14 @@ const AdminSettings = () => {
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.section}>
             <h2>General Settings</h2>
-            
+
             <div className={styles.formGroup}>
-              <label htmlFor="siteName">Site Name</label>
+              <label htmlFor="siteName">
+                Site Name
+                <small style={{ display: 'block', fontWeight: 'normal', color: '#666', marginTop: '4px' }}>
+                  This appears in the header and browser title
+                </small>
+              </label>
               <input
                 type="text"
                 id="siteName"
@@ -135,11 +143,17 @@ const AdminSettings = () => {
                 value={settings.siteName}
                 onChange={handleInputChange}
                 className={styles.input}
+                placeholder="NextJS Forum"
               />
             </div>
 
             <div className={styles.formGroup}>
-              <label htmlFor="siteDescription">Site Description</label>
+              <label htmlFor="siteDescription">
+                Site Description
+                <small style={{ display: 'block', fontWeight: 'normal', color: '#666', marginTop: '4px' }}>
+                  Used for SEO and meta descriptions
+                </small>
+              </label>
               <textarea
                 id="siteDescription"
                 name="siteDescription"
@@ -147,6 +161,7 @@ const AdminSettings = () => {
                 onChange={handleInputChange}
                 className={styles.textarea}
                 rows={3}
+                placeholder="A modern forum built with Next.js"
               />
             </div>
           </div>
