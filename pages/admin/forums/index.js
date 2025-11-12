@@ -165,6 +165,39 @@ const AdminForums = () => {
     setIsCreating(true);
   };
 
+  const handleToggleActive = async (forumId, currentStatus, isCategory = false) => {
+    const action = currentStatus ? 'deactivate' : 'activate';
+    const itemType = isCategory ? 'category' : 'forum';
+
+    if (!confirm(`Are you sure you want to ${action} this ${itemType}?`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/forums/${forumId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          isActive: !currentStatus
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || `Failed to ${action} ${itemType}`);
+      }
+
+      await fetchForums();
+    } catch (err) {
+      setError(err.message || `Failed to ${action} ${itemType}`);
+      console.error(`Error ${action}ing ${itemType}:`, err);
+    }
+  };
+
   const handleDelete = async (forumId, isCategory = false, cascade = false) => {
     if (!cascade && !confirm(`Are you sure you want to delete this ${isCategory ? 'category' : 'forum'}? This action cannot be undone.`)) {
       return;
@@ -247,14 +280,26 @@ const AdminForums = () => {
               className={styles.actionButton}
               title="Edit"
             >
-              Edit
+              ✏️ Edit
+            </button>
+            <button
+              onClick={() => handleToggleActive(forum.id, forum.isActive, forum.isCategory)}
+              className={styles.actionButton}
+              title={forum.isActive ? 'Deactivate' : 'Activate'}
+              style={{
+                background: forum.isActive ? '#fff5f5' : '#f0fff4',
+                color: forum.isActive ? '#c53030' : '#22543d',
+                borderColor: forum.isActive ? '#fed7d7' : '#c6f6d5'
+              }}
+            >
+              {forum.isActive ? '🔴 Deactivate' : '🟢 Activate'}
             </button>
             <button
               onClick={() => handleDelete(forum.id, forum.isCategory)}
               className={`${styles.actionButton} ${styles.deleteButton}`}
               title="Delete"
             >
-              Delete
+              🗑️ Delete
             </button>
             {forum.isCategory && (
               <button
@@ -262,7 +307,7 @@ const AdminForums = () => {
                 className={styles.actionButton}
                 title={expandedCategories[forum.id] ? 'Collapse' : 'Expand'}
               >
-                {expandedCategories[forum.id] ? 'Collapse' : 'Expand'}
+                {expandedCategories[forum.id] ? '▼ Collapse' : '▶ Expand'}
               </button>
             )}
           </div>

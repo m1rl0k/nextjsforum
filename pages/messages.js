@@ -6,16 +6,26 @@ import Link from 'next/link';
 
 export default function MessagesPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [deletingConversation, setDeletingConversation] = useState(null);
   const [showCompose, setShowCompose] = useState(false);
 
+  // Redirect unauthenticated users
   useEffect(() => {
-    fetchConversations();
-  }, []);
+    if (!authLoading && !user) {
+      router.push('/login?redirect=/messages');
+    }
+  }, [user, authLoading, router]);
+
+  useEffect(() => {
+    // Only fetch conversations if user is authenticated
+    if (user) {
+      fetchConversations();
+    }
+  }, [user]);
 
   const fetchConversations = async () => {
     try {
@@ -127,6 +137,49 @@ export default function MessagesPage() {
     }
   };
 
+  // Show loading state while checking authentication
+  if (authLoading) {
+    return (
+      <Layout>
+        <div className="messages-page">
+          <div className="loading-content" style={{ textAlign: 'center', padding: '60px 20px' }}>
+            <div className="loading-spinner" style={{ fontSize: '48px', marginBottom: '20px' }}>💬</div>
+            <div>Loading...</div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Show login prompt for unauthenticated users
+  if (!user) {
+    return (
+      <Layout>
+        <div className="messages-page">
+          <div className="breadcrumbs">
+            <Link href="/">Forum Index</Link> &raquo; <span>Private Messages</span>
+          </div>
+          <div className="category-block">
+            <div className="empty-content" style={{ textAlign: 'center', padding: '60px 20px' }}>
+              <div className="empty-icon" style={{ fontSize: '64px', marginBottom: '20px' }}>🔒</div>
+              <h2 style={{ marginBottom: '15px', color: '#2c3e50' }}>Sign In Required</h2>
+              <p style={{ marginBottom: '25px', color: '#7f8c8d', fontSize: '16px' }}>
+                You need to be signed in to access your private messages.
+              </p>
+              <button
+                onClick={() => router.push('/login?redirect=/messages')}
+                className="new-message-btn"
+                style={{ fontSize: '16px', padding: '12px 24px' }}
+              >
+                Sign In
+              </button>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="messages-page">
@@ -161,11 +214,11 @@ export default function MessagesPage() {
           <table className="forum-table" cellSpacing="1" cellPadding="0">
             <thead>
               <tr className="table-header">
-                <td className="col-icon">&nbsp;</td>
-                <td className="col-subject">Subject / Conversation</td>
-                <td className="col-user">Started By</td>
-                <td className="col-date">Last Message</td>
-                <td className="col-actions">Actions</td>
+                <th scope="col" className="col-icon">&nbsp;</th>
+                <th scope="col" className="col-subject">Subject / Conversation</th>
+                <th scope="col" className="col-user">Started By</th>
+                <th scope="col" className="col-date">Last Message</th>
+                <th scope="col" className="col-actions">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -707,6 +760,7 @@ function ComposeModal({ onClose, onSent }) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           recipientUsername: recipient,
           subject,
@@ -715,6 +769,16 @@ function ComposeModal({ onClose, onSent }) {
       });
 
       if (response.ok) {
+        // Show success feedback before closing
+        const successDiv = document.createElement('div');
+        successDiv.className = 'success-toast';
+        successDiv.textContent = '✅ Message sent successfully!';
+        successDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #48bb78; color: white; padding: 12px 24px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; animation: slideIn 0.3s ease;';
+        document.body.appendChild(successDiv);
+        setTimeout(() => {
+          successDiv.remove();
+        }, 3000);
+
         onSent();
       } else {
         const data = await response.json();

@@ -216,16 +216,20 @@
 }
 
 .actionButton {
-  background: none;
+  background: white;
   border: 1px solid #e2e8f0;
   border-radius: 0.25rem;
-  width: 2rem;
-  height: 2rem;
-  display: flex;
+  padding: 0.375rem 0.75rem;
+  min-width: auto;
+  height: auto;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   color: #718096;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
   transition: all 0.2s;
 }
 

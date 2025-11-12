@@ -38,22 +38,21 @@ export default async function handler(req, res) {
         icon
       } = req.body;
 
-      if (!name) {
-        return res.status(400).json({ message: 'Name is required' });
-      }
-
       // Check if it's a category or subject
       const category = await prisma.category.findUnique({ where: { id: Number.parseInt(id, 10) } });
 
       if (category) {
-        // Update category
+        // Update category - build update data dynamically
+        const updateData = {};
+
+        if (name !== undefined) updateData.name = name;
+        if (description !== undefined) updateData.description = description || null;
+        if (order !== undefined) updateData.order = Number.parseInt(order, 10) || 0;
+        if (isActive !== undefined) updateData.isActive = isActive;
+
         const updatedCategory = await prisma.category.update({
           where: { id: Number.parseInt(id, 10) },
-          data: {
-            name,
-            description: description || null,
-            order: Number.parseInt(order, 10) || 0
-          }
+          data: updateData
         });
 
         res.status(200).json({
