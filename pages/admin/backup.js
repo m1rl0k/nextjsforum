@@ -5,7 +5,7 @@ import AdminLayout from '../../components/admin/AdminLayout';
 import styles from '../../styles/AdminBackup.module.css';
 
 const AdminBackup = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [backups, setBackups] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,12 +29,14 @@ const AdminBackup = () => {
   });
 
   useEffect(() => {
-    if (user?.role !== 'ADMIN') {
+    if (authLoading) return;
+
+    if (!user || user.role !== 'ADMIN') {
       router.push('/');
       return;
     }
     fetchBackups();
-  }, [pagination.page]);
+  }, [user, authLoading, router, pagination.page]);
 
   const fetchBackups = async (page = pagination.page) => {
     try {

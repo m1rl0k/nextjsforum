@@ -5,7 +5,7 @@ import AdminLayout from '../../components/admin/AdminLayout';
 import styles from '../../styles/AdminSettings.module.css';
 
 const AdminSettings = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [settings, setSettings] = useState({
     siteName: '',
@@ -30,12 +30,14 @@ const AdminSettings = () => {
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    if (user?.role !== 'ADMIN') {
+    if (authLoading) return;
+
+    if (!user || user.role !== 'ADMIN') {
       router.push('/');
       return;
     }
     fetchSettings();
-  }, []);
+  }, [user, authLoading, router]);
 
   const fetchSettings = async () => {
     try {

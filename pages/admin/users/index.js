@@ -5,7 +5,7 @@ import AdminLayout from '../../../components/admin/AdminLayout';
 import styles from '../../../styles/AdminUsers.module.css';
 
 const AdminUsers = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,12 +20,14 @@ const AdminUsers = () => {
   const [sortBy, setSortBy] = useState('newest');
 
   useEffect(() => {
-    if (user?.role !== 'ADMIN') {
+    if (authLoading) return;
+
+    if (!user || user.role !== 'ADMIN') {
       router.push('/');
       return;
     }
     fetchUsers();
-  }, [pagination.page, searchTerm, sortBy]);
+  }, [user, authLoading, router, pagination.page, searchTerm, sortBy]);
 
   const fetchUsers = async () => {
     try {

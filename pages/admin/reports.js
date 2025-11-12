@@ -5,7 +5,7 @@ import AdminLayout from '../../components/admin/AdminLayout';
 import styles from '../../styles/AdminReports.module.css';
 
 const AdminReports = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,12 +19,14 @@ const AdminReports = () => {
   });
 
   useEffect(() => {
-    if (user?.role !== 'ADMIN' && user?.role !== 'MODERATOR') {
+    if (authLoading) return;
+
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'MODERATOR')) {
       router.push('/');
       return;
     }
     fetchReports();
-  }, [filter, pagination.page]);
+  }, [user, authLoading, router, filter, pagination.page]);
 
   const fetchReports = async () => {
     try {

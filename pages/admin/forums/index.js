@@ -5,7 +5,7 @@ import AdminLayout from '../../../components/admin/AdminLayout';
 import styles from '../../../styles/AdminForums.module.css';
 
 const AdminForums = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,12 +31,20 @@ const AdminForums = () => {
   const [draggedItem, setDraggedItem] = useState(null);
 
   useEffect(() => {
-    if (user?.role !== 'ADMIN') {
+    // Wait for auth to load before checking permissions
+    if (authLoading) {
+      return;
+    }
+
+    // Redirect non-admins
+    if (!user || user.role !== 'ADMIN') {
       router.push('/');
       return;
     }
+
+    // Fetch forums only if user is admin
     fetchForums();
-  }, []);
+  }, [user, authLoading, router]);
 
   const fetchForums = async () => {
     try {
