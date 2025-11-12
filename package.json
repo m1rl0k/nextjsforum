@@ -25,6 +25,7 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.1",
     "next": "^14.2.33",
+    "nodemailer": "^6.9.15",
     "prisma": "^5.15.0",
     "quill": "^2.0.3",
     "react": "^18",

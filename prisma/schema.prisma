@@ -39,6 +39,10 @@ model User {
   language                String                   @default("en")
   emailNotifications      Boolean                  @default(true)
   showOnline              Boolean                  @default(true)
+  resetToken              String?
+  resetTokenExpiry        DateTime?
+  verificationToken       String?
+  verificationTokenExpiry DateTime?
   moderationLogs          ModerationLog[]          @relation("ModeratorLogs")
   posts                   Post[]
   reactions               PostReaction[]
@@ -62,6 +66,8 @@ model User {
   @@index([role, isActive])
   @@index([lastActivity])
   @@index([createdAt])
+  @@index([resetToken])
+  @@index([verificationToken])
 }
 
 model Category {
@@ -111,8 +117,8 @@ model Thread {
   content         String
   createdAt       DateTime             @default(now())
   updatedAt       DateTime             @updatedAt
-  locked          Boolean              @default(false)
-  sticky          Boolean              @default(false)
+  isLocked        Boolean              @default(false)
+  isSticky        Boolean              @default(false)
   approved        Boolean              @default(true)
   deleted         Boolean              @default(false)
   deletedAt       DateTime?
@@ -137,7 +143,7 @@ model Thread {
   subscriptions   ThreadSubscription[]
   images          ThreadImage[]
 
-  @@index([subjectId, sticky, lastPostAt])
+  @@index([subjectId, isSticky, lastPostAt])
   @@index([userId])
   @@index([slug])
 }
