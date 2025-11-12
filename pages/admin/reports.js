@@ -63,7 +63,7 @@ const AdminReports = () => {
 
   const handleReportAction = async (reportId, action) => {
     try {
-      const res = await fetch(`/api/admin/reports/${reportId}`, {
+      const res = await fetch(`/api/admin/moderation/reports/${reportId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -194,11 +194,11 @@ const AdminReports = () => {
                   {report.status === 'pending' && (
                     <>
                       <button
-                        onClick={() => handleReportAction(report.id, 'approve')}
+                        onClick={() => handleReportAction(report.id, 'resolve')}
                         className={`${styles.actionButton} ${styles.approveButton}`}
-                        title="Take Action"
+                        title="Resolve Report"
                       >
-                        ✅ Take Action
+                        ✅ Resolve
                       </button>
                       <button
                         onClick={() => handleReportAction(report.id, 'dismiss')}

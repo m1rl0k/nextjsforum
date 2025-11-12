@@ -10,9 +10,9 @@ const AdminLayout = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Check if user is admin and redirect if not
+  // Check if user is admin or moderator and redirect if not
   useEffect(() => {
-    if (user && user.role !== 'ADMIN') {
+    if (user && user.role !== 'ADMIN' && user.role !== 'MODERATOR') {
       router.push('/');
     }
   }, [user, router]);
@@ -46,7 +46,7 @@ const AdminLayout = ({ children }) => {
     return router.pathname === path ? styles.active : '';
   };
 
-  if (!user || user.role !== 'ADMIN') {
+  if (!user || (user.role !== 'ADMIN' && user.role !== 'MODERATOR')) {
     return <div className={styles.loading}>Loading...</div>;
   }
 
