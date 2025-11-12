@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       // Get specific report details
       const report = await prisma.report.findUnique({
-        where: { id: parseInt(id) },
+        where: { id: Number.parseInt(id, 10) },
         include: {
           reportedBy: { 
             select: { 
@@ -83,7 +83,7 @@ export default async function handler(req, res) {
       }
 
       const updatedReport = await prisma.report.update({
-        where: { id: parseInt(id) },
+        where: { id: Number.parseInt(id, 10) },
         data: {
           status: action === 'resolve' ? 'RESOLVED' : 'DISMISSED',
           resolvedAt: new Date(),
@@ -122,7 +122,7 @@ export default async function handler(req, res) {
     } else if (req.method === 'DELETE') {
       // Delete report (admin only)
       await prisma.report.delete({
-        where: { id: parseInt(id) }
+        where: { id: Number.parseInt(id, 10) }
       });
 
       res.status(200).json({ message: 'Report deleted successfully' });
