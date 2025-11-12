@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/Layout';
 import Link from 'next/link';
 
 export default function MessagesPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,12 +41,20 @@ export default function MessagesPage() {
     }
   };
 
+  const stripHtml = (html) => {
+    if (!html) return '';
+    if (typeof window === 'undefined') return html;
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return '';
 
     try {
       const date = new Date(dateString);
-      if (isNaN(date.getTime())) return '';
+      if (Number.isNaN(date.getTime())) return '';
 
       const now = new Date();
       const diffInHours = (now - date) / (1000 * 60 * 60);
@@ -204,7 +214,8 @@ export default function MessagesPage() {
                     <tr
                       key={conversationId}
                       className={`table-row conversation-row ${index % 2 === 0 ? 'row-even' : 'row-odd'} ${conversation.unread_count > 0 ? 'unread' : ''}`}
-                      onClick={() => window.location.href = `/messages/conversation/${conversationId}`}
+                      onClick={() => router.push(`/messages/conversation/${conversationId}`)}
+                      style={{ cursor: 'pointer' }}
                     >
                       <td className="col-icon">
                         <div className="message-icon">
@@ -222,10 +233,12 @@ export default function MessagesPage() {
                           )}
                         </div>
                         <div className="message-preview">
-                          {conversation.content && conversation.content.length > 60
-                            ? conversation.content.substring(0, 60) + '...'
-                            : conversation.content || 'No content'
-                          }
+                          {(() => {
+                            const cleanContent = stripHtml(conversation.content || '');
+                            return cleanContent.length > 60
+                              ? cleanContent.substring(0, 60) + '...'
+                              : cleanContent || 'No content';
+                          })()}
                         </div>
                       </td>
 

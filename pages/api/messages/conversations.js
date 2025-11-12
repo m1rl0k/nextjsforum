@@ -233,13 +233,14 @@ export default async function handler(req, res) {
       }
 
     } else if (req.method === 'POST') {
-      const { 
-        recipientUsername, 
-        content, 
+      const {
+        recipientUsername,
+        content,
         subject,
         conversationId,
         replyToId,
-        priority = 'NORMAL'
+        priority = 'NORMAL',
+        attachments
       } = req.body;
 
       if (!recipientUsername || !content) {

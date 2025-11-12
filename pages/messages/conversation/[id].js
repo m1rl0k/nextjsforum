@@ -46,6 +46,14 @@ export default function ConversationView() {
     }
   }, [router.isReady, authLoading, id, user, hasInitialized]);
 
+  const stripHtml = (html) => {
+    if (!html) return '';
+    if (typeof window === 'undefined') return html;
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+  };
+
   const fetchConversation = async () => {
     // Don't fetch if ID is invalid or already fetching
     if (!id || id === '[id]' || typeof id !== 'string' || fetchingRef.current) {

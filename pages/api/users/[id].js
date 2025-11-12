@@ -85,7 +85,7 @@ export default async function handler(req, res) {
         return res.status(403).json({ error: 'Access denied' });
       }
 
-      const { bio, avatar, location, signature } = req.body;
+      const { bio, avatar, location, signature, website, displayName } = req.body;
 
       const updatedUser = await prisma.user.update({
         where: { id: parseInt(id) },
@@ -93,7 +93,9 @@ export default async function handler(req, res) {
           bio: bio || null,
           avatar: avatar || null,
           location: location || null,
-          signature: signature || null
+          signature: signature || null,
+          website: website || null,
+          displayName: displayName || null
         },
       });
 

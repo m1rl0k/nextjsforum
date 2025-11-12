@@ -6,12 +6,14 @@ import { useAuth } from '../../context/AuthContext';
 
 export default function AccountSettings() {
   const router = useRouter();
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     bio: '',
     location: '',
+    website: '',
     signature: '',
-    avatar: ''
+    avatar: '',
+    displayName: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -28,8 +30,10 @@ export default function AccountSettings() {
     setFormData({
       bio: user.bio || '',
       location: user.location || '',
+      website: user.website || '',
       signature: user.signature || '',
-      avatar: user.avatar || ''
+      avatar: user.avatar || '',
+      displayName: user.displayName || ''
     });
   }, [user]);
 
@@ -51,23 +55,31 @@ export default function AccountSettings() {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (formData.bio && formData.bio.length > 500) {
       newErrors.bio = 'Bio must be less than 500 characters';
     }
-    
+
     if (formData.location && formData.location.length > 100) {
       newErrors.location = 'Location must be less than 100 characters';
     }
-    
+
+    if (formData.website && formData.website.trim() && !isValidUrl(formData.website)) {
+      newErrors.website = 'Website must be a valid URL';
+    }
+
     if (formData.signature && formData.signature.length > 200) {
       newErrors.signature = 'Signature must be less than 200 characters';
     }
-    
-    if (formData.avatar && !isValidUrl(formData.avatar)) {
+
+    if (formData.avatar && formData.avatar.trim() && !isValidUrl(formData.avatar)) {
       newErrors.avatar = 'Avatar must be a valid URL';
     }
-    
+
+    if (formData.displayName && formData.displayName.length > 50) {
+      newErrors.displayName = 'Display name must be less than 50 characters';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -94,9 +106,9 @@ export default function AccountSettings() {
       const res = await fetch(`/api/users/${user.id}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(formData),
       });
 
@@ -203,6 +215,50 @@ export default function AccountSettings() {
                     {errors.location && (
                       <div style={{ color: '#c62828', fontSize: '12px', marginTop: '5px' }}>
                         {errors.location}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="website">
+                      Website
+                    </label>
+                    <input
+                      id="website"
+                      name="website"
+                      type="url"
+                      value={formData.website}
+                      onChange={handleChange}
+                      className={`form-input ${errors.website ? 'error' : ''}`}
+                      placeholder="https://example.com"
+                    />
+                    {errors.website && (
+                      <div style={{ color: '#c62828', fontSize: '12px', marginTop: '5px' }}>
+                        {errors.website}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="displayName">
+                      Display Name
+                    </label>
+                    <input
+                      id="displayName"
+                      name="displayName"
+                      type="text"
+                      value={formData.displayName}
+                      onChange={handleChange}
+                      className={`form-input ${errors.displayName ? 'error' : ''}`}
+                      placeholder="Optional display name"
+                      maxLength="50"
+                    />
+                    <div style={{ fontSize: '11px', color: '#666', marginTop: '5px' }}>
+                      Leave blank to use your username
+                    </div>
+                    {errors.displayName && (
+                      <div style={{ color: '#c62828', fontSize: '12px', marginTop: '5px' }}>
+                        {errors.displayName}
                       </div>
                     )}
                   </div>

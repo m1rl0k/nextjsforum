@@ -47,11 +47,18 @@ export default function UserProfile() {
 
   const getJoinDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
+  };
+
+  const stripHtml = (html) => {
+    if (typeof window === 'undefined') return html;
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
   };
 
   if (loading) {
@@ -143,7 +150,20 @@ export default function UserProfile() {
 
                 {currentUser && currentUser.id === user.id && (
                   <div style={{ marginTop: '15px' }}>
-                    <Link href="/account/settings" className="button" style={{ width: '100%', textAlign: 'center', display: 'block', background: 'var(--primary-color)', color: 'white' }}>
+                    <Link href="/account/settings" style={{
+                      display: 'block',
+                      padding: '8px 12px',
+                      textAlign: 'center',
+                      background: 'var(--primary-color)',
+                      color: 'white',
+                      borderRadius: '3px',
+                      fontSize: '12px',
+                      textDecoration: 'none',
+                      transition: 'opacity 0.2s'
+                    }}
+                    onMouseOver={(e) => e.target.style.opacity = '0.9'}
+                    onMouseOut={(e) => e.target.style.opacity = '1'}
+                    >
                       ✏️ Edit Profile
                     </Link>
                   </div>
@@ -151,7 +171,20 @@ export default function UserProfile() {
 
                 {currentUser && currentUser.id !== user.id && (
                   <div style={{ marginTop: '15px' }}>
-                    <Link href={`/messages/new?to=${user.username}`} className="button" style={{ width: '100%', textAlign: 'center', display: 'block' }}>
+                    <Link href={`/messages/new?to=${user.username}`} style={{
+                      display: 'block',
+                      padding: '8px 12px',
+                      textAlign: 'center',
+                      background: 'var(--primary-color)',
+                      color: 'white',
+                      borderRadius: '3px',
+                      fontSize: '12px',
+                      textDecoration: 'none',
+                      transition: 'opacity 0.2s'
+                    }}
+                    onMouseOver={(e) => e.target.style.opacity = '0.9'}
+                    onMouseOut={(e) => e.target.style.opacity = '1'}
+                    >
                       ✉️ Send Message
                     </Link>
                   </div>
@@ -215,8 +248,8 @@ export default function UserProfile() {
                         <div style={{ fontSize: '12px', color: '#666' }}>Total Posts</div>
                       </div>
                       <div style={{ padding: '15px', backgroundColor: 'var(--thread-alt-bg)', borderRadius: '5px' }}>
-                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--primary-color)' }}>{user.threads?.length || 0}</div>
-                        <div style={{ fontSize: '12px', color: '#666' }}>Threads Started</div>
+                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--primary-color)' }}>{user.threadCount || user.threads?.length || 0}</div>
+                        <div style={{ fontSize: '12px', color: '#666' }}>Total Threads</div>
                       </div>
                     </div>
 
@@ -278,27 +311,30 @@ export default function UserProfile() {
                         No posts found.
                       </div>
                     ) : (
-                      recentPosts.map(post => (
-                        <div key={post.id} style={{ 
-                          padding: '15px', 
-                          borderBottom: '1px solid var(--border-color)',
-                          backgroundColor: 'var(--thread-alt-bg)',
-                          marginBottom: '10px',
-                          borderRadius: '3px'
-                        }}>
-                          <div style={{ marginBottom: '10px' }}>
-                            <Link href={`/threads/${post.threadId}#post-${post.id}`} style={{ fontWeight: 'bold' }}>
-                              Re: {post.thread?.title}
-                            </Link>
-                            <div style={{ fontSize: '11px', color: '#666' }}>
-                              {formatDate(post.createdAt)} in <Link href={`/subjects/${post.thread?.subjectId}`}>{post.thread?.subject?.name}</Link>
+                      recentPosts.map(post => {
+                        const cleanContent = stripHtml(post.content);
+                        return (
+                          <div key={post.id} style={{
+                            padding: '15px',
+                            borderBottom: '1px solid var(--border-color)',
+                            backgroundColor: 'var(--thread-alt-bg)',
+                            marginBottom: '10px',
+                            borderRadius: '3px'
+                          }}>
+                            <div style={{ marginBottom: '10px' }}>
+                              <Link href={`/threads/${post.threadId}#post-${post.id}`} style={{ fontWeight: 'bold', color: 'var(--link-color)' }}>
+                                {post.thread?.title}
+                              </Link>
+                              <div style={{ fontSize: '11px', color: '#666', marginTop: '3px' }}>
+                                {formatDate(post.createdAt)} in <Link href={`/subjects/${post.thread?.subjectId}`}>{post.thread?.subject?.name}</Link>
+                              </div>
+                            </div>
+                            <div style={{ fontSize: '13px', color: '#333', lineHeight: '1.5' }}>
+                              {cleanContent.length > 200 ? cleanContent.substring(0, 200) + '...' : cleanContent}
                             </div>
                           </div>
-                          <div style={{ fontSize: '13px' }}>
-                            {post.content.length > 200 ? post.content.substring(0, 200) + '...' : post.content}
-                          </div>
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
                 )}

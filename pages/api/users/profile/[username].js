@@ -14,8 +14,11 @@ export default async function handler(req, res) {
           bio: true,
           avatar: true,
           location: true,
+          website: true,
           signature: true,
+          displayName: true,
           postCount: true,
+          threadCount: true,
           role: true,
           createdAt: true,
           updatedAt: true,
@@ -75,6 +78,14 @@ export default async function handler(req, res) {
           where: { userId: user.id }
         });
         user.postCount = postCount;
+      }
+
+      // Calculate actual thread count if not stored
+      if (!user.threadCount) {
+        const threadCount = await prisma.thread.count({
+          where: { userId: user.id }
+        });
+        user.threadCount = threadCount;
       }
 
       res.status(200).json({
