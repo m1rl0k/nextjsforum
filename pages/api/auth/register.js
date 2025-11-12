@@ -21,6 +21,7 @@ export default async function handler(req, res) {
     // Validate input
     const validation = validate(registerSchema, req.body);
     if (!validation.success) {
+      console.error('Validation failed:', validation.errors);
       return res.status(400).json({
         error: 'Validation failed',
         details: validation.errors

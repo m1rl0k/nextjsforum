@@ -42,10 +42,12 @@ export default async function handler(req, res) {
         categoryId,
         isCategory = false,
         order = 0,
-        isLocked = false,
-        isPrivate = false,
-        allowThreads = true,
-        slug
+        canPost = true,
+        canReply = true,
+        requiresApproval = false,
+        guestPosting = false,
+        slug,
+        icon
       } = req.body;
 
       if (!name) {
@@ -57,10 +59,8 @@ export default async function handler(req, res) {
         const category = await prisma.category.create({
           data: {
             name,
-            description,
-            order: parseInt(order),
-            isLocked,
-            isPrivate
+            description: description || null,
+            order: parseInt(order) || 0
           }
         });
 
@@ -69,20 +69,24 @@ export default async function handler(req, res) {
           data: category
         });
       } else {
-        // Create subject
+        // Create subject (forum)
         if (!categoryId) {
-          return res.status(400).json({ message: 'Category ID is required for subjects' });
+          return res.status(400).json({ message: 'Category ID is required for forums' });
         }
 
         const subject = await prisma.subject.create({
           data: {
             name,
-            description,
+            description: description || null,
             categoryId: parseInt(categoryId),
             slug: slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-            isLocked,
-            isPrivate,
-            allowThreads
+            order: parseInt(order) || 0,
+            canPost,
+            canReply,
+            requiresApproval,
+            guestPosting,
+            icon: icon || null,
+            isActive: true
           }
         });
 

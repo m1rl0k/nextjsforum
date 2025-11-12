@@ -17,13 +17,15 @@ const AdminForums = () => {
     name: '',
     description: '',
     slug: '',
-    parentId: null,
+    categoryId: null,
     order: 0,
     isCategory: false,
-    isLocked: false,
-    isPrivate: false,
-    allowThreads: true,
-    moderatorIds: []
+    canPost: true,
+    canReply: true,
+    requiresApproval: false,
+    guestPosting: false,
+    isActive: true,
+    icon: ''
   });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const [draggedItem, setDraggedItem] = useState(null);
@@ -111,13 +113,15 @@ const AdminForums = () => {
         name: '',
         description: '',
         slug: '',
-        parentId: null,
+        categoryId: null,
         order: 0,
         isCategory: false,
-        isLocked: false,
-        isPrivate: false,
-        allowThreads: true,
-        moderatorIds: []
+        canPost: true,
+        canReply: true,
+        requiresApproval: false,
+        guestPosting: false,
+        isActive: true,
+        icon: ''
       });
       setIsCreating(false);
       setIsEditing(null);
@@ -254,13 +258,15 @@ const AdminForums = () => {
                 name: '',
                 description: '',
                 slug: '',
-                parentId: null,
+                categoryId: null,
                 order: 0,
                 isCategory: false,
-                isLocked: false,
-                isPrivate: false,
-                allowThreads: true,
-                moderatorIds: []
+                canPost: true,
+                canReply: true,
+                requiresApproval: false,
+                guestPosting: false,
+                isActive: true,
+                icon: ''
               });
             }}
             className={styles.addButton}
@@ -320,27 +326,26 @@ const AdminForums = () => {
                 />
               </div>
               
-              <div className={styles.formGroup}>
-                <label>Parent Category</label>
-                <select
-                  name="parentId"
-                  value={formData.parentId || ''}
-                  onChange={handleInputChange}
-                  className={styles.select}
-                  disabled={formData.isCategory}
-                >
-                  <option value="">-- Select Parent --</option>
-                  {categories
-                    .filter(cat => cat.isCategory)
-                    .map(cat => (
+              {!formData.isCategory && (
+                <div className={styles.formGroup}>
+                  <label>Parent Category *</label>
+                  <select
+                    name="categoryId"
+                    value={formData.categoryId || ''}
+                    onChange={handleInputChange}
+                    className={styles.select}
+                    required
+                  >
+                    <option value="">-- Select Category --</option>
+                    {categories.map(cat => (
                       <option key={cat.id} value={cat.id}>
                         {cat.name}
                       </option>
-                    ))
-                  }
-                </select>
-              </div>
-              
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <div className={styles.formGroup}>
                 <label>Order</label>
                 <input
@@ -353,43 +358,82 @@ const AdminForums = () => {
                   style={{ width: '80px' }}
                 />
               </div>
-              
-              <div className={styles.formGroup}>
-                <label>
-                  <input
-                    type="checkbox"
-                    name="isLocked"
-                    checked={formData.isLocked}
-                    onChange={handleInputChange}
-                  />
-                  Locked (prevent new threads)
-                </label>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>
-                  <input
-                    type="checkbox"
-                    name="isPrivate"
-                    checked={formData.isPrivate}
-                    onChange={handleInputChange}
-                  />
-                  Private (requires special permissions)
-                </label>
-              </div>
 
               {!formData.isCategory && (
-                <div className={styles.formGroup}>
-                  <label>
+                <>
+                  <div className={styles.formGroup}>
+                    <label>Icon (emoji or text)</label>
                     <input
-                      type="checkbox"
-                      name="allowThreads"
-                      checked={formData.allowThreads}
+                      type="text"
+                      name="icon"
+                      value={formData.icon}
                       onChange={handleInputChange}
+                      placeholder="📝"
+                      className={styles.input}
+                      style={{ width: '100px' }}
                     />
-                    Allow new threads
-                  </label>
-                </div>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        name="canPost"
+                        checked={formData.canPost}
+                        onChange={handleInputChange}
+                      />
+                      {' '}Allow new threads
+                    </label>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        name="canReply"
+                        checked={formData.canReply}
+                        onChange={handleInputChange}
+                      />
+                      {' '}Allow replies
+                    </label>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        name="requiresApproval"
+                        checked={formData.requiresApproval}
+                        onChange={handleInputChange}
+                      />
+                      {' '}Require approval for new threads
+                    </label>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        name="guestPosting"
+                        checked={formData.guestPosting}
+                        onChange={handleInputChange}
+                      />
+                      {' '}Allow guest posting
+                    </label>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        name="isActive"
+                        checked={formData.isActive}
+                        onChange={handleInputChange}
+                      />
+                      {' '}Active (visible to users)
+                    </label>
+                  </div>
+                </>
               )}
               
               <div className={styles.formActions}>

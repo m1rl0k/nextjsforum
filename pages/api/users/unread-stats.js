@@ -63,23 +63,27 @@ export default async function handler(req, res) {
       }
     });
 
-    // Get subject names for the breakdown
-    const subjectBreakdown = await Promise.all(
-      unreadBySubject.map(async (item) => {
-        const subject = await prisma.subject.findUnique({
-          where: { id: item.subjectId },
-          select: { 
-            id: true, 
-            name: true,
-            category: { select: { name: true } }
-          }
-        });
-        return {
-          subject,
-          unreadCount: item._count.id
-        };
-      })
-    );
+    // Get subject names for the breakdown (batch query to avoid N+1)
+    const subjectIds = unreadBySubject.map(item => item.subjectId);
+    const subjects = await prisma.subject.findMany({
+      where: { id: { in: subjectIds } },
+      select: {
+        id: true,
+        name: true,
+        category: { select: { name: true } }
+      }
+    });
+
+    // Create a map for quick lookup
+    const subjectMap = new Map(subjects.map(s => [s.id, s]));
+
+    // Build the breakdown using the map
+    const subjectBreakdown = unreadBySubject
+      .map(item => ({
+        subject: subjectMap.get(item.subjectId),
+        unreadCount: item._count.id
+      }))
+      .filter(item => item.subject); // Filter out deleted subjects
 
     res.status(200).json({
       unreadThreads,
@@ -87,7 +91,7 @@ export default async function handler(req, res) {
       totalThreads,
       totalPosts,
       lastReadTime,
-      subjectBreakdown: subjectBreakdown.filter(item => item.subject) // Filter out deleted subjects
+      subjectBreakdown
     });
 
   } catch (error) {

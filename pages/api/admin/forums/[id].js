@@ -23,16 +23,19 @@ export default async function handler(req, res) {
 
     if (req.method === 'PUT') {
       // Update existing category or subject
-      const { 
-        name, 
-        description, 
-        categoryId, 
-        isCategory = false, 
+      const {
+        name,
+        description,
+        categoryId,
+        isCategory = false,
         order = 0,
-        isLocked = false,
-        isPrivate = false,
-        allowThreads = true,
-        slug
+        canPost = true,
+        canReply = true,
+        requiresApproval = false,
+        guestPosting = false,
+        isActive = true,
+        slug,
+        icon
       } = req.body;
 
       if (!name) {
@@ -40,16 +43,16 @@ export default async function handler(req, res) {
       }
 
       // Check if it's a category or subject
-      const category = await prisma.category.findUnique({ where: { id: parseInt(id) } });
-      
+      const category = await prisma.category.findUnique({ where: { id: Number.parseInt(id, 10) } });
+
       if (category) {
         // Update category
         const updatedCategory = await prisma.category.update({
-          where: { id: parseInt(id) },
+          where: { id: Number.parseInt(id, 10) },
           data: {
             name,
-            description,
-            order: parseInt(order)
+            description: description || null,
+            order: Number.parseInt(order, 10) || 0
           }
         });
 
@@ -60,12 +63,19 @@ export default async function handler(req, res) {
       } else {
         // Update subject
         const updatedSubject = await prisma.subject.update({
-          where: { id: parseInt(id) },
+          where: { id: Number.parseInt(id, 10) },
           data: {
             name,
-            description,
-            categoryId: categoryId ? parseInt(categoryId) : undefined,
-            slug: slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+            description: description || null,
+            categoryId: categoryId ? Number.parseInt(categoryId, 10) : undefined,
+            slug: slug || name.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-'),
+            order: Number.parseInt(order, 10) || 0,
+            canPost,
+            canReply,
+            requiresApproval,
+            guestPosting,
+            isActive,
+            icon: icon || null
           }
         });
 

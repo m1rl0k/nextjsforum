@@ -1,16 +1,29 @@
 import prisma from '../../lib/prisma';
+import { z } from 'zod';
+import { validateQuery } from '../../lib/validation';
+
+const searchQuerySchema = z.object({
+  q: z.string().min(2, 'Search term must be at least 2 characters').max(200),
+  type: z.enum(['all', 'threads', 'posts', 'users']).default('all'),
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(100).default(20)
+});
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
-      const { q, type = 'all', page = 1, limit = 20 } = req.query;
-
-      if (!q || q.trim().length < 2) {
-        return res.status(400).json({ error: 'Search term must be at least 2 characters' });
+      // Validate query parameters
+      const validation = validateQuery(searchQuerySchema, req.query);
+      if (!validation.success) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: validation.errors
+        });
       }
 
+      const { q, type, page, limit } = validation.data;
       const searchTerm = q.trim();
-      const skip = (parseInt(page) - 1) * parseInt(limit);
+      const skip = (page - 1) * limit;
       const results = {
         threads: [],
         posts: [],
@@ -44,7 +57,7 @@ export default async function handler(req, res) {
           orderBy: {
             createdAt: 'desc'
           },
-          take: type === 'threads' ? parseInt(limit) : 10
+          take: type === 'threads' ? limit : 10
         });
       }
 
@@ -79,7 +92,7 @@ export default async function handler(req, res) {
           orderBy: {
             createdAt: 'desc'
           },
-          take: type === 'posts' ? parseInt(limit) : 10
+          take: type === 'posts' ? limit : 10
         });
       }
 
@@ -106,7 +119,7 @@ export default async function handler(req, res) {
           orderBy: {
             username: 'asc'
           },
-          take: type === 'users' ? parseInt(limit) : 10
+          take: type === 'users' ? limit : 10
         });
       }
 

@@ -1,5 +1,6 @@
 import prisma from '../../lib/prisma';
 import { verifyToken } from '../../lib/auth';
+import { createReportSchema, validate } from '../../lib/validation';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -22,17 +23,16 @@ export default async function handler(req, res) {
       return res.status(401).json({ message: 'User not found' });
     }
 
-    const { type, targetId, reason, description } = req.body;
-
-    // Validate required fields
-    if (!type || !targetId || !reason) {
-      return res.status(400).json({ message: 'Type, target ID, and reason are required' });
+    // Validate input
+    const validation = validate(createReportSchema, req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: validation.errors
+      });
     }
 
-    // Validate type
-    if (!['thread', 'post', 'user'].includes(type)) {
-      return res.status(400).json({ message: 'Invalid report type' });
-    }
+    const { type, targetId, reason, description } = validation.data;
 
     // Check if target exists
     let targetExists = false;

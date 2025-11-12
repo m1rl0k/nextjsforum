@@ -1,4 +1,5 @@
 import prisma from '../../../../lib/prisma';
+import { paginationSchema, validateQuery } from '../../../../lib/validation';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -6,13 +7,25 @@ export default async function handler(req, res) {
   }
 
   const { id } = req.query;
-  const { page = 1, limit = 10 } = req.query;
 
   try {
-    const threadId = parseInt(id);
-    const pageNum = parseInt(page);
-    const limitNum = parseInt(limit);
-    const skip = (pageNum - 1) * limitNum;
+    // Validate thread ID
+    const threadId = Number.parseInt(id, 10);
+    if (Number.isNaN(threadId) || threadId <= 0) {
+      return res.status(400).json({ error: 'Invalid thread ID' });
+    }
+
+    // Validate pagination parameters
+    const validation = validateQuery(paginationSchema, req.query);
+    if (!validation.success) {
+      return res.status(400).json({
+        error: 'Invalid parameters',
+        details: validation.errors
+      });
+    }
+
+    const { page, limit } = validation.data;
+    const skip = (page - 1) * limit;
 
     // Verify thread exists
     const thread = await prisma.thread.findUnique({
@@ -46,8 +59,8 @@ export default async function handler(req, res) {
       orderBy: {
         createdAt: 'asc'
       },
-      skip: limitNum === 1000 ? 0 : skip, // For print view, don't skip
-      take: limitNum === 1000 ? undefined : limitNum // For print view, take all
+      skip: limit === 1000 ? 0 : skip, // For print view, don't skip
+      take: limit === 1000 ? undefined : limit // For print view, take all
     });
 
     // Get total count for pagination
@@ -58,7 +71,7 @@ export default async function handler(req, res) {
       }
     });
 
-    const totalPages = Math.ceil(totalPosts / limitNum);
+    const totalPages = Math.ceil(totalPosts / limit);
 
     // Update view count for the thread
     await prisma.thread.update({
@@ -73,11 +86,11 @@ export default async function handler(req, res) {
     res.status(200).json({
       posts,
       pagination: {
-        currentPage: pageNum,
+        currentPage: page,
         totalPages,
         totalPosts,
-        hasNextPage: pageNum < totalPages,
-        hasPrevPage: pageNum > 1
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1
       },
       thread: {
         id: thread.id,
