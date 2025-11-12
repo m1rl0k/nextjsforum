@@ -86,41 +86,66 @@ export default async function handler(req, res) {
       }
     } else if (req.method === 'DELETE') {
       // Delete category or subject
-      
-      // First check if it's a category or subject
-      const category = await prisma.category.findUnique({ where: { id: Number.parseInt(id, 10) } });
+      const numericId = Number.parseInt(id, 10);
+
+      if (Number.isNaN(numericId)) {
+        return res.status(400).json({ message: 'Invalid ID' });
+      }
+
+      // First check if it's a category
+      const category = await prisma.category.findUnique({
+        where: { id: numericId },
+        include: {
+          subjects: true
+        }
+      });
 
       if (category) {
-        // Check if category has subjects
-        const subjectCount = await prisma.subject.count({
-          where: { categoryId: Number.parseInt(id, 10) }
-        });
-
-        if (subjectCount > 0) {
+        // It's a category - check if it has subjects
+        if (category.subjects && category.subjects.length > 0) {
           return res.status(400).json({
             message: 'Cannot delete category with existing forums. Please delete or move the forums first.'
           });
         }
 
         await prisma.category.delete({
-          where: { id: Number.parseInt(id, 10) }
-        });
-      } else {
-        // Check if subject has threads
-        const threadCount = await prisma.thread.count({
-          where: { subjectId: Number.parseInt(id, 10) }
+          where: { id: numericId }
         });
 
-        if (threadCount > 0) {
-          return res.status(400).json({
-            message: 'Cannot delete forum with existing threads. Please delete or move the threads first.'
-          });
-        }
-
-        await prisma.subject.delete({
-          where: { id: Number.parseInt(id, 10) }
+        return res.status(200).json({
+          status: 'success',
+          message: 'Category deleted successfully'
         });
       }
+
+      // Not a category, check if it's a subject
+      const subject = await prisma.subject.findUnique({
+        where: { id: numericId },
+        include: {
+          _count: {
+            select: {
+              threads: true
+            }
+          }
+        }
+      });
+
+      if (!subject) {
+        return res.status(404).json({
+          message: 'Forum or category not found'
+        });
+      }
+
+      // It's a subject - check if it has threads
+      if (subject._count.threads > 0) {
+        return res.status(400).json({
+          message: 'Cannot delete forum with existing threads. Please delete or move the threads first.'
+        });
+      }
+
+      await prisma.subject.delete({
+        where: { id: numericId }
+      });
 
       res.status(200).json({
         status: 'success',

@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       // Get specific user details
       const user = await prisma.user.findUnique({
-        where: { id: parseInt(id) },
+        where: { id: Number.parseInt(id, 10) },
         include: {
           threads: {
             select: {
@@ -100,7 +100,7 @@ export default async function handler(req, res) {
       }
 
       // Prevent admin from banning themselves
-      if (adminUser.id === parseInt(id) && updateData.isActive === false) {
+      if (adminUser.id === Number.parseInt(id, 10) && updateData.isActive === false) {
         return res.status(400).json({ message: 'Cannot ban yourself' });
       }
 
@@ -109,9 +109,9 @@ export default async function handler(req, res) {
         const adminCount = await prisma.user.count({
           where: { role: 'ADMIN', isActive: true }
         });
-        
+
         const targetUser = await prisma.user.findUnique({
-          where: { id: parseInt(id) }
+          where: { id: Number.parseInt(id, 10) }
         });
 
         if (targetUser?.role === 'ADMIN' && adminCount <= 1) {
@@ -147,7 +147,7 @@ export default async function handler(req, res) {
     } else if (req.method === 'DELETE') {
       // Delete user (soft delete - just ban them)
       const targetUser = await prisma.user.findUnique({
-        where: { id: parseInt(id) }
+        where: { id: Number.parseInt(id, 10) }
       });
 
       if (!targetUser) {
@@ -155,7 +155,7 @@ export default async function handler(req, res) {
       }
 
       // Prevent admin from deleting themselves
-      if (adminUser.id === parseInt(id)) {
+      if (adminUser.id === Number.parseInt(id, 10)) {
         return res.status(400).json({ message: 'Cannot delete yourself' });
       }
 
@@ -172,7 +172,7 @@ export default async function handler(req, res) {
 
       // Soft delete by banning
       await prisma.user.update({
-        where: { id: parseInt(id) },
+        where: { id: Number.parseInt(id, 10) },
         data: { isActive: false }
       });
 
