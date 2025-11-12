@@ -156,7 +156,7 @@ export default async function handler(req, res) {
         });
       }
 
-      // Not a category, check if it's a subject
+      // Deleting a subject/forum
       const subject = await prisma.subject.findUnique({
         where: { id: numericId },
         include: {
@@ -170,17 +170,40 @@ export default async function handler(req, res) {
 
       if (!subject) {
         return res.status(404).json({
-          message: 'Forum or category not found'
+          message: 'Forum not found'
         });
       }
 
-      // It's a subject - check if it has threads
+      // Check if it has threads
       if (subject._count.threads > 0) {
-        return res.status(400).json({
-          message: 'Cannot delete forum with existing threads. Please delete or move the threads first.'
-        });
+        if (cascade === 'true') {
+          // Cascade delete - delete all threads first
+          console.log(`Cascade deleting subject ${numericId} with ${subject._count.threads} threads`);
+
+          await prisma.thread.deleteMany({
+            where: { subjectId: numericId }
+          });
+
+          await prisma.subject.delete({
+            where: { id: numericId }
+          });
+
+          return res.status(200).json({
+            status: 'success',
+            message: `Forum and ${subject._count.threads} thread(s) deleted successfully`
+          });
+        } else {
+          // Return error for confirmation
+          return res.status(400).json({
+            message: `Cannot delete forum "${subject.name}" with ${subject._count.threads} existing thread(s).`,
+            hasChildren: true,
+            childCount: subject._count.threads,
+            children: [`${subject._count.threads} thread(s)`]
+          });
+        }
       }
 
+      // No threads, safe to delete
       await prisma.subject.delete({
         where: { id: numericId }
       });
