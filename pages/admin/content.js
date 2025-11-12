@@ -43,12 +43,14 @@ const AdminContent = () => {
   };
 
   useEffect(() => {
-    if (user?.role !== 'ADMIN') {
+    if (authLoading) return;
+
+    if (!user || user.role !== 'ADMIN') {
       router.push('/');
       return;
     }
     fetchContent();
-  }, [activeTab, pagination.page, searchTerm, sortBy]);
+  }, [user, authLoading, router, activeTab, pagination.page, searchTerm, sortBy]);
 
   const fetchContent = async () => {
     try {
