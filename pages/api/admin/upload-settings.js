@@ -19,16 +19,18 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'GET') {
-      // Return current upload settings
+      // Return current upload settings (NEVER expose credentials)
       const settings = {
         useS3: process.env.USE_S3_UPLOAD === 'true',
         maxFileSize: 10, // Default 10MB
         allowedTypes: ['jpeg', 'jpg', 'png', 'gif', 'webp'],
         s3Config: {
-          accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+          // Only expose non-sensitive configuration status
+          hasAccessKey: !!process.env.AWS_ACCESS_KEY_ID,
+          hasSecretKey: !!process.env.AWS_SECRET_ACCESS_KEY,
           region: process.env.AWS_REGION || 'us-east-1',
-          bucketName: process.env.S3_BUCKET_NAME || ''
+          bucketName: process.env.S3_BUCKET_NAME || '',
+          isConfigured: !!(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY && process.env.S3_BUCKET_NAME)
         }
       };
 

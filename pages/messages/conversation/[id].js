@@ -858,6 +858,111 @@ export default function ConversationView() {
           cursor: not-allowed;
         }
 
+        .attach-file-btn {
+          display: inline-block;
+          padding: 10px 20px;
+          background: #6c757d;
+          color: white;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 14px;
+          transition: background 0.2s;
+          margin-right: 10px;
+        }
+
+        .attach-file-btn:hover {
+          background: #5a6268;
+        }
+
+        .attachment-preview {
+          margin: 15px 0;
+          padding: 15px;
+          background: #f8f9fa;
+          border-radius: 4px;
+          border: 1px solid #dee2e6;
+        }
+
+        .attachments-label {
+          font-weight: bold;
+          margin-bottom: 10px;
+          font-size: 13px;
+          color: #495057;
+        }
+
+        .attachment-preview-item {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 12px;
+          background: white;
+          border: 1px solid #dee2e6;
+          border-radius: 4px;
+          margin: 5px 5px 5px 0;
+          font-size: 13px;
+        }
+
+        .preview-image {
+          max-width: 100px;
+          max-height: 60px;
+          border-radius: 3px;
+        }
+
+        .remove-attachment-btn {
+          background: #dc3545;
+          color: white;
+          border: none;
+          border-radius: 50%;
+          width: 20px;
+          height: 20px;
+          cursor: pointer;
+          font-size: 12px;
+          line-height: 1;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .remove-attachment-btn:hover {
+          background: #c82333;
+        }
+
+        .message-attachments {
+          margin-top: 15px;
+          padding-top: 15px;
+          border-top: 1px solid #e9ecef;
+        }
+
+        .attachment-item {
+          margin: 8px 0;
+        }
+
+        .attachment-image {
+          max-width: 300px;
+          max-height: 200px;
+          border-radius: 4px;
+          border: 1px solid #dee2e6;
+          display: block;
+          margin: 5px 0;
+        }
+
+        .attachment-link {
+          display: inline-block;
+          padding: 8px 12px;
+          background: #f8f9fa;
+          border: 1px solid #dee2e6;
+          border-radius: 4px;
+          color: #495057;
+          text-decoration: none;
+          font-size: 13px;
+          transition: background 0.2s;
+        }
+
+        .attachment-link:hover {
+          background: #e9ecef;
+          color: #212529;
+        }
+
         .loading,
         .error-message,
         .empty-state {

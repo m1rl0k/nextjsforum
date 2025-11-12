@@ -11,10 +11,11 @@ export default function UploadSettings() {
     maxFileSize: 10,
     allowedTypes: ['jpeg', 'jpg', 'png', 'gif', 'webp'],
     s3Config: {
-      accessKeyId: '',
-      secretAccessKey: '',
+      hasAccessKey: false,
+      hasSecretKey: false,
       region: 'us-east-1',
-      bucketName: ''
+      bucketName: '',
+      isConfigured: false
     }
   });
   const [loading, setLoading] = useState(true);
@@ -172,24 +173,25 @@ export default function UploadSettings() {
             <div className="settings-section">
               <h2>☁️ Amazon S3 Configuration</h2>
               
-              <div className="form-group">
-                <label>AWS Access Key ID:</label>
-                <input
-                  type="text"
-                  value={settings.s3Config.accessKeyId}
-                  onChange={(e) => updateS3Setting('accessKeyId', e.target.value)}
-                  placeholder="AKIA..."
-                />
-              </div>
-
-              <div className="form-group">
-                <label>AWS Secret Access Key:</label>
-                <input
-                  type="password"
-                  value={settings.s3Config.secretAccessKey}
-                  onChange={(e) => updateS3Setting('secretAccessKey', e.target.value)}
-                  placeholder="Enter secret key"
-                />
+              <div className="info-box" style={{ background: '#fff3cd', border: '1px solid #ffc107', marginBottom: '20px' }}>
+                <p><strong>⚠️ Security Notice:</strong></p>
+                <p>AWS credentials are stored securely in environment variables on the server and are never exposed to the browser.</p>
+                <p>
+                  {settings.s3Config.hasAccessKey && settings.s3Config.hasSecretKey ? (
+                    <span style={{ color: '#28a745' }}>✅ AWS credentials are configured</span>
+                  ) : (
+                    <span style={{ color: '#dc3545' }}>❌ AWS credentials are not configured</span>
+                  )}
+                </p>
+                <p style={{ fontSize: '13px', marginTop: '10px' }}>
+                  To update AWS credentials, set the following environment variables in your <code>.env</code> file and restart the server:
+                </p>
+                <ul style={{ fontSize: '13px', marginTop: '5px' }}>
+                  <li><code>AWS_ACCESS_KEY_ID</code></li>
+                  <li><code>AWS_SECRET_ACCESS_KEY</code></li>
+                  <li><code>AWS_REGION</code></li>
+                  <li><code>S3_BUCKET_NAME</code></li>
+                </ul>
               </div>
 
               <div className="form-group">

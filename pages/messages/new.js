@@ -16,6 +16,8 @@ export default function NewMessage() {
   const [errors, setErrors] = useState({});
   const [userSuggestions, setUserSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [attachments, setAttachments] = useState([]);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -76,28 +78,79 @@ export default function NewMessage() {
     setShowSuggestions(false);
   };
 
+  const handleFileUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    setUploading(true);
+    const uploadedFiles = [];
+
+    for (const file of files) {
+      // Validate file size (3MB)
+      if (file.size > 3 * 1024 * 1024) {
+        alert(`${file.name} is too large. Maximum file size is 3MB.`);
+        continue;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch('/api/upload/attachment', {
+          method: 'POST',
+          credentials: 'include',
+          body: formData,
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          uploadedFiles.push({
+            url: data.url,
+            filename: data.originalName,
+            size: data.size,
+            type: data.type
+          });
+        } else {
+          const error = await res.json();
+          alert(`Failed to upload ${file.name}: ${error.error}`);
+        }
+      } catch (err) {
+        console.error('Upload error:', err);
+        alert(`Failed to upload ${file.name}`);
+      }
+    }
+
+    setAttachments([...attachments, ...uploadedFiles]);
+    setUploading(false);
+    e.target.value = ''; // Reset file input
+  };
+
+  const removeAttachment = (index) => {
+    setAttachments(attachments.filter((_, i) => i !== index));
+  };
+
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.recipient.trim()) {
       newErrors.recipient = 'Recipient is required';
     }
-    
-    if (!formData.content.trim()) {
-      newErrors.content = 'Message content is required';
-    } else if (formData.content.length < 10) {
+
+    if (!formData.content.trim() && attachments.length === 0) {
+      newErrors.content = 'Message content or attachment is required';
+    } else if (formData.content.trim() && formData.content.length < 10) {
       newErrors.content = 'Message must be at least 10 characters';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setLoading(true);
     setError('');
 
@@ -106,11 +159,12 @@ export default function NewMessage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
+        credentials: 'include',
         body: JSON.stringify({
           recipient: formData.recipient.trim(),
-          content: formData.content.trim()
+          content: formData.content.trim() || '(Attachment)',
+          attachments: attachments.length > 0 ? attachments : null
         }),
       });
 
@@ -258,9 +312,89 @@ export default function NewMessage() {
                 )}
               </div>
 
+              {attachments.length > 0 && (
+                <div className="attachment-preview" style={{
+                  margin: '15px 0',
+                  padding: '15px',
+                  background: '#f8f9fa',
+                  borderRadius: '4px',
+                  border: '1px solid #dee2e6'
+                }}>
+                  <div style={{ fontWeight: 'bold', marginBottom: '10px', fontSize: '13px', color: '#495057' }}>
+                    📎 Attachments:
+                  </div>
+                  {attachments.map((att, idx) => (
+                    <div key={idx} style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '8px 12px',
+                      background: 'white',
+                      border: '1px solid #dee2e6',
+                      borderRadius: '4px',
+                      margin: '5px 5px 5px 0',
+                      fontSize: '13px'
+                    }}>
+                      {att.type?.startsWith('image/') ? (
+                        <img src={att.url} alt={att.filename} style={{
+                          maxWidth: '100px',
+                          maxHeight: '60px',
+                          borderRadius: '3px'
+                        }} />
+                      ) : (
+                        <span>📄 {att.filename}</span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeAttachment(idx)}
+                        style={{
+                          background: '#dc3545',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '50%',
+                          width: '20px',
+                          height: '20px',
+                          cursor: 'pointer',
+                          fontSize: '12px',
+                          lineHeight: '1',
+                          padding: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                        title="Remove attachment"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <div className="form-group">
-                <button 
-                  type="submit" 
+                <label className="attach-file-btn" style={{
+                  display: 'inline-block',
+                  padding: '10px 20px',
+                  background: '#6c757d',
+                  color: 'white',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  transition: 'background 0.2s',
+                  marginRight: '10px'
+                }}>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/jpeg,image/jpg,image/png,image/gif,application/pdf,text/plain,application/zip"
+                    onChange={handleFileUpload}
+                    disabled={uploading || loading}
+                    style={{ display: 'none' }}
+                  />
+                  {uploading ? '⏳ Uploading...' : '📎 Attach File'}
+                </label>
+                <button
+                  type="submit"
                   className="button"
                   disabled={loading}
                   style={{ marginRight: '10px' }}

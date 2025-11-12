@@ -76,7 +76,7 @@ export default async function handler(req, res) {
         return res.status(401).json({ error: 'User not authenticated' });
       }
 
-      const { recipient, content } = req.body;
+      const { recipient, content, attachments } = req.body;
 
       // Find recipient by username
       const recipientUser = await prisma.user.findUnique({
@@ -101,6 +101,7 @@ export default async function handler(req, res) {
           senderId: sender.id,
           recipientId: recipientUser.id,
           conversationId,
+          attachments: attachments ? JSON.stringify(attachments) : null
         },
         include: {
           sender: {

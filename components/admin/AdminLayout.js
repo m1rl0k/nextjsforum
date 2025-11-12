@@ -5,17 +5,18 @@ import { useAuth } from '../../context/AuthContext';
 import styles from '../../styles/AdminLayout.module.css';
 
 const AdminLayout = ({ children }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, loading: authLoading } = useAuth();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [showAccessDenied, setShowAccessDenied] = useState(false);
 
-  // Check if user is admin or moderator and redirect if not
+  // Check if user is admin or moderator
   useEffect(() => {
-    if (user && user.role !== 'ADMIN' && user.role !== 'MODERATOR') {
-      router.push('/');
+    if (!authLoading && user && user.role !== 'ADMIN' && user.role !== 'MODERATOR') {
+      setShowAccessDenied(true);
     }
-  }, [user, router]);
+  }, [user, authLoading]);
 
   // Check for mobile view
   useEffect(() => {
@@ -46,8 +47,32 @@ const AdminLayout = ({ children }) => {
     return router.pathname === path ? styles.active : '';
   };
 
-  if (!user || (user.role !== 'ADMIN' && user.role !== 'MODERATOR')) {
+  // Show loading state while checking auth
+  if (authLoading || !user) {
     return <div className={styles.loading}>Loading...</div>;
+  }
+
+  // Show access denied message for non-admin/moderator users
+  if (showAccessDenied || (user.role !== 'ADMIN' && user.role !== 'MODERATOR')) {
+    return (
+      <div className={styles.accessDenied}>
+        <div className={styles.accessDeniedContent}>
+          <div className={styles.accessDeniedIcon}>🔒</div>
+          <h1>Access Denied</h1>
+          <p>You need administrator or moderator privileges to access this area.</p>
+          <div className={styles.accessDeniedActions}>
+            <Link href="/" className={styles.backButton}>
+              ← Back to Forum
+            </Link>
+            {user && (
+              <button onClick={handleLogout} className={styles.logoutButton}>
+                Logout
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
