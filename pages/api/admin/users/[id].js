@@ -76,8 +76,8 @@ export default async function handler(req, res) {
         data: user
       });
     } else if (req.method === 'PUT') {
-      // Update user (ban, promote, etc.)
-      const { action, role, isActive, bio, location, signature } = req.body;
+      // Update user (ban, promote, full edit, etc.)
+      const { action, role, isActive, bio, location, signature, username, email, displayName } = req.body;
 
       const updateData = {};
 
@@ -88,7 +88,10 @@ export default async function handler(req, res) {
       } else if (action === 'promote' && role) {
         updateData.role = role;
       } else {
-        // Regular profile update
+        // Full user edit (from admin edit page)
+        if (username !== undefined) updateData.username = username;
+        if (email !== undefined) updateData.email = email;
+        if (displayName !== undefined) updateData.displayName = displayName;
         if (bio !== undefined) updateData.bio = bio;
         if (location !== undefined) updateData.location = location;
         if (signature !== undefined) updateData.signature = signature;
