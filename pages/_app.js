@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { AuthProvider } from '../context/AuthContext';
 import ThemeProvider from '../components/ThemeProvider';
+import { ToastProvider } from '../components/Toast';
 import '../styles/globals.css';
 
 // List of public routes that don't require authentication
@@ -14,7 +15,9 @@ function MyApp({ Component, pageProps }) {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <Component {...pageProps} />
+        <ToastProvider>
+          <Component {...pageProps} />
+        </ToastProvider>
       </ThemeProvider>
     </AuthProvider>
   );

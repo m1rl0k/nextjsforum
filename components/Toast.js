@@ -14,16 +14,27 @@ const TOAST_TYPES = {
 // Individual Toast component
 function ToastItem({ toast, onRemove }) {
   const [isExiting, setIsExiting] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    if (toast.duration !== 0) {
-      const timer = setTimeout(() => {
-        setIsExiting(true);
-        setTimeout(() => onRemove(toast.id), 300);
-      }, toast.duration || 4000);
+    if (toast.duration === 0) return;
+    const total = toast.duration || 4000;
+    const start = Date.now();
 
-      return () => clearTimeout(timer);
-    }
+    const tick = () => {
+      const elapsed = Date.now() - start;
+      const pct = Math.min(100, (elapsed / total) * 100);
+      setProgress(pct);
+      if (elapsed >= total) {
+        setIsExiting(true);
+        setTimeout(() => onRemove(toast.id), 280);
+        return;
+      }
+      requestAnimationFrame(tick);
+    };
+
+    const raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [toast, onRemove]);
 
   const handleClose = () => {
@@ -33,8 +44,10 @@ function ToastItem({ toast, onRemove }) {
 
   const type = TOAST_TYPES[toast.type] || TOAST_TYPES.info;
 
+  const role = toast.type === 'error' ? 'alert' : 'status';
+
   return (
-    <div className={`toast ${type.className} ${isExiting ? 'toast-exit' : 'toast-enter'}`}>
+    <div className={`toast ${type.className} ${isExiting ? 'toast-exit' : 'toast-enter'}`} role={role} aria-live="polite">
       <div className="toast-icon">{type.icon}</div>
       <div className="toast-content">
         {toast.title && <div className="toast-title">{toast.title}</div>}
@@ -49,10 +62,10 @@ function ToastItem({ toast, onRemove }) {
           display: flex;
           align-items: flex-start;
           gap: 12px;
-          padding: 14px 16px;
+          padding: 14px 16px 18px;
           border-radius: 8px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
-          background: white;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18), 0 2px 10px rgba(0, 0, 0, 0.08);
+          background: linear-gradient(135deg, #ffffff, #f9fbff);
           min-width: 300px;
           max-width: 420px;
           pointer-events: auto;
@@ -132,6 +145,21 @@ function ToastItem({ toast, onRemove }) {
           color: #4b5563;
         }
 
+        .toast-progress {
+          position: absolute;
+          left: 0;
+          bottom: 0;
+          height: 3px;
+          background: rgba(0, 0, 0, 0.08);
+          width: 100%;
+        }
+        .toast-progress-bar {
+          height: 100%;
+          width: ${progress}%;
+          transition: width 0.1s linear;
+          background: rgba(0,0,0,0.18);
+        }
+
         .toast-enter {
           animation: slideIn 0.3s ease-out forwards;
         }
@@ -162,6 +190,11 @@ function ToastItem({ toast, onRemove }) {
           }
         }
       `}</style>
+      {toast.duration !== 0 && (
+        <div className="toast-progress" aria-hidden="true">
+          <div className="toast-progress-bar" />
+        </div>
+      )}
     </div>
   );
 }
@@ -212,7 +245,14 @@ export function ToastProvider({ children }) {
       duration: options.duration !== undefined ? options.duration : 4000
     };
 
-    setToasts(prev => [...prev, toast]);
+    setToasts(prev => {
+      const next = [...prev, toast];
+      // cap at 5 toasts; drop the oldest
+      if (next.length > 5) {
+        next.shift();
+      }
+      return next;
+    });
     return id;
   }, []);
 

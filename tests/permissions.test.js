@@ -34,6 +34,16 @@ describe('getUserPermissions', () => {
     expect(perms.canReply).toBe(true);
   });
 
+  it('ADMIN role defaults to moderation even without groups', async () => {
+    prisma.subjectModerator.findFirst.mockResolvedValue(null);
+    prisma.userGroupMember.findMany.mockResolvedValue([]);
+
+    const perms = await getUserPermissions(5, null, 'ADMIN');
+    expect(perms.canModerate).toBe(true);
+    expect(perms.canPost).toBe(true);
+    expect(perms.canReply).toBe(true);
+  });
+
   it('combines group capabilities with role defaults', async () => {
     prisma.subjectModerator.findFirst.mockResolvedValue(null);
     prisma.userGroupMember.findMany.mockResolvedValue([
