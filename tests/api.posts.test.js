@@ -49,6 +49,11 @@ describe('POST /api/posts', () => {
     prisma.user.findUnique.mockResolvedValue({ id: 1, isActive: true, role: 'USER' });
     prisma.userGroupMember.findMany.mockResolvedValue([]);
     prisma.subjectModerator.findFirst.mockResolvedValue(null);
+    prisma.thread.findFirst.mockResolvedValue(null);
+    prisma.thread.update.mockResolvedValue({});
+    prisma.subject.update.mockResolvedValue({});
+    prisma.user.update.mockResolvedValue({});
+    prisma.post.create.mockResolvedValue({ id: 10 });
     prisma.$transaction = jest.fn(async (cb) => cb(prisma));
   });
 
