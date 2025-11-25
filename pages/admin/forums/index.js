@@ -27,8 +27,7 @@ const AdminForums = () => {
     isActive: true,
     icon: ''
   });
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
-  const [draggedItem, setDraggedItem] = useState(null);
+
 
   useEffect(() => {
     // Wait for auth to load before checking permissions
