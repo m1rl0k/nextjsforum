@@ -5,7 +5,7 @@ echo "🚀 Starting forum application..."
 
 # Wait for PostgreSQL to be ready
 echo "⏳ Waiting for PostgreSQL to be ready..."
-until npx prisma db push --accept-data-loss 2>/dev/null; do
+until nc -z postgres 5432; do
   echo "PostgreSQL is unavailable - sleeping"
   sleep 2
 done

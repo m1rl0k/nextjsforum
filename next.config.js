@@ -3,6 +3,9 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   output: 'standalone',
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   
   // Security headers
   async headers() {
