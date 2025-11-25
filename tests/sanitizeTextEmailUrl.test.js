@@ -2,7 +2,7 @@ const { sanitizeText, sanitizeEmail, sanitizeUrl } = require('../lib/sanitize');
 
 describe('sanitize text/email/url', () => {
   it('strips angle brackets from text', () => {
-    expect(sanitizeText('<b>hi</b>')).toBe('bhib');
+    expect(sanitizeText('<b>hi</b>')).toBe('bhi/b');
   });
 
   it('validates and lowercases email', () => {
