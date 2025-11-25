@@ -18,9 +18,10 @@ export default async function handler(req, res) {
       }
     });
 
-    // For now, we'll estimate guests as a percentage of total activity
-    // In a real implementation, you'd track anonymous sessions
-    const estimatedGuests = Math.max(0, Math.floor(activeUsers * 0.3));
+    const guestRatio = Number.parseFloat(process.env.GUEST_ESTIMATE_RATIO || '0');
+    const estimatedGuests = Number.isFinite(guestRatio) && guestRatio > 0
+      ? Math.max(0, Math.floor(activeUsers * guestRatio))
+      : 0;
 
     res.status(200).json({
       total: activeUsers + estimatedGuests,
@@ -36,4 +37,3 @@ export default async function handler(req, res) {
     });
   }
 }
-

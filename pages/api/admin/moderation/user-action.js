@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       return res.status(403).json({ message: 'Moderator access required' });
     }
 
-    const { userId, action, reason = '' } = req.body;
+    const { userId, action, reason = '', durationHours = null, points = 1, note = '' } = req.body;
 
     if (!userId || !action) {
       return res.status(400).json({ message: 'User ID and action are required' });
@@ -55,6 +55,16 @@ export default async function handler(req, res) {
         updateData.isActive = false;
         logAction = 'USER_BANNED';
         break;
+      case 'tempban':
+        updateData.isActive = false;
+        updateData.banReason = reason || 'Temporary ban';
+        if (durationHours) {
+          const expires = new Date();
+          expires.setHours(expires.getHours() + Number(durationHours));
+          updateData.banExpiresAt = expires;
+        }
+        logAction = 'USER_TEMP_BANNED';
+        break;
       case 'unban':
         updateData.isActive = true;
         logAction = 'USER_UNBANNED';
@@ -75,23 +85,37 @@ export default async function handler(req, res) {
         updateData.role = 'USER';
         logAction = 'USER_DEMOTED';
         break;
+      case 'warn':
+        updateData.warningPoints = (targetUser.warningPoints || 0) + Number(points || 1);
+        logAction = 'USER_WARNED';
+        break;
+      case 'note':
+        // No status change, just log
+        updateData = null;
+        logAction = 'USER_NOTED';
+        break;
       default:
         return res.status(400).json({ message: 'Invalid action' });
     }
 
-    // Update the user
-    const updatedUser = await prisma.user.update({
-      where: { id: parseInt(userId) },
-      data: updateData,
-      select: {
-        id: true,
-        username: true,
-        email: true,
-        role: true,
-        isActive: true,
-        createdAt: true
-      }
-    });
+    let updatedUser = targetUser;
+    if (updateData) {
+      updatedUser = await prisma.user.update({
+        where: { id: parseInt(userId) },
+        data: updateData,
+        select: {
+          id: true,
+          username: true,
+          email: true,
+          role: true,
+          isActive: true,
+          createdAt: true,
+          warningPoints: true,
+          banExpiresAt: true,
+          banReason: true
+        }
+      });
+    }
 
     // Log the moderation action
     try {
@@ -106,8 +130,11 @@ export default async function handler(req, res) {
             targetUsername: targetUser.username,
             previousRole: targetUser.role,
             previousStatus: targetUser.isActive,
-            newRole: updateData.role || targetUser.role,
-            newStatus: updateData.isActive !== undefined ? updateData.isActive : targetUser.isActive
+            newRole: updateData?.role || targetUser.role,
+            newStatus: updateData?.isActive !== undefined ? updateData.isActive : targetUser.isActive,
+            warningPoints: updateData?.warningPoints ?? targetUser.warningPoints,
+            banExpiresAt: updateData?.banExpiresAt || targetUser.banExpiresAt,
+            note
           })
         }
       });

@@ -60,6 +60,8 @@ model User {
   notifications           Notification[]
   uploadedImages          Image[]
   backups                 Backup[]
+  pollVotes               PollVote[]
+  ipBans                  IpBan[]    @relation("BannedByUser")
 
   @@index([email])
   @@index([username])
@@ -142,6 +144,7 @@ model Thread {
   user            User                 @relation(fields: [userId], references: [id])
   subscriptions   ThreadSubscription[]
   images          ThreadImage[]
+  poll            Poll?
 
   @@index([subjectId, isSticky, lastPostAt])
   @@index([userId])
@@ -466,6 +469,81 @@ model NotificationPreferences {
   user               User     @relation(fields: [userId], references: [id])
 
   @@map("notification_preferences")
+}
+
+// IP Ban System
+model IpBan {
+  id          Int       @id @default(autoincrement())
+  ipAddress   String
+  reason      String?
+  bannedBy    Int
+  bannedByUser User     @relation("BannedByUser", fields: [bannedBy], references: [id])
+  expiresAt   DateTime?
+  isPermanent Boolean   @default(false)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([ipAddress, isActive])
+  @@index([expiresAt])
+}
+
+// User Ranks System
+model UserRank {
+  id        Int      @id @default(autoincrement())
+  name      String
+  minPosts  Int      @default(0)
+  color     String   @default("#888888")
+  icon      String   @default("👤")
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([minPosts])
+  @@index([isActive, minPosts])
+}
+
+// Poll system
+model Poll {
+  id            Int          @id @default(autoincrement())
+  threadId      Int          @unique
+  thread        Thread       @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  question      String
+  options       PollOption[]
+  votes         PollVote[]
+  allowMultiple Boolean      @default(false)
+  showResults   Boolean      @default(true) // Show results before voting
+  endsAt        DateTime?    // Optional end date
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model PollOption {
+  id        Int        @id @default(autoincrement())
+  pollId    Int
+  poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  text      String
+  order     Int        @default(0)
+  votes     PollVote[]
+  createdAt DateTime   @default(now())
+
+  @@index([pollId])
+}
+
+model PollVote {
+  id        Int        @id @default(autoincrement())
+  pollId    Int
+  poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  optionId  Int
+  option    PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  userId    Int
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+
+  @@unique([pollId, userId, optionId])
+  @@index([pollId])
+  @@index([userId])
 }
 
 enum Role {

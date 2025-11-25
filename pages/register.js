@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import styles from '../styles/Register.module.css';
+import Captcha from '../components/Captcha';
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -10,10 +11,29 @@ export default function Register() {
     password: '',
     confirmPassword: ''
   });
+  const [captchaData, setCaptchaData] = useState({ captchaId: '', answer: '' });
+  const [captchaEnabled, setCaptchaEnabled] = useState(false);
+  const [formLoadTime] = useState(Date.now());
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const router = useRouter();
+
+  // Check if captcha is enabled
+  useEffect(() => {
+    const checkCaptcha = async () => {
+      try {
+        const res = await fetch('/api/settings/captcha-status');
+        if (res.ok) {
+          const data = await res.json();
+          setCaptchaEnabled(data.enabled);
+        }
+      } catch (e) {
+        // Default to disabled
+      }
+    };
+    checkCaptcha();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,29 +54,33 @@ export default function Register() {
   const validateForm = () => {
     const newErrors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
+
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!emailRegex.test(formData.email)) {
       newErrors.email = 'Please enter a valid email';
     }
-    
+
     if (!formData.username) {
       newErrors.username = 'Username is required';
     } else if (formData.username.length < 3) {
       newErrors.username = 'Username must be at least 3 characters';
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
+
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
-    
+
+    if (captchaEnabled && !captchaData.answer) {
+      newErrors.captcha = 'Please complete the security check';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -70,6 +94,12 @@ export default function Register() {
     setIsSubmitting(true);
     
     try {
+      // Check honeypot
+      const honeypot = document.getElementById('website')?.value;
+      if (honeypot) {
+        throw new Error('Spam detected');
+      }
+
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
@@ -79,6 +109,9 @@ export default function Register() {
           email: formData.email,
           username: formData.username,
           password: formData.password,
+          captchaId: captchaData.captchaId,
+          captchaAnswer: captchaData.answer,
+          formLoadTime: formLoadTime
         }),
       });
 
@@ -88,11 +121,19 @@ export default function Register() {
         throw new Error(data.error || 'Registration failed');
       }
 
-      // Redirect to login with success message
-      router.push({
-        pathname: '/login',
-        query: { registered: 'true' }
-      });
+      // Check if email verification is required
+      if (data.requiresVerification) {
+        router.push({
+          pathname: '/verify-email',
+          query: { message: 'Please check your email to verify your account' }
+        });
+      } else {
+        // Redirect to login with success message
+        router.push({
+          pathname: '/login',
+          query: { registered: 'true' }
+        });
+      }
     } catch (error) {
       setSubmitError(error.message || 'An error occurred during registration');
       console.error('Registration error:', error);
@@ -170,7 +211,22 @@ export default function Register() {
               <span className={styles.errorMessage}>{errors.confirmPassword}</span>
             )}
           </div>
-          
+
+          {captchaEnabled && (
+            <div className={styles.formGroup}>
+              <Captcha onVerify={setCaptchaData} />
+              {errors.captcha && (
+                <span className={styles.errorMessage}>{errors.captcha}</span>
+              )}
+            </div>
+          )}
+
+          {/* Honeypot field - hidden from users */}
+          <div style={{ position: 'absolute', left: '-9999px' }} aria-hidden="true">
+            <label htmlFor="website">Website</label>
+            <input type="text" id="website" name="website" tabIndex="-1" autoComplete="off" />
+          </div>
+
           <button 
             type="submit" 
             className={styles.submitButton}

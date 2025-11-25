@@ -98,6 +98,8 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Post content is required' });
       }
 
+      const ip = req.headers['x-forwarded-for']?.toString().split(',')[0]?.trim() || req.socket?.remoteAddress || '';
+
       // Update the post
       const updatedPost = await prisma.post.update({
         where: { id: postId },
@@ -119,6 +121,26 @@ export default async function handler(req, res) {
           }
         }
       });
+
+      // Audit log
+      try {
+        await prisma.moderationLog.create({
+          data: {
+            moderatorId: user.id,
+            action: 'EDIT_POST',
+            targetType: 'POST',
+            targetId: postId,
+            reason: editReason || 'Post edited',
+            details: JSON.stringify({
+              previousContent: post.content?.substring(0, 500),
+              newContent: content.substring(0, 500),
+              ip
+            })
+          }
+        });
+      } catch (logErr) {
+        console.error('Audit log failed for post edit:', logErr);
+      }
 
       // Associate any new images in the content
       await associateImagesWithPost(postId, content);
@@ -167,6 +189,8 @@ export default async function handler(req, res) {
         return res.status(403).json({ error: 'You do not have permission to delete this post' });
       }
 
+      const ip = req.headers['x-forwarded-for']?.toString().split(',')[0]?.trim() || req.socket?.remoteAddress || '';
+
       // Soft delete the post
       await prisma.post.update({
         where: { id: postId },
@@ -185,6 +209,25 @@ export default async function handler(req, res) {
           replyCount: { decrement: 1 }
         }
       });
+
+      // Audit log
+      try {
+        await prisma.moderationLog.create({
+          data: {
+            moderatorId: user.id,
+            action: 'DELETE_POST',
+            targetType: 'POST',
+            targetId: postId,
+            reason: 'Post deleted',
+            details: JSON.stringify({
+              previousContent: post.content?.substring(0, 500),
+              ip
+            })
+          }
+        });
+      } catch (logErr) {
+        console.error('Audit log failed for post delete:', logErr);
+      }
 
       return res.status(200).json({ message: 'Post deleted successfully' });
     } catch (error) {

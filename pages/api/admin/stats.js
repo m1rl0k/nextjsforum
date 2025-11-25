@@ -1,6 +1,13 @@
 import prisma from '../../../lib/prisma';
 import { verifyToken } from '../../../lib/auth';
 
+const percentChange = (current, previous) => {
+  if (previous === 0) {
+    return current > 0 ? 100 : 0;
+  }
+  return Math.round(((current - previous) / previous) * 100);
+};
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ message: 'Method not allowed' });
@@ -41,12 +48,17 @@ export default async function handler(req, res) {
     // Get today's date at start of day
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
 
-    // Get today's stats
+    // Get today's stats and previous day for deltas
     const [
       newUsersToday,
       newThreadsToday,
-      newPostsToday
+      newPostsToday,
+      newUsersYesterday,
+      newThreadsYesterday,
+      newPostsYesterday
     ] = await Promise.all([
       prisma.user.count({
         where: {
@@ -68,10 +80,33 @@ export default async function handler(req, res) {
             gte: today
           }
         }
+      }),
+      prisma.user.count({
+        where: {
+          createdAt: {
+            gte: yesterday,
+            lt: today
+          }
+        }
+      }),
+      prisma.thread.count({
+        where: {
+          createdAt: {
+            gte: yesterday,
+            lt: today
+          }
+        }
+      }),
+      prisma.post.count({
+        where: {
+          createdAt: {
+            gte: yesterday,
+            lt: today
+          }
+        }
       })
     ]);
 
-    // Calculate percentage changes (mock data for now)
     const stats = {
       users: usersCount,
       threads: threadsCount,
@@ -81,9 +116,9 @@ export default async function handler(req, res) {
       newUsersToday,
       newThreadsToday,
       newPostsToday,
-      usersChange: 12, // Mock percentage
-      threadsChange: 8, // Mock percentage
-      postsChange: 15  // Mock percentage
+      usersChange: percentChange(newUsersToday, newUsersYesterday),
+      threadsChange: percentChange(newThreadsToday, newThreadsYesterday),
+      postsChange: percentChange(newPostsToday, newPostsYesterday)
     };
 
     res.status(200).json({

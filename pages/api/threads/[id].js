@@ -34,6 +34,15 @@ export default async function handler(req, res) {
         });
 
         thread.posts = posts;
+
+        // Get poll if this is a poll thread
+        if (thread.threadType === 'POLL') {
+          const poll = await prisma.poll.findUnique({
+            where: { threadId: thread.id },
+            select: { id: true }
+          });
+          thread.poll = poll;
+        }
       }
 
     if (thread) {

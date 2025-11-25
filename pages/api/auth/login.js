@@ -3,6 +3,7 @@ import prisma from '../../../lib/prisma';
 import { loginSchema, validate } from '../../../lib/validation';
 import { authRateLimit } from '../../../lib/rateLimit';
 import { isProduction } from '../../../lib/env';
+import { getClientIp, isIpBanned } from '../../../lib/ipBan';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -18,6 +19,16 @@ export default async function handler(req, res) {
   });
 
   try {
+    // Check IP ban
+    const clientIp = getClientIp(req);
+    const ipBanStatus = await isIpBanned(clientIp);
+    if (ipBanStatus.banned) {
+      const message = ipBanStatus.isPermanent
+        ? `Your IP address has been permanently banned. Reason: ${ipBanStatus.reason}`
+        : `Your IP address is banned until ${new Date(ipBanStatus.expiresAt).toLocaleString()}. Reason: ${ipBanStatus.reason}`;
+      return res.status(403).json({ error: message, ipBanned: true });
+    }
+
     // Validate input
     const validation = validate(loginSchema, req.body);
     if (!validation.success) {
@@ -45,6 +56,26 @@ export default async function handler(req, res) {
         ? `Your account is banned until ${new Date(user.banExpiresAt).toLocaleDateString()}`
         : 'Your account has been permanently banned';
       return res.status(403).json({ error: banMessage });
+    }
+
+    // Check if email verification is required
+    let requireEmailVerification = false;
+    try {
+      const setting = await prisma.siteSettings.findUnique({
+        where: { key: 'email_verification' }
+      });
+      requireEmailVerification = setting?.value === 'true';
+    } catch (e) {
+      // Default to false if setting doesn't exist
+    }
+
+    // Check if email is verified (if verification is required)
+    if (requireEmailVerification && !user.emailVerified) {
+      return res.status(403).json({
+        error: 'Please verify your email address before logging in',
+        requiresVerification: true,
+        email: user.email
+      });
     }
 
     // Check password

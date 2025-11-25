@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Layout from '../../components/Layout';
 import Post from '../../components/Post';
 import ReportButton from '../../components/ReportButton';
+import Poll from '../../components/Poll';
 import { useAuth } from '../../context/AuthContext';
 
 export default function ThreadPage() {
@@ -133,6 +134,7 @@ export default function ThreadPage() {
         <div className="thread-header">
           <h1 className="thread-title">
             {thread.threadType === 'ANNOUNCEMENT' && <span className="thread-badge pinned">📍 PINNED</span>}
+            {thread.threadType === 'POLL' && <span className="thread-badge poll">📊 POLL</span>}
             {thread.sticky && thread.threadType !== 'ANNOUNCEMENT' && <span className="thread-badge sticky">📌 STICKY</span>}
             {thread.locked && <span className="thread-badge locked">🔒 LOCKED</span>}
             {thread.title}
@@ -170,6 +172,11 @@ export default function ThreadPage() {
           )}
         </div>
         
+        {/* Display poll if this is a poll thread */}
+        {thread.threadType === 'POLL' && thread.poll && (
+          <Poll threadId={thread.id} pollId={thread.poll.id} />
+        )}
+
         <div className="thread-actions top">
           <Link href={`/subjects/${thread.subjectId}/new-thread`} className="button">New Thread</Link>
           {user ? (

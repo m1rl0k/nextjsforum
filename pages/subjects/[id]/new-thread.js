@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Layout from '../../../components/Layout';
 import { useAuth } from '../../../context/AuthContext';
 import WysiwygEditor from '../../../components/WysiwygEditor';
+import PollCreator from '../../../components/PollCreator';
 
 export default function NewThread() {
   const router = useRouter();
@@ -14,6 +15,8 @@ export default function NewThread() {
     title: '',
     content: ''
   });
+  const [isPollThread, setIsPollThread] = useState(false);
+  const [pollData, setPollData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [errors, setErrors] = useState({});
@@ -83,6 +86,15 @@ export default function NewThread() {
       newErrors.content = 'Thread content must be at least 10 characters';
     }
 
+    // Validate poll if enabled
+    if (isPollThread) {
+      if (!pollData || !pollData.question || pollData.question.trim().length < 1) {
+        newErrors.poll = 'Poll question is required';
+      } else if (!pollData.options || pollData.options.length < 2) {
+        newErrors.poll = 'Poll must have at least 2 options';
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -96,17 +108,24 @@ export default function NewThread() {
     setError('');
 
     try {
+      const requestBody = {
+        title: formData.title.trim(),
+        content: formData.content.trim(),
+        subjectId: parseInt(id)
+      };
+
+      // Include poll data if this is a poll thread
+      if (isPollThread && pollData) {
+        requestBody.poll = pollData;
+      }
+
       const res = await fetch('/api/threads', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({
-          title: formData.title.trim(),
-          content: formData.content.trim(),
-          subjectId: parseInt(id)
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (res.ok) {
@@ -200,14 +219,39 @@ export default function NewThread() {
                 )}
               </div>
 
+              <div className="form-group" style={{ marginTop: '20px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={isPollThread}
+                    onChange={(e) => {
+                      setIsPollThread(e.target.checked);
+                      if (!e.target.checked) setPollData(null);
+                    }}
+                  />
+                  <span style={{ fontWeight: '500' }}>📊 Add a poll to this thread</span>
+                </label>
+              </div>
+
+              {isPollThread && (
+                <div className="form-group">
+                  <PollCreator onPollChange={setPollData} />
+                  {errors.poll && (
+                    <div style={{ color: '#c62828', fontSize: '12px', marginTop: '5px' }}>
+                      {errors.poll}
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="form-group">
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="button"
                   disabled={loading}
                   style={{ marginRight: '10px' }}
                 >
-                  {loading ? 'Creating Thread...' : 'Create Thread'}
+                  {loading ? 'Creating Thread...' : (isPollThread ? 'Create Poll Thread' : 'Create Thread')}
                 </button>
                 <Link href={`/subjects/${id}`} className="button" style={{ backgroundColor: '#666' }}>
                   Cancel

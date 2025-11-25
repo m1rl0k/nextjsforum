@@ -17,17 +17,57 @@ export default function Search() {
   const [hasSearched, setHasSearched] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalResults, setTotalResults] = useState(0);
+
+  // Advanced filters
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [author, setAuthor] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [sortBy, setSortBy] = useState('relevance');
+  const [sortOrder, setSortOrder] = useState('desc');
+  const [subjects, setSubjects] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState('');
+
+  // Fetch subjects for filter dropdown
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      try {
+        const res = await fetch('/api/subjects');
+        if (res.ok) {
+          const data = await res.json();
+          setSubjects(data.subjects || data || []);
+        }
+      } catch (err) {
+        // Ignore errors
+      }
+    };
+    fetchSubjects();
+  }, []);
 
   useEffect(() => {
     // Check if there's a search query in the URL
     if (router.query.q) {
       setSearchTerm(router.query.q);
       setSearchType(router.query.type || 'all');
-      performSearch(router.query.q, router.query.type || 'all', 1);
+      setAuthor(router.query.author || '');
+      setDateFrom(router.query.dateFrom || '');
+      setDateTo(router.query.dateTo || '');
+      setSortBy(router.query.sortBy || 'relevance');
+      setSortOrder(router.query.sortOrder || 'desc');
+      setSelectedSubject(router.query.subjectId || '');
+      performSearch(router.query.q, router.query.type || 'all', 1, {
+        author: router.query.author,
+        dateFrom: router.query.dateFrom,
+        dateTo: router.query.dateTo,
+        sortBy: router.query.sortBy,
+        sortOrder: router.query.sortOrder,
+        subjectId: router.query.subjectId
+      });
     }
   }, [router.query]);
 
-  const performSearch = async (term, type, page = 1) => {
+  const performSearch = async (term, type, page = 1, filters = {}) => {
     if (!term.trim()) return;
 
     setLoading(true);
@@ -41,12 +81,21 @@ export default function Search() {
         page
       });
 
+      // Add advanced filters
+      if (filters.author || author) params.set('author', filters.author || author);
+      if (filters.dateFrom || dateFrom) params.set('dateFrom', filters.dateFrom || dateFrom);
+      if (filters.dateTo || dateTo) params.set('dateTo', filters.dateTo || dateTo);
+      if (filters.sortBy || sortBy !== 'relevance') params.set('sortBy', filters.sortBy || sortBy);
+      if (filters.sortOrder || sortOrder !== 'desc') params.set('sortOrder', filters.sortOrder || sortOrder);
+      if (filters.subjectId || selectedSubject) params.set('subjectId', filters.subjectId || selectedSubject);
+
       const res = await fetch(`/api/search?${params}`);
       if (res.ok) {
         const data = await res.json();
         setResults(data.results);
         setTotalPages(data.totalPages || 1);
         setCurrentPage(page);
+        setTotalResults(data.totalResults || 0);
       } else {
         setError('Search failed');
       }
@@ -61,9 +110,30 @@ export default function Search() {
     e.preventDefault();
     if (!searchTerm.trim()) return;
 
+    // Build URL with filters
+    const params = new URLSearchParams({
+      q: searchTerm,
+      type: searchType
+    });
+    if (author) params.set('author', author);
+    if (dateFrom) params.set('dateFrom', dateFrom);
+    if (dateTo) params.set('dateTo', dateTo);
+    if (sortBy !== 'relevance') params.set('sortBy', sortBy);
+    if (sortOrder !== 'desc') params.set('sortOrder', sortOrder);
+    if (selectedSubject) params.set('subjectId', selectedSubject);
+
     // Update URL
-    router.push(`/search?q=${encodeURIComponent(searchTerm)}&type=${searchType}`, undefined, { shallow: true });
+    router.push(`/search?${params.toString()}`, undefined, { shallow: true });
     performSearch(searchTerm, searchType, 1);
+  };
+
+  const clearFilters = () => {
+    setAuthor('');
+    setDateFrom('');
+    setDateTo('');
+    setSortBy('relevance');
+    setSortOrder('desc');
+    setSelectedSubject('');
   };
 
   const formatDate = (dateString) => {
@@ -98,21 +168,21 @@ export default function Search() {
                   placeholder="Enter search terms..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{ 
+                  style={{
                     flex: 1,
                     minWidth: '300px',
-                    padding: '8px 12px', 
-                    border: '1px solid var(--border-color)', 
+                    padding: '8px 12px',
+                    border: '1px solid var(--border-color)',
                     borderRadius: '3px',
                     fontSize: '14px'
                   }}
                 />
-                <select 
-                  value={searchType} 
+                <select
+                  value={searchType}
                   onChange={(e) => setSearchType(e.target.value)}
-                  style={{ 
-                    padding: '8px 12px', 
-                    border: '1px solid var(--border-color)', 
+                  style={{
+                    padding: '8px 12px',
+                    border: '1px solid var(--border-color)',
                     borderRadius: '3px',
                     fontSize: '14px'
                   }}
@@ -125,7 +195,165 @@ export default function Search() {
                 <button type="submit" className="button" disabled={loading}>
                   {loading ? 'Searching...' : 'Search'}
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAdvanced(!showAdvanced)}
+                  className="button"
+                  style={{ backgroundColor: '#666' }}
+                >
+                  {showAdvanced ? 'Hide Filters' : 'Advanced'}
+                </button>
               </div>
+
+              {/* Advanced Search Filters */}
+              {showAdvanced && (
+                <div style={{
+                  padding: '15px',
+                  backgroundColor: '#f5f5f5',
+                  borderRadius: '4px',
+                  marginBottom: '15px'
+                }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '13px' }}>
+                        Author
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Username..."
+                        value={author}
+                        onChange={(e) => setAuthor(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: '3px',
+                          fontSize: '13px'
+                        }}
+                      />
+                    </div>
+
+                    {searchType !== 'users' && (
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '13px' }}>
+                          Forum
+                        </label>
+                        <select
+                          value={selectedSubject}
+                          onChange={(e) => setSelectedSubject(e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '8px',
+                            border: '1px solid var(--border-color)',
+                            borderRadius: '3px',
+                            fontSize: '13px'
+                          }}
+                        >
+                          <option value="">All Forums</option>
+                          {subjects.map(subject => (
+                            <option key={subject.id} value={subject.id}>
+                              {subject.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '13px' }}>
+                        From Date
+                      </label>
+                      <input
+                        type="date"
+                        value={dateFrom}
+                        onChange={(e) => setDateFrom(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: '3px',
+                          fontSize: '13px'
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '13px' }}>
+                        To Date
+                      </label>
+                      <input
+                        type="date"
+                        value={dateTo}
+                        onChange={(e) => setDateTo(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: '3px',
+                          fontSize: '13px'
+                        }}
+                      />
+                    </div>
+
+                    {searchType === 'threads' && (
+                      <>
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '13px' }}>
+                            Sort By
+                          </label>
+                          <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            style={{
+                              width: '100%',
+                              padding: '8px',
+                              border: '1px solid var(--border-color)',
+                              borderRadius: '3px',
+                              fontSize: '13px'
+                            }}
+                          >
+                            <option value="relevance">Relevance</option>
+                            <option value="date">Date</option>
+                            <option value="replies">Replies</option>
+                            <option value="views">Views</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '13px' }}>
+                            Order
+                          </label>
+                          <select
+                            value={sortOrder}
+                            onChange={(e) => setSortOrder(e.target.value)}
+                            style={{
+                              width: '100%',
+                              padding: '8px',
+                              border: '1px solid var(--border-color)',
+                              borderRadius: '3px',
+                              fontSize: '13px'
+                            }}
+                          >
+                            <option value="desc">Descending</option>
+                            <option value="asc">Ascending</option>
+                          </select>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  <div style={{ marginTop: '15px', display: 'flex', gap: '10px' }}>
+                    <button
+                      type="button"
+                      onClick={clearFilters}
+                      className="button"
+                      style={{ backgroundColor: '#999', fontSize: '13px', padding: '6px 12px' }}
+                    >
+                      Clear Filters
+                    </button>
+                  </div>
+                </div>
+              )}
             </form>
 
             {error && (

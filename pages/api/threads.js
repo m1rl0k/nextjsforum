@@ -2,6 +2,9 @@ import prisma from '../../lib/prisma';
 import { verifyToken } from '../../lib/auth';
 import { associateImagesWithThread, associateImagesWithPost } from '../../lib/imageUtils';
 import { generateUniqueThreadSlug } from '../../lib/slugUtils';
+import { notifyMentions, extractMentions } from '../../lib/notifications';
+import { filterHtmlContent, filterContent, stripHtml } from '../../lib/profanityFilter';
+import { getUserPermissions } from '../../lib/permissions';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
@@ -45,19 +48,44 @@ export default async function handler(req, res) {
         return res.status(401).json({ error: 'User not authenticated' });
       }
 
-      const { title, content, subjectId } = req.body;
+      const { title, content, subjectId, poll: pollData } = req.body;
+      const trimmedTitle = title?.trim();
+      const trimmedContent = content?.trim();
+      const isPollThread = pollData && pollData.question && pollData.options?.length >= 2;
 
       // Validate input
-      if (!title || !content || !subjectId) {
+      if (!trimmedTitle || !trimmedContent || !subjectId) {
         return res.status(400).json({ error: 'Title, content, and subject are required' });
       }
 
-      if (title.trim().length < 3) {
+      if (trimmedTitle.length < 3) {
         return res.status(400).json({ error: 'Title must be at least 3 characters' });
       }
 
-      if (content.trim().length < 10) {
-        return res.status(400).json({ error: 'Content must be at least 10 characters' });
+      // Load moderation settings
+      const moderationSettings = await prisma.moderationSettings.findFirst() || {
+        requireApproval: false,
+        newUserPostCount: 5,
+        maxLinksPerPost: 3,
+        minPostLength: 10,
+        maxPostLength: 10000,
+        moderationQueue: true,
+        trustedUserPostCount: 50
+      };
+
+      const plainText = stripHtml(trimmedContent);
+      const linkCount = (trimmedContent.match(/https?:\/\//gi) || []).length;
+
+      if (moderationSettings.minPostLength && plainText.length < moderationSettings.minPostLength) {
+        return res.status(400).json({ error: `Post must be at least ${moderationSettings.minPostLength} characters` });
+      }
+
+      if (moderationSettings.maxPostLength && plainText.length > moderationSettings.maxPostLength) {
+        return res.status(400).json({ error: `Post must be under ${moderationSettings.maxPostLength} characters` });
+      }
+
+      if (moderationSettings.maxLinksPerPost && linkCount > moderationSettings.maxLinksPerPost) {
+        return res.status(400).json({ error: `Post exceeds maximum links (${moderationSettings.maxLinksPerPost})` });
       }
 
       // Check if subject exists and verify posting permissions
@@ -73,7 +101,9 @@ export default async function handler(req, res) {
         return res.status(403).json({ error: 'This forum is not active' });
       }
 
-      if (!subject.canPost) {
+      // Check ACLs
+      const perms = await getUserPermissions(user.id, subject.id, user.role);
+      if (!subject.canPost || !perms.canPost) {
         return res.status(403).json({ error: 'Creating threads is not allowed in this forum' });
       }
 
@@ -82,16 +112,36 @@ export default async function handler(req, res) {
         return res.status(403).json({ error: 'Guest posting is not allowed in this forum' });
       }
 
+      // Apply profanity filter to title
+      const titleFilter = await filterContent(trimmedTitle);
+      if (!titleFilter.allowed) {
+        return res.status(400).json({ error: titleFilter.reason || 'Title contains prohibited content' });
+      }
+
+      // Apply profanity filter to content
+      const contentFilter = await filterHtmlContent(trimmedContent);
+      if (!contentFilter.allowed) {
+        return res.status(400).json({ error: contentFilter.reason || 'Content contains prohibited content' });
+      }
+
+      // Use filtered content
+      const filteredTitle = titleFilter.text;
+      const filteredContent = contentFilter.text;
+      const requiresApproval = titleFilter.flagged ||
+        contentFilter.flagged ||
+        moderationSettings.requireApproval ||
+        (moderationSettings.moderationQueue && user.postCount < moderationSettings.trustedUserPostCount);
+
       // Generate unique slug for the thread
-      const slug = await generateUniqueThreadSlug(title);
+      const slug = await generateUniqueThreadSlug(trimmedTitle);
 
       // Create the thread and initial post in a transaction with counter updates
       const result = await prisma.$transaction(async (prisma) => {
         // Create the thread
         const thread = await prisma.thread.create({
           data: {
-            title: title.trim(),
-            content: content.trim(),
+            title: filteredTitle,
+            content: filteredContent,
             userId: user.id,
             subjectId: Number.parseInt(subjectId, 10),
             lastPostAt: new Date(),
@@ -101,7 +151,9 @@ export default async function handler(req, res) {
             postCount: 1, // Initial post counts as 1
             isSticky: false,
             isLocked: false,
-            slug: slug
+            approved: !requiresApproval, // Require approval if flagged
+            slug: slug,
+            threadType: isPollThread ? 'POLL' : 'NORMAL'
           },
           include: {
             user: {
@@ -123,10 +175,11 @@ export default async function handler(req, res) {
         // Create the initial post (first post of the thread)
         const firstPost = await prisma.post.create({
           data: {
-            content: content.trim(),
+            content: filteredContent,
             userId: user.id,
             threadId: thread.id,
-            isFirstPost: true
+            isFirstPost: true,
+            approved: !requiresApproval
           }
         });
 
@@ -147,14 +200,49 @@ export default async function handler(req, res) {
           }
         });
 
-        return { thread, firstPost };
+        // Create poll if this is a poll thread
+        let poll = null;
+        if (isPollThread) {
+          poll = await prisma.poll.create({
+            data: {
+              threadId: thread.id,
+              question: pollData.question.trim(),
+              allowMultiple: pollData.allowMultiple || false,
+              showResults: pollData.showResults !== false,
+              endsAt: pollData.endsAt ? new Date(pollData.endsAt) : null,
+              options: {
+                create: pollData.options
+                  .filter(opt => opt.trim().length > 0)
+                  .map((text, index) => ({
+                    text: text.trim(),
+                    order: index
+                  }))
+              }
+            }
+          });
+        }
+
+        return { thread, firstPost, poll };
       });
 
       // Associate any images in the content with both thread and post
-      await associateImagesWithThread(result.thread.id, content);
-      await associateImagesWithPost(result.firstPost.id, content);
+      await associateImagesWithThread(result.thread.id, trimmedContent);
+      await associateImagesWithPost(result.firstPost.id, trimmedContent);
 
-      res.status(201).json(result.thread);
+      // Notify any mentioned users in the first post (fail-soft)
+      try {
+        const mentions = extractMentions(trimmedContent);
+        if (mentions.length) {
+          await notifyMentions(result.firstPost.id, mentions, user.id);
+        }
+      } catch (notifyError) {
+        console.error('Error sending notifications for new thread:', notifyError);
+      }
+
+      res.status(201).json({
+        ...result.thread,
+        poll: result.poll ? { id: result.poll.id } : null
+      });
     } catch (error) {
       console.error('Error creating thread:', error);
       res.status(500).json({ error: 'Failed to create thread' });

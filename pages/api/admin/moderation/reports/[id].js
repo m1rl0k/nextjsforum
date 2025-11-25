@@ -1,5 +1,6 @@
 import prisma from '../../../../../lib/prisma';
 import { verifyToken } from '../../../../../lib/auth';
+import { createNotification, sendEmailNotification } from '../../../../../lib/notifications';
 
 export default async function handler(req, res) {
   const { id } = req.query;
@@ -40,7 +41,7 @@ export default async function handler(req, res) {
               title: true,
               content: true,
               createdAt: true,
-              user: { select: { username: true } },
+              user: { select: { id: true, username: true } },
               subject: { select: { name: true } }
             } 
           },
@@ -49,7 +50,7 @@ export default async function handler(req, res) {
               id: true, 
               content: true,
               createdAt: true,
-              user: { select: { username: true } },
+              user: { select: { id: true, username: true } },
               thread: { select: { id: true, title: true } }
             } 
           },
@@ -91,10 +92,10 @@ export default async function handler(req, res) {
           resolvedBy: user.id
         },
         include: {
-          reportedBy: { select: { username: true } },
-          thread: { select: { title: true } },
-          post: { select: { content: true } },
-          user: { select: { username: true } }
+          reportedBy: { select: { id: true, username: true } },
+          thread: { select: { id: true, title: true, userId: true } },
+          post: { select: { id: true, content: true, userId: true, threadId: true } },
+          user: { select: { id: true, username: true, email: true } }
         }
       });
 
@@ -113,6 +114,59 @@ export default async function handler(req, res) {
           })
         }
       });
+
+      // Notify reporter and content owner (fail-soft)
+      try {
+        const actionLabel = action === 'resolve' ? 'resolved' : 'dismissed';
+        const actionUrl = updatedReport.threadId
+          ? `/threads/${updatedReport.threadId}${updatedReport.postId ? `#post-${updatedReport.postId}` : ''}`
+          : null;
+
+        if (updatedReport.reportedById) {
+          await createNotification({
+            userId: updatedReport.reportedById,
+            type: 'MODERATION_ACTION',
+            title: `Your report was ${actionLabel}`,
+            content: `A moderator ${actionLabel} your report${resolution ? `: ${resolution}` : ''}.`,
+            actionUrl,
+            relatedType: updatedReport.threadId ? 'thread' : updatedReport.postId ? 'post' : 'user',
+            relatedId: updatedReport.threadId || updatedReport.postId || updatedReport.userId,
+            triggeredById: user.id
+          });
+          if (updatedReport.reportedBy?.email) {
+            await sendEmailNotification({
+              to: updatedReport.reportedBy.email,
+              subject: `Your report was ${actionLabel}`,
+              text: `Hello ${updatedReport.reportedBy.username},\n\nA moderator ${actionLabel} your report${resolution ? `: ${resolution}` : ''}.\n${actionUrl ? `View: ${actionUrl}` : ''}`
+            });
+          }
+        }
+
+        const contentOwnerId = updatedReport.post?.userId || updatedReport.thread?.userId;
+        if (contentOwnerId) {
+          await createNotification({
+            userId: contentOwnerId,
+            type: 'MODERATION_ACTION',
+            title: `Your content was ${actionLabel}`,
+            content: `A moderator ${actionLabel} a report about your content${resolution ? `: ${resolution}` : ''}.`,
+            actionUrl,
+            relatedType: updatedReport.threadId ? 'thread' : 'post',
+            relatedId: updatedReport.threadId || updatedReport.postId,
+            triggeredById: user.id
+          });
+          const ownerEmail = updatedReport.user?.email || updatedReport.post?.user?.email || updatedReport.thread?.user?.email;
+          const ownerName = updatedReport.user?.username || updatedReport.post?.user?.username || updatedReport.thread?.user?.username;
+          if (ownerEmail) {
+            await sendEmailNotification({
+              to: ownerEmail,
+              subject: `Your content was ${actionLabel}`,
+              text: `Hello ${ownerName || 'user'},\n\nA moderator ${actionLabel} a report about your content${resolution ? `: ${resolution}` : ''}.\n${actionUrl ? `View: ${actionUrl}` : ''}`
+            });
+          }
+        }
+      } catch (notifyError) {
+        console.error('Error sending moderation notifications:', notifyError);
+      }
 
       res.status(200).json({ 
         message: `Report ${action}ed successfully`,

@@ -1,5 +1,6 @@
 import prisma from '../../../../lib/prisma';
 import { verifyToken } from '../../../../lib/auth';
+import { createNotification, sendEmailNotification } from '../../../../lib/notifications';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -41,6 +42,35 @@ export default async function handler(req, res) {
 
     let result;
     const targetIdInt = parseInt(targetId);
+    let targetOwnerId = null;
+    let targetOwnerEmail = null;
+    let targetOwnerName = null;
+    let actionUrl = null;
+
+    // Fetch target for ownership info
+    if (type === 'thread') {
+      const thread = await prisma.thread.findUnique({
+        where: { id: targetIdInt },
+        select: { id: true, userId: true, user: { select: { email: true, username: true } } }
+      });
+      if (thread) {
+        targetOwnerId = thread.userId;
+        actionUrl = `/threads/${thread.id}`;
+        targetOwnerEmail = thread.user?.email;
+        targetOwnerName = thread.user?.username;
+      }
+    } else if (type === 'post') {
+      const post = await prisma.post.findUnique({
+        where: { id: targetIdInt },
+        select: { id: true, userId: true, threadId: true, user: { select: { email: true, username: true } } }
+      });
+      if (post) {
+        targetOwnerId = post.userId;
+        actionUrl = `/threads/${post.threadId}#post-${post.id}`;
+        targetOwnerEmail = post.user?.email;
+        targetOwnerName = post.user?.username;
+      }
+    }
 
     if (type === 'thread') {
       if (action === 'approve') {
@@ -135,6 +165,31 @@ export default async function handler(req, res) {
       message: `${type} ${action}ed successfully`,
       result
     });
+
+    // Notify content owner (best-effort)
+    try {
+      if (targetOwnerId) {
+        await createNotification({
+          userId: targetOwnerId,
+          type: 'MODERATION_ACTION',
+          title: `Your ${type} was ${action}d`,
+          content: `A moderator ${action}d your ${type}.${reason ? ` Reason: ${reason}` : ''}`,
+          actionUrl,
+          relatedType: type,
+          relatedId: targetIdInt,
+          triggeredById: user.id
+        });
+        if (targetOwnerEmail) {
+          await sendEmailNotification({
+            to: targetOwnerEmail,
+            subject: `Your ${type} was ${action}d`,
+            text: `Hello ${targetOwnerName || 'user'},\n\nA moderator ${action}d your ${type}.${reason ? ` Reason: ${reason}` : ''}\n${actionUrl ? `View: ${actionUrl}` : ''}`
+          });
+        }
+      }
+    } catch (notifyError) {
+      console.error('Error notifying content owner:', notifyError);
+    }
 
   } catch (error) {
     console.error('Error performing content action:', error);

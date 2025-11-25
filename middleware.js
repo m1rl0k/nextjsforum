@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-export function middleware(request) {
+export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
   // Skip middleware for static files, API routes (except install), and install pages
@@ -33,10 +33,19 @@ export function middleware(request) {
 
   // For production, check installation status
   if (process.env.NODE_ENV === 'production' || process.env.USE_DATABASE_SETTINGS === 'true') {
-    // In a real implementation, you would check the database here
-    // For now, we'll assume installation is needed if no specific flag is set
-    const isInstalled = process.env.FORUM_INSTALLED === 'true';
-    
+    let isInstalled = process.env.FORUM_INSTALLED === 'true';
+
+    // Try to verify install status via API (fail-soft to avoid blocking)
+    try {
+      const statusRes = await fetch(new URL('/api/install/status', request.url).toString());
+      if (statusRes.ok) {
+        const data = await statusRes.json();
+        isInstalled = !!data.isInstalled;
+      }
+    } catch (err) {
+      // If the status check fails, fall back to env flag
+    }
+
     if (!isInstalled && !pathname.startsWith('/install')) {
       return NextResponse.redirect(new URL('/install', request.url));
     }
