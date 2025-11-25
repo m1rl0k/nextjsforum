@@ -56,7 +56,7 @@ const Navigation = () => {
       <div className={styles.navContainer}>
         <div className={styles.logo}>
           <Link href="/">
-            {themeSettings?.logoUrl ? (
+            {themeSettings?.logoEnabled && themeSettings?.logoUrl ? (
               <img
                 src={themeSettings.logoUrl}
                 alt={siteSettings?.siteName || 'NextJS Forum'}

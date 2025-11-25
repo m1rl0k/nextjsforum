@@ -1,6 +1,7 @@
 import prisma from '../../../lib/prisma';
 import { verifyToken } from '../../../lib/auth';
 import bcrypt from 'bcryptjs';
+import { sendWelcomeEmail as sendWelcomeEmailFn } from '../../../lib/email';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'POST') {
@@ -90,11 +91,18 @@ export default async function handler(req, res) {
         }
       });
 
-      // TODO: Send welcome email if sendWelcomeEmail is true
-      // This would require email service integration
+      // Send welcome email if requested
+      if (sendWelcomeEmail) {
+        try {
+          await sendWelcomeEmailFn(email.toLowerCase(), username);
+        } catch (emailError) {
+          // Log error but don't fail the user creation
+          console.error('Failed to send welcome email:', emailError);
+        }
+      }
 
       return res.status(201).json({
-        message: 'User created successfully',
+        message: sendWelcomeEmail ? 'User created successfully and welcome email sent' : 'User created successfully',
         user: newUser
       });
     }

@@ -10,6 +10,7 @@ const AdminBackup = () => {
   const [backups, setBackups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [pagination, setPagination] = useState({
@@ -26,6 +27,14 @@ const AdminBackup = () => {
     includeSettings: true,
     includeImages: false,
     format: 'json'
+  });
+  const [importOptions, setImportOptions] = useState({
+    importCategories: true,
+    importUsers: true,
+    importThreads: true,
+    importPosts: true,
+    importSettings: true,
+    overwriteExisting: false
   });
 
   useEffect(() => {
@@ -207,6 +216,69 @@ const AdminBackup = () => {
       ...prev,
       [name]: checked
     }));
+  };
+
+  const handleImportOptionChange = (e) => {
+    const { name, checked } = e.target;
+    setImportOptions(prev => ({
+      ...prev,
+      [name]: checked
+    }));
+  };
+
+  const handleImportBackup = async () => {
+    const fileInput = document.getElementById('importFile');
+    const file = fileInput?.files?.[0];
+
+    if (!file) {
+      setError('Please select a backup file to import');
+      return;
+    }
+
+    if (!confirm('Are you sure you want to import this backup? This may overwrite existing data if "Overwrite existing" is enabled. Make sure you have a current backup first.')) {
+      return;
+    }
+
+    setImporting(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('importCategories', importOptions.importCategories);
+      formData.append('importUsers', importOptions.importUsers);
+      formData.append('importThreads', importOptions.importThreads);
+      formData.append('importPosts', importOptions.importPosts);
+      formData.append('importSettings', importOptions.importSettings);
+      formData.append('overwriteExisting', importOptions.overwriteExisting);
+
+      const res = await fetch('/api/admin/backup/import', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to import backup');
+      }
+
+      const results = data.results;
+      const summaryParts = [];
+      if (results.categories) summaryParts.push(`Categories: ${results.categories.imported} imported, ${results.categories.skipped} skipped`);
+      if (results.users) summaryParts.push(`Users: ${results.users.imported} imported, ${results.users.skipped} skipped`);
+      if (results.threads) summaryParts.push(`Threads: ${results.threads.imported} imported, ${results.threads.skipped} skipped`);
+      if (results.posts) summaryParts.push(`Posts: ${results.posts.imported} imported, ${results.posts.skipped} skipped`);
+
+      setSuccess(`Backup imported successfully!\n${summaryParts.join('\n')}`);
+      fileInput.value = ''; // Clear the file input
+    } catch (err) {
+      setError(err.message || 'Failed to import backup');
+    } finally {
+      setImporting(false);
+    }
   };
 
   const formatFileSize = (bytes) => {
@@ -410,25 +482,75 @@ const AdminBackup = () => {
               <p className={styles.importDescription}>
                 Import data from a previous backup or another forum system.
               </p>
+
+              <div className={styles.backupOptions} style={{ marginBottom: '20px' }}>
+                <h3>What to import:</h3>
+                <div className={styles.optionsGrid}>
+                  <label className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      name="importCategories"
+                      checked={importOptions.importCategories}
+                      onChange={handleImportOptionChange}
+                    />
+                    Categories & Forums
+                  </label>
+                  <label className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      name="importUsers"
+                      checked={importOptions.importUsers}
+                      onChange={handleImportOptionChange}
+                    />
+                    Users & Profiles
+                  </label>
+                  <label className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      name="importThreads"
+                      checked={importOptions.importThreads}
+                      onChange={handleImportOptionChange}
+                    />
+                    Threads
+                  </label>
+                  <label className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      name="importPosts"
+                      checked={importOptions.importPosts}
+                      onChange={handleImportOptionChange}
+                    />
+                    Posts & Replies
+                  </label>
+                  <label className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      name="overwriteExisting"
+                      checked={importOptions.overwriteExisting}
+                      onChange={handleImportOptionChange}
+                    />
+                    Overwrite existing data
+                  </label>
+                </div>
+              </div>
+
               <div className={styles.importActions}>
                 <input
                   type="file"
                   id="importFile"
-                  accept=".json,.zip"
+                  accept=".json"
                   className={styles.fileInput}
                 />
                 <button
-                  onClick={() => {
-                    // Handle import logic
-                    alert('Import functionality coming soon!');
-                  }}
+                  onClick={handleImportBackup}
+                  disabled={importing}
                   className={styles.importButton}
                 >
-                  📤 Import Backup
+                  {importing ? '⏳ Importing...' : '📤 Import Backup'}
                 </button>
               </div>
               <div className={styles.importWarning}>
-                ⚠️ Warning: Importing data will overwrite existing content. Make sure to create a backup first.
+                ⚠️ Warning: Importing data may affect existing content if "Overwrite existing data" is enabled. Make sure to create a backup first.
               </div>
             </div>
           </div>

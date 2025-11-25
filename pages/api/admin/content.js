@@ -127,15 +127,63 @@ export default async function handler(req, res) {
           }
         });
       } else if (type === 'reported') {
-        // Get reported content (placeholder - would need reports table)
+        // Get reported content from the Report table
+        const whereClause = {
+          status: { in: ['PENDING', 'REVIEWED'] }
+        };
+
+        if (search) {
+          whereClause.OR = [
+            { reason: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } },
+            { reportedBy: { username: { contains: search, mode: 'insensitive' } } }
+          ];
+        }
+
+        const [reports, total] = await Promise.all([
+          prisma.report.findMany({
+            where: whereClause,
+            include: {
+              reportedBy: {
+                select: { id: true, username: true }
+              },
+              thread: {
+                select: {
+                  id: true,
+                  title: true,
+                  user: { select: { id: true, username: true } }
+                }
+              },
+              post: {
+                select: {
+                  id: true,
+                  content: true,
+                  user: { select: { id: true, username: true } },
+                  thread: { select: { id: true, title: true } }
+                }
+              },
+              user: {
+                select: { id: true, username: true }
+              },
+              resolvedByUser: {
+                select: { id: true, username: true }
+              }
+            },
+            orderBy: { createdAt: 'desc' },
+            skip: offset,
+            take: limitNum
+          }),
+          prisma.report.count({ where: whereClause })
+        ]);
+
         res.status(200).json({
           status: 'success',
-          data: [],
+          data: reports,
           pagination: {
             page: pageNum,
             limit: limitNum,
-            total: 0,
-            totalPages: 0
+            total,
+            totalPages: Math.ceil(total / limitNum)
           }
         });
       } else {

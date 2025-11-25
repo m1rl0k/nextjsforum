@@ -112,7 +112,7 @@ export default function Help() {
               <div style={{ marginBottom: '20px' }}>
                 <h4 style={{ marginBottom: '8px' }}>Can I edit my posts?</h4>
                 <p style={{ marginBottom: '0', color: '#666' }}>
-                  Currently, post editing is not available. Please double-check your posts before submitting.
+                  Yes! You can edit your own posts by clicking the "Edit" button in the post footer. Moderators and administrators can also edit any post. Note that edited posts will show when they were last edited.
                 </p>
               </div>
 

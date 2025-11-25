@@ -1,71 +1,103 @@
+import { useState } from 'react';
 import Link from 'next/link';
 import ReportButton from './ReportButton';
 import { sanitizeHtml } from '../lib/sanitize';
+import { useAuth } from '../context/AuthContext';
+import EditPostModal from './EditPostModal';
 
-export default function Post({ post, isFirstPost = false }) {
-  const postDate = post.createdAt ? new Date(post.createdAt) : new Date();
-  
+export default function Post({ post, isFirstPost = false, onPostUpdated }) {
+  const { user } = useAuth();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [currentPost, setCurrentPost] = useState(post);
+
+  // Check if user can edit this post
+  const canEdit = user && (
+    user.id === currentPost.userId ||
+    user.role === 'ADMIN' ||
+    user.role === 'MODERATOR'
+  );
+
+  const handleEditSuccess = (updatedPost) => {
+    setCurrentPost({ ...currentPost, ...updatedPost });
+    setIsEditModalOpen(false);
+    if (onPostUpdated) {
+      onPostUpdated(updatedPost);
+    }
+  };
+  const postDate = currentPost.createdAt ? new Date(currentPost.createdAt) : new Date();
+
   return (
-    <div className={`post ${isFirstPost ? 'first-post' : ''}`} id={`post-${post.id}`}>
+    <div className={`post ${isFirstPost ? 'first-post' : ''}`} id={`post-${currentPost.id}`}>
       <div className="post-header">
         <div className="post-number">
-          #{post.id}
+          #{currentPost.id}
         </div>
         <div className="post-date">
           Posted: {postDate.toLocaleString()}
-          {post.updatedAt && post.updatedAt !== post.createdAt && (
-            <span> • Last edited: {new Date(post.updatedAt).toLocaleString()}</span>
+          {currentPost.editedAt && (
+            <span> • Last edited: {new Date(currentPost.editedAt).toLocaleString()}</span>
           )}
         </div>
       </div>
       <div className="post-container">
         <div className="post-sidebar">
           <div className="post-username">
-            <Link href={`/profile/${post.user?.username || 'deleted'}`}>
-              {post.user?.username || 'Deleted User'}
+            <Link href={`/profile/${currentPost.user?.username || 'deleted'}`}>
+              {currentPost.user?.username || 'Deleted User'}
             </Link>
           </div>
           <div className="post-userinfo">
-            <div>Posts: {post.user?.postCount || 0}</div>
-            <div>Joined: {post.user?.createdAt ? new Date(post.user.createdAt).toLocaleDateString() : 'N/A'}</div>
-            {post.user?.role && post.user.role !== 'USER' && (
-              <div style={{ color: post.user.role === 'ADMIN' ? '#d32f2f' : '#1976d2', fontSize: '11px', fontWeight: 'bold' }}>
-                {post.user.role === 'ADMIN' ? '👑 Administrator' : '🛡️ Moderator'}
+            <div>Posts: {currentPost.user?.postCount || 0}</div>
+            <div>Joined: {currentPost.user?.createdAt ? new Date(currentPost.user.createdAt).toLocaleDateString() : 'N/A'}</div>
+            {currentPost.user?.role && currentPost.user.role !== 'USER' && (
+              <div style={{ color: currentPost.user.role === 'ADMIN' ? '#d32f2f' : '#1976d2', fontSize: '11px', fontWeight: 'bold' }}>
+                {currentPost.user.role === 'ADMIN' ? '👑 Administrator' : '🛡️ Moderator'}
               </div>
             )}
           </div>
-          {post.user?.avatar && (
+          {currentPost.user?.avatar && (
             <div className="post-avatar">
-              <img src={post.user.avatar} alt="User Avatar" />
+              <img src={currentPost.user.avatar} alt="User Avatar" />
             </div>
           )}
-          {post.user?.location && (
+          {currentPost.user?.location && (
             <div className="post-location">
-              From: {post.user.location}
+              From: {currentPost.user.location}
             </div>
           )}
-          {post.user?.signature && (
+          {currentPost.user?.signature && (
             <div className="post-signature">
-              {post.user.signature}
+              {currentPost.user.signature}
             </div>
           )}
         </div>
         <div className="post-content">
-          <div className="post-message" dangerouslySetInnerHTML={{ __html: sanitizeHtml(formatPostContent(post.content)) }} />
-          
-          {post.updatedBy && post.updatedAt && (
+          <div className="post-message" dangerouslySetInnerHTML={{ __html: sanitizeHtml(formatPostContent(currentPost.content)) }} />
+
+          {currentPost.editedAt && currentPost.editReason && (
             <div className="post-edit-note">
-              Last edited by {post.updatedBy} on {new Date(post.updatedAt).toLocaleString()}
+              Edit reason: {currentPost.editReason}
             </div>
           )}
         </div>
       </div>
       <div className="post-footer">
-        <Link href={`#post-${post.id}`} className="button">#{post.id}</Link>
-        <Link href={`/threads/${post.threadId}/reply?quote=${post.id}`} className="button">Quote</Link>
-        <Link href={`/threads/${post.threadId}/reply`} className="button">Reply</Link>
-        <ReportButton type="post" targetId={post.id} targetTitle={`Post #${post.id}`} />
+        <Link href={`#post-${currentPost.id}`} className="button">#{currentPost.id}</Link>
+        {canEdit && (
+          <button onClick={() => setIsEditModalOpen(true)} className="button">Edit</button>
+        )}
+        <Link href={`/threads/${currentPost.threadId}/reply?quote=${currentPost.id}`} className="button">Quote</Link>
+        <Link href={`/threads/${currentPost.threadId}/reply`} className="button">Reply</Link>
+        <ReportButton type="post" targetId={currentPost.id} targetTitle={`Post #${currentPost.id}`} />
       </div>
+
+      {isEditModalOpen && (
+        <EditPostModal
+          post={currentPost}
+          onClose={() => setIsEditModalOpen(false)}
+          onSuccess={handleEditSuccess}
+        />
+      )}
     </div>
   );
 }
