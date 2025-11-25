@@ -1,6 +1,8 @@
-import { jest } from '@jest/globals';
+const { filterContent, stripHtml } = require('../lib/profanityFilter.js');
 
-jest.unstable_mockModule('../lib/prisma', () => ({
+// Mock Prisma
+jest.mock('../lib/prisma', () => ({
+  __esModule: true,
   default: {
     moderationSettings: {
       findFirst: jest.fn().mockResolvedValue({
@@ -9,11 +11,8 @@ jest.unstable_mockModule('../lib/prisma', () => ({
         filterAction: 'FLAG'
       })
     }
-  },
-  __esModule: true
+  }
 }));
-
-const { filterContent, stripHtml } = await import('../lib/profanityFilter.js');
 
 describe('profanity filter', () => {
   it('flags banned words', async () => {

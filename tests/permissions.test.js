@@ -1,15 +1,15 @@
-import { jest } from '@jest/globals';
+// Mock Prisma before importing
+const mockPrisma = {
+  subjectModerator: { findFirst: jest.fn() },
+  userGroupMember: { findMany: jest.fn() }
+};
 
-jest.unstable_mockModule('../lib/prisma', () => ({
-  default: {
-    subjectModerator: { findFirst: jest.fn() },
-    userGroupMember: { findMany: jest.fn() }
-  },
-  __esModule: true
+jest.mock('../lib/prisma', () => ({
+  __esModule: true,
+  default: mockPrisma
 }));
 
-const prisma = (await import('../lib/prisma')).default;
-const { getUserPermissions } = await import('../lib/permissions.js');
+const { getUserPermissions } = require('../lib/permissions.js');
 
 describe('getUserPermissions', () => {
   afterEach(() => {
@@ -17,16 +17,16 @@ describe('getUserPermissions', () => {
   });
 
   it('returns role defaults for regular user', async () => {
-    prisma.subjectModerator.findFirst.mockResolvedValue(null);
-    prisma.userGroupMember.findMany.mockResolvedValue([]);
+    mockPrisma.subjectModerator.findFirst.mockResolvedValue(null);
+    mockPrisma.userGroupMember.findMany.mockResolvedValue([]);
 
     const perms = await getUserPermissions(1, null, 'USER');
     expect(perms).toEqual({ canPost: true, canReply: true, canModerate: false });
   });
 
   it('grants moderation when user is subject moderator', async () => {
-    prisma.subjectModerator.findFirst.mockResolvedValue({ id: 1 });
-    prisma.userGroupMember.findMany.mockResolvedValue([]);
+    mockPrisma.subjectModerator.findFirst.mockResolvedValue({ id: 1 });
+    mockPrisma.userGroupMember.findMany.mockResolvedValue([]);
 
     const perms = await getUserPermissions(1, 10, 'USER');
     expect(perms.canModerate).toBe(true);
@@ -35,8 +35,8 @@ describe('getUserPermissions', () => {
   });
 
   it('ADMIN role defaults to moderation even without groups', async () => {
-    prisma.subjectModerator.findFirst.mockResolvedValue(null);
-    prisma.userGroupMember.findMany.mockResolvedValue([]);
+    mockPrisma.subjectModerator.findFirst.mockResolvedValue(null);
+    mockPrisma.userGroupMember.findMany.mockResolvedValue([]);
 
     const perms = await getUserPermissions(5, null, 'ADMIN');
     expect(perms.canModerate).toBe(true);
@@ -45,8 +45,8 @@ describe('getUserPermissions', () => {
   });
 
   it('combines group capabilities with role defaults', async () => {
-    prisma.subjectModerator.findFirst.mockResolvedValue(null);
-    prisma.userGroupMember.findMany.mockResolvedValue([
+    mockPrisma.subjectModerator.findFirst.mockResolvedValue(null);
+    mockPrisma.userGroupMember.findMany.mockResolvedValue([
       { group: { canPost: false, canReply: true, canModerate: true } }
     ]);
 

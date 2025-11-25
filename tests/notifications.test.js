@@ -1,5 +1,3 @@
-import { jest } from '@jest/globals';
-
 const mockPrefs = {
   browserThreadReply: true,
   browserPostReply: true,
@@ -9,20 +7,21 @@ const mockPrefs = {
   browserSystem: true
 };
 
-jest.unstable_mockModule('../lib/prisma', () => ({
-  default: {
-    notificationPreferences: {
-      findUnique: jest.fn().mockResolvedValue(mockPrefs)
-    },
-    notification: {
-      create: jest.fn().mockResolvedValue({ id: 1 })
-    }
+const mockPrisma = {
+  notificationPreferences: {
+    findUnique: jest.fn().mockResolvedValue(mockPrefs)
   },
-  __esModule: true
+  notification: {
+    create: jest.fn().mockResolvedValue({ id: 1 })
+  }
+};
+
+jest.mock('../lib/prisma', () => ({
+  __esModule: true,
+  default: mockPrisma
 }));
 
-const prisma = (await import('../lib/prisma')).default;
-const { createNotification, extractMentions } = await import('../lib/notifications.js');
+const { createNotification, extractMentions } = require('../lib/notifications.js');
 
 describe('notifications', () => {
   afterEach(() => {
@@ -37,7 +36,7 @@ describe('notifications', () => {
       content: 'You were mentioned'
     });
     expect(result).toBeNull();
-    expect(prisma.notification.create).not.toHaveBeenCalled();
+    expect(mockPrisma.notification.create).not.toHaveBeenCalled();
   });
 
   it('creates notification when allowed', async () => {
@@ -47,7 +46,7 @@ describe('notifications', () => {
       title: 'Reply',
       content: 'New reply'
     });
-    expect(prisma.notification.create).toHaveBeenCalled();
+    expect(mockPrisma.notification.create).toHaveBeenCalled();
     expect(result).toEqual({ id: 1 });
   });
 
@@ -57,14 +56,14 @@ describe('notifications', () => {
   });
 
   it('allows creation when preferences are missing (fallback)', async () => {
-    prisma.notificationPreferences.findUnique.mockResolvedValue(null);
+    mockPrisma.notificationPreferences.findUnique.mockResolvedValue(null);
     const result = await createNotification({
       userId: 11,
       type: 'SYSTEM_ALERT',
       title: 'Alert',
       content: 'Test'
     });
-    expect(prisma.notification.create).toHaveBeenCalled();
+    expect(mockPrisma.notification.create).toHaveBeenCalled();
     expect(result).toEqual({ id: 1 });
   });
 });
