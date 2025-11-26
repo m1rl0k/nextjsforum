@@ -1,18 +1,16 @@
-/* Page Header */
+/* Page Header - vBulletin Style */
 .pageHeader {
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 15px;
 }
 
 .breadcrumbs {
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
-  color: #64748b;
+  margin-bottom: 8px;
+  font-size: 10px;
+  color: #666;
 }
 
 .breadcrumb a {
-  color: #3b82f6;
+  color: #2B4F81;
   text-decoration: none;
 }
 
@@ -21,218 +19,237 @@
 }
 
 .separator {
-  margin: 0 0.5rem;
-  color: #94a3b8;
+  margin: 0 5px;
+  color: #999;
 }
 
 .headerContent {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
+  align-items: center;
+  padding: 8px 10px;
+  background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
+  border: 1px solid #1e3a5f;
 }
 
 .headerText h1 {
-  margin: 0 0 0.5rem;
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #1e293b;
-  line-height: 1.2;
+  margin: 0;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
 }
 
 .headerText p {
-  margin: 0;
-  color: #64748b;
-  font-size: 1rem;
-  line-height: 1.5;
+  margin: 3px 0 0;
+  color: #c5d4e8;
+  font-size: 10px;
 }
 
 .headerActions {
   display: flex;
-  gap: 0.75rem;
+  gap: 5px;
   flex-shrink: 0;
 }
 
-/* Card Component */
+/* Card Component - vBulletin Style */
 .card {
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
-  overflow: hidden;
+  background: #fff;
+  border: 1px solid #c0c0c0;
+  margin-bottom: 15px;
 }
 
 .cardHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 1.5rem 0;
-  margin-bottom: 1.5rem;
+  padding: 8px 10px;
+  background: linear-gradient(to bottom, #5a7faa 0%, #4a6f9a 100%);
+  border-bottom: 1px solid #3a5f8a;
 }
 
 .cardTitle {
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1e293b;
+  font-size: 11px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .cardActions {
   display: flex;
-  gap: 0.5rem;
+  gap: 5px;
 }
 
 .cardContent {
-  padding: 0 1.5rem 1.5rem;
+  padding: 10px;
 }
 
-/* Form Components */
+/* Form Components - vBulletin Style */
 .formSection {
-  margin-bottom: 2rem;
+  margin-bottom: 15px;
+  background: #fff;
+  border: 1px solid #c0c0c0;
 }
 
 .sectionHeader {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #f1f5f9;
+  padding: 8px 10px;
+  background: linear-gradient(to bottom, #e8e8e8 0%, #d8d8d8 100%);
+  border-bottom: 1px solid #c0c0c0;
 }
 
 .sectionTitle {
-  margin: 0 0 0.5rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #1e293b;
+  margin: 0;
+  font-size: 11px;
+  font-weight: bold;
+  color: #2B4F81;
 }
 
 .sectionDescription {
-  margin: 0;
-  color: #64748b;
-  font-size: 0.875rem;
-  line-height: 1.5;
+  margin: 3px 0 0;
+  color: #666;
+  font-size: 10px;
 }
 
 .sectionContent {
   display: grid;
-  gap: 1.5rem;
+  gap: 10px;
+  padding: 10px;
 }
 
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 4px;
 }
 
 .label {
-  font-weight: 500;
-  color: #374151;
-  font-size: 0.875rem;
-  line-height: 1.5;
+  font-weight: bold;
+  color: #333;
+  font-size: 11px;
 }
 
 .required {
-  color: #ef4444;
-  margin-left: 0.25rem;
+  color: #cc0000;
+  margin-left: 2px;
 }
 
 .inputWrapper {
   position: relative;
 }
 
+.inputWrapper input,
+.inputWrapper select,
+.inputWrapper textarea {
+  padding: 5px 8px;
+  border: 1px solid #c0c0c0;
+  font-size: 11px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.inputWrapper input:focus,
+.inputWrapper select:focus,
+.inputWrapper textarea:focus {
+  border-color: #4C76B2;
+  outline: none;
+}
+
 .error {
-  color: #ef4444;
-  font-size: 0.75rem;
-  line-height: 1.4;
+  color: #cc0000;
+  font-size: 10px;
 }
 
 .help {
-  color: #64748b;
-  font-size: 0.75rem;
-  line-height: 1.4;
+  color: #666;
+  font-size: 10px;
 }
 
-/* Button Components */
+/* Button Components - vBulletin Style */
 .button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  border: none;
-  border-radius: 0.375rem;
-  font-weight: 500;
+  gap: 5px;
+  font-weight: bold;
   text-decoration: none;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  font-size: 11px;
 }
 
 .button:focus {
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-  box-shadow: 0 0 0 2px #3b82f6;
+  outline: 2px solid #7eb8f7;
+  outline-offset: 1px;
 }
 
 /* Button Sizes */
 .small {
-  padding: 0.375rem 0.75rem;
-  font-size: 0.75rem;
+  padding: 4px 8px;
+  font-size: 10px;
 }
 
 .medium {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+  padding: 6px 12px;
+  font-size: 11px;
 }
 
 .large {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
+  padding: 8px 16px;
+  font-size: 12px;
 }
 
-/* Button Variants */
+/* Button Variants - vBulletin Style */
 .primary {
-  background-color: #3b82f6;
-  color: white;
+  background: linear-gradient(to bottom, #5C8BC7 0%, #4C76B2 100%);
+  color: #fff;
+  border: 1px solid #1e3a5f;
 }
 
 .primary:hover:not(.disabled) {
-  background-color: #2563eb;
+  background: linear-gradient(to bottom, #6C9BD7 0%, #5C86C2 100%);
 }
 
 .secondary {
-  background-color: #6b7280;
-  color: white;
+  background: linear-gradient(to bottom, #666 0%, #555 100%);
+  color: #fff;
+  border: 1px solid #444;
 }
 
 .secondary:hover:not(.disabled) {
-  background-color: #4b5563;
+  background: linear-gradient(to bottom, #777 0%, #666 100%);
 }
 
 .success {
-  background-color: #10b981;
-  color: white;
+  background: linear-gradient(to bottom, #5a9e5a 0%, #4a8e4a 100%);
+  color: #fff;
+  border: 1px solid #3a7e3a;
 }
 
 .success:hover:not(.disabled) {
-  background-color: #059669;
+  background: linear-gradient(to bottom, #6aae6a 0%, #5a9e5a 100%);
 }
 
 .danger {
-  background-color: #ef4444;
-  color: white;
+  background: linear-gradient(to bottom, #cc4444 0%, #aa3333 100%);
+  color: #fff;
+  border: 1px solid #882222;
 }
 
 .danger:hover:not(.disabled) {
-  background-color: #dc2626;
+  background: linear-gradient(to bottom, #dd5555 0%, #bb4444 100%);
 }
 
 .outline {
-  background-color: transparent;
-  color: #3b82f6;
-  border: 1px solid #3b82f6;
+  background: linear-gradient(to bottom, #f5f5f5 0%, #e5e5e5 100%);
+  color: #2B4F81;
+  border: 1px solid #c0c0c0;
 }
 
 .outline:hover:not(.disabled) {
-  background-color: #3b82f6;
-  color: white;
+  background: linear-gradient(to bottom, #fff 0%, #f0f0f0 100%);
+  border-color: #999;
 }
 
 .disabled {
@@ -250,39 +267,39 @@
   align-items: center;
 }
 
-/* Alert Components */
+/* Alert Components - vBulletin Style */
 .alert {
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
-  padding: 1rem;
-  border-radius: 0.375rem;
-  margin-bottom: 1rem;
+  gap: 8px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
   border: 1px solid;
+  font-size: 11px;
 }
 
-.info {
-  background-color: #dbeafe;
-  border-color: #93c5fd;
-  color: #1e40af;
+.alert.info {
+  background: #e8f4ff;
+  border-color: #7eb8f7;
+  color: #2B4F81;
 }
 
-.success {
-  background-color: #d1fae5;
-  border-color: #6ee7b7;
-  color: #065f46;
+.alert.alertSuccess {
+  background: #e8ffe8;
+  border-color: #7eb87e;
+  color: #3a7e3a;
 }
 
-.warning {
-  background-color: #fef3c7;
-  border-color: #fcd34d;
-  color: #92400e;
+.alert.warning {
+  background: #fff8e8;
+  border-color: #e8c87e;
+  color: #996600;
 }
 
-.error {
-  background-color: #fee2e2;
-  border-color: #fca5a5;
-  color: #991b1b;
+.alert.alertError {
+  background: #ffe8e8;
+  border-color: #e87e7e;
+  color: #993333;
 }
 
 .alertContent {
@@ -292,13 +309,13 @@
 .alertClose {
   background: none;
   border: none;
-  font-size: 1.25rem;
+  font-size: 14px;
   cursor: pointer;
   color: inherit;
   opacity: 0.7;
   padding: 0;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 16px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -308,97 +325,91 @@
   opacity: 1;
 }
 
-/* Stats Components */
+/* Stats Components - vBulletin Style */
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
 }
 
 .statCard {
-  background: white;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: #fff;
+  padding: 10px;
+  border: 1px solid #c0c0c0;
 }
 
 .statCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: #f9f9f9;
 }
 
 .statHeader {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .statIcon {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.375rem;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  font-size: 14px;
 }
 
 .blue .statIcon {
-  background-color: #dbeafe;
-  color: #1d4ed8;
+  color: #2B4F81;
 }
 
 .green .statIcon {
-  background-color: #d1fae5;
-  color: #047857;
+  color: #3a7e3a;
 }
 
 .yellow .statIcon {
-  background-color: #fef3c7;
-  color: #d97706;
+  color: #996600;
 }
 
 .red .statIcon {
-  background-color: #fee2e2;
-  color: #dc2626;
+  color: #993333;
 }
 
 .statTitle {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #64748b;
+  font-size: 10px;
+  font-weight: bold;
+  color: #666;
+  text-transform: uppercase;
 }
 
 .statValue {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1e293b;
+  font-size: 18px;
+  font-weight: bold;
+  color: #2B4F81;
   line-height: 1;
-  margin-bottom: 0.5rem;
+  margin-bottom: 4px;
 }
 
 .statChange {
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 10px;
+  font-weight: bold;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 3px;
 }
 
 .positive {
-  color: #059669;
+  color: #3a7e3a;
 }
 
 .negative {
-  color: #dc2626;
+  color: #993333;
 }
 
 .neutral {
-  color: #64748b;
+  color: #666;
 }
 
 /* Table Components */
