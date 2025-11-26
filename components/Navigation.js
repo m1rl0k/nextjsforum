@@ -52,125 +52,147 @@ const Navigation = () => {
   };
 
   return (
-    <nav className={styles.nav}>
-      <div className={styles.navContainer}>
-        <div className={styles.logo}>
-          <Link href="/">
-            {themeSettings?.logoEnabled && themeSettings?.logoUrl ? (
-              <img
-                src={themeSettings.logoUrl}
-                alt={siteSettings?.siteName || 'NextJS Forum'}
-                className={styles.logoImage}
-              />
+    <header className={styles.header}>
+      {/* Top Bar - User info / Login */}
+      <div className={styles.topBar}>
+        <div className={styles.topBarContainer}>
+          <div className={styles.topBarLeft}>
+            {loading ? (
+              <span className={styles.topBarText}>Loading...</span>
+            ) : user ? (
+              <>
+                <span className={styles.topBarText}>Welcome back, </span>
+                <Link href={`/profile/${user.username}`} className={styles.topBarLink}>
+                  <strong>{user.username}</strong>
+                </Link>
+                <span className={styles.topBarSeparator}>|</span>
+                <Link href="/messages" className={styles.topBarLink}>
+                  Messages
+                </Link>
+                <span className={styles.topBarSeparator}>|</span>
+                <Link href="/notifications" className={styles.topBarLink}>
+                  Notifications
+                </Link>
+                {user.role === 'ADMIN' && (
+                  <>
+                    <span className={styles.topBarSeparator}>|</span>
+                    <Link href="/admin/dashboard" className={styles.topBarLink}>
+                      Admin CP
+                    </Link>
+                  </>
+                )}
+                {(user.role === 'ADMIN' || user.role === 'MODERATOR') && (
+                  <>
+                    <span className={styles.topBarSeparator}>|</span>
+                    <Link href="/moderation" className={styles.topBarLink}>
+                      Mod CP
+                    </Link>
+                  </>
+                )}
+              </>
             ) : (
-              <span className={styles.logoText}>
-                {siteSettings?.siteName || 'NextJS Forum'}
-              </span>
+              <>
+                <span className={styles.topBarText}>Welcome, Guest! </span>
+                <Link href="/login" className={styles.topBarLink}>Log In</Link>
+                <span className={styles.topBarSeparator}>|</span>
+                <Link href="/register" className={styles.topBarLink}>Register</Link>
+              </>
             )}
-          </Link>
+          </div>
+          <div className={styles.topBarRight}>
+            {user && (
+              <>
+                <NotificationDropdown />
+                <button onClick={handleLogout} className={styles.topBarLogout}>
+                  Log Out
+                </button>
+              </>
+            )}
+          </div>
         </div>
+      </div>
 
-        {/* Mobile menu toggle */}
-        <button
-          className={styles.mobileMenuToggle}
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            {mobileMenuOpen ? (
-              <>
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </>
-            ) : (
-              <>
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-              </>
-            )}
-          </svg>
-        </button>
-
-        <form className={styles.search} onSubmit={handleSearch} role="search">
-          <input
-            type="text"
-            placeholder="Search forums..."
-            className={styles.searchInput}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={handleSearchKeyDown}
-            aria-label="Search forums"
-          />
-          <button type="submit" className={styles.searchButton} aria-label="Submit search">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-          </button>
-        </form>
-
-        <div className={`${styles.navLinks} ${mobileMenuOpen ? styles.mobileMenuOpen : ''}`}>
-          <div className={styles.mainLinks}>
-            <Link href="/" className={router.pathname === '/' ? styles.active : ''}>
-              Home
-            </Link>
-            <Link href="/members" className={router.pathname === '/members' ? styles.active : ''}>
-              Members
-            </Link>
-            <Link href="/search" className={router.pathname === '/search' ? styles.active : ''}>
-              Search
+      {/* Logo Bar */}
+      <div className={styles.logoBar}>
+        <div className={styles.logoBarContainer}>
+          <div className={styles.logo}>
+            <Link href="/">
+              {themeSettings?.logoEnabled && themeSettings?.logoUrl ? (
+                <img
+                  src={themeSettings.logoUrl}
+                  alt={siteSettings?.siteName || 'NextJS Forum'}
+                  className={styles.logoImage}
+                />
+              ) : (
+                <span className={styles.logoText}>
+                  {siteSettings?.siteName || 'NextJS Forum'}
+                </span>
+              )}
             </Link>
           </div>
 
-          {loading ? (
-            <div className={styles.authPlaceholder}>
-              {/* Invisible placeholder during loading */}
-            </div>
-          ) : (
-            user ? (
-              <div className={styles.userMenu}>
-                <NotificationDropdown />
-                <Link href="/messages" className={styles.messageLink} title="Messages">
-                  ✉️
-                </Link>
-                <div className={styles.userDropdown}>
-                  <Link href={`/profile/${user.username}`} className={styles.userLink}>
-                    <span className={styles.avatar}>
-                      {user.username.charAt(0).toUpperCase()}
-                    </span>
-                    {user.username}
-                    <span className={styles.dropdownArrow}>▼</span>
-                  </Link>
-                  <div className={styles.dropdown}>
-                    <Link href={`/profile/${user.username}`}>My Profile</Link>
-                    <Link href="/account/settings">Settings</Link>
-                    <Link href="/notifications">Notifications</Link>
-                    <Link href="/messages">Messages</Link>
-                    {(user.role === 'ADMIN' || user.role === 'MODERATOR') && (
-                      <Link href="/moderation">Moderation</Link>
-                    )}
-                    {user.role === 'ADMIN' && (
-                      <Link href="/admin/dashboard">Admin Panel</Link>
-                    )}
-                    <button onClick={handleLogout} className={styles.logoutButton}>Logout</button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className={styles.authButtons}>
-                <Link href="/login" className={styles.loginLink}>
-                  Log In
-                </Link>
-                <Link href="/register" className={styles.registerButton}>
-                  Sign Up
-                </Link>
-              </div>
-            )
-          )}
+          <form className={styles.search} onSubmit={handleSearch} role="search">
+            <input
+              type="text"
+              placeholder="Search..."
+              className={styles.searchInput}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
+              aria-label="Search forums"
+            />
+            <button type="submit" className={styles.searchButton} aria-label="Submit search">
+              Go
+            </button>
+          </form>
         </div>
       </div>
-    </nav>
+
+      {/* Navigation Bar - vBulletin style tabs */}
+      <nav className={styles.navbar}>
+        <div className={styles.navbarContainer}>
+          {/* Mobile menu toggle */}
+          <button
+            className={styles.mobileMenuToggle}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            ☰ Menu
+          </button>
+
+          <ul className={`${styles.navTabs} ${mobileMenuOpen ? styles.mobileMenuOpen : ''}`}>
+            <li className={router.pathname === '/' ? styles.activeTab : ''}>
+              <Link href="/">Forum</Link>
+            </li>
+            <li className={router.pathname === '/members' || router.pathname.startsWith('/profile') ? styles.activeTab : ''}>
+              <Link href="/members">Members List</Link>
+            </li>
+            <li className={router.pathname === '/search' ? styles.activeTab : ''}>
+              <Link href="/search">Search</Link>
+            </li>
+            {user && (
+              <>
+                <li className={router.pathname === '/messages' ? styles.activeTab : ''}>
+                  <Link href="/messages">Private Messages</Link>
+                </li>
+                <li className={router.pathname === '/account/settings' ? styles.activeTab : ''}>
+                  <Link href="/account/settings">Settings</Link>
+                </li>
+              </>
+            )}
+            <li className={styles.quickLinks}>
+              <span className={styles.quickLinksToggle}>Quick Links ▼</span>
+              <ul className={styles.quickLinksDropdown}>
+                <li><Link href="/">Today&apos;s Posts</Link></li>
+                <li><Link href="/members">Member List</Link></li>
+                {user && <li><Link href={`/profile/${user.username}`}>My Profile</Link></li>}
+                <li><Link href="/search">Advanced Search</Link></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </header>
   );
 };
 
