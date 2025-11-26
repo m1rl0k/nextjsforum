@@ -1,0 +1,190 @@
+/* Moderation Settings - vBulletin Style */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+  margin-bottom: 8px;
+  font-size: 10px;
+  color: #666;
+}
+
+.breadcrumbs a {
+  color: #2B4F81;
+  text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+  text-decoration: underline;
+}
+
+.separator {
+  margin: 0 5px;
+  color: #999;
+}
+
+/* Header */
+.header {
+  padding: 8px 10px;
+  background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
+  border: 1px solid #1e3a5f;
+  margin-bottom: 10px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.header p {
+  margin: 3px 0 0;
+  color: #c5d4e8;
+  font-size: 10px;
+}
+
+/* Alerts */
+.error {
+  background: #ffe8e8;
+  color: #993333;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border: 1px solid #e87e7e;
+  font-size: 11px;
+}
+
+.success {
+  background: #e8ffe8;
+  color: #3a7e3a;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border: 1px solid #7eb87e;
+  font-size: 11px;
+}
+
+/* Sections */
+.section {
+  background: #fff;
+  border: 1px solid #c0c0c0;
+  margin-bottom: 10px;
+}
+
+.sectionHeader {
+  padding: 8px 10px;
+  background: linear-gradient(to bottom, #5a7faa 0%, #4a6f9a 100%);
+  border-bottom: 1px solid #3a5f8a;
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  font-size: 11px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.sectionHeader p {
+  margin: 2px 0 0;
+  color: #c5d4e8;
+  font-size: 10px;
+}
+
+.sectionContent {
+  padding: 10px;
+}
+
+/* Form Groups */
+.formGroup {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.formGroup:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.label {
+  display: block;
+  font-weight: bold;
+  color: #2B4F81;
+  font-size: 11px;
+  margin-bottom: 5px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #333;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  margin: 0;
+  width: 14px;
+  height: 14px;
+}
+
+.input {
+  padding: 5px 8px;
+  border: 1px solid #c0c0c0;
+  font-size: 11px;
+}
+
+.input:focus {
+  border-color: #4C76B2;
+  outline: none;
+}
+
+.help {
+  display: block;
+  color: #666;
+  font-size: 10px;
+  margin-top: 4px;
+}
+
+/* Form Actions */
+.formActions {
+  padding: 10px;
+  background: #f5f5f5;
+  border: 1px solid #c0c0c0;
+}
+
+.saveButton {
+  padding: 6px 15px;
+  background: linear-gradient(to bottom, #5C8BC7 0%, #4C76B2 100%);
+  color: #fff;
+  border: 1px solid #1e3a5f;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.saveButton:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #6C9BD7 0%, #5C86C2 100%);
+}
+
+.saveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Loading */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  font-size: 11px;
+  color: #666;
+}
+

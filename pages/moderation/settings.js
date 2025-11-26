@@ -2,15 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import ModerationLayout from '../../components/moderation/ModerationLayout';
 import { useAuth } from '../../context/AuthContext';
-import { 
-  AdminPageHeader, 
-  AdminCard, 
-  AdminFormSection,
-  AdminFormGroup,
-  AdminLoading,
-  AdminButton,
-  AdminAlert
-} from '../../components/admin/AdminComponents';
+import styles from '../../styles/ModSettings.module.css';
 
 export default function ModerationSettings() {
   const { user, isAuthenticated, loading } = useAuth();
@@ -48,7 +40,7 @@ export default function ModerationSettings() {
       const res = await fetch('/api/admin/moderation/settings', {
         credentials: 'include'
       });
-      
+
       if (res.ok) {
         const data = await res.json();
         setSettings(prev => ({ ...prev, ...data.settings }));
@@ -101,7 +93,7 @@ export default function ModerationSettings() {
   if (loading || isLoading) {
     return (
       <ModerationLayout>
-        <AdminLoading size="large" text="Loading moderation settings..." />
+        <div className={styles.loading}>Loading moderation settings...</div>
       </ModerationLayout>
     );
   }
@@ -112,186 +104,196 @@ export default function ModerationSettings() {
 
   return (
     <ModerationLayout>
-      <AdminPageHeader 
-        title="Moderation Settings"
-        description="Configure moderation rules and automation"
-        breadcrumbs={[
-          { label: 'Moderation', href: '/moderation' },
-          { label: 'Settings' }
-        ]}
-      />
+      <div className={styles.container}>
+        {/* Breadcrumbs */}
+        <div className={styles.breadcrumbs}>
+          <a href="/moderation">Moderation</a>
+          <span className={styles.separator}>›</span>
+          <span>Settings</span>
+        </div>
 
-      {error && <AdminAlert type="error">{error}</AdminAlert>}
-      {success && <AdminAlert type="success">{success}</AdminAlert>}
+        {/* Header */}
+        <div className={styles.header}>
+          <h1>Moderation Settings</h1>
+          <p>Configure moderation rules and automation</p>
+        </div>
 
-      <form onSubmit={handleSave}>
-        <AdminCard>
-          <AdminFormSection 
-            title="Content Moderation"
-            description="Configure how content is moderated"
-          >
-            <AdminFormGroup 
-              label="Auto-moderation"
-              help="Automatically moderate content based on rules"
-            >
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        {/* Alerts */}
+        {error && <div className={styles.error}>{error}</div>}
+        {success && <div className={styles.success}>{success}</div>}
+
+        <form onSubmit={handleSave}>
+          {/* Content Moderation Section */}
+          <div className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <h2>Content Moderation</h2>
+              <p>Configure how content is moderated</p>
+            </div>
+            <div className={styles.sectionContent}>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Auto-moderation</label>
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    name="autoModeration"
+                    checked={settings.autoModeration}
+                    onChange={handleInputChange}
+                  />
+                  Enable automatic content moderation
+                </label>
+                <span className={styles.help}>Automatically moderate content based on rules</span>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Require Approval</label>
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    name="requireApproval"
+                    checked={settings.requireApproval}
+                    onChange={handleInputChange}
+                  />
+                  Require approval for new posts
+                </label>
+                <span className={styles.help}>New posts require moderator approval before being visible</span>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>New User Post Threshold</label>
                 <input
-                  type="checkbox"
-                  name="autoModeration"
-                  checked={settings.autoModeration}
+                  type="number"
+                  name="newUserPostThreshold"
+                  value={settings.newUserPostThreshold}
                   onChange={handleInputChange}
+                  min="0"
+                  max="100"
+                  className={styles.input}
+                  style={{ width: '80px' }}
                 />
-                Enable automatic content moderation
-              </label>
-            </AdminFormGroup>
+                <span className={styles.help}>Number of posts before new users bypass approval</span>
+              </div>
+            </div>
+          </div>
 
-            <AdminFormGroup 
-              label="Require Approval"
-              help="New posts require moderator approval before being visible"
-            >
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          {/* Content Filtering Section */}
+          <div className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <h2>Content Filtering</h2>
+              <p>Configure content filtering options</p>
+            </div>
+            <div className={styles.sectionContent}>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Profanity Filter</label>
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    name="profanityFilter"
+                    checked={settings.profanityFilter}
+                    onChange={handleInputChange}
+                  />
+                  Enable profanity filtering
+                </label>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Spam Detection</label>
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    name="spamDetection"
+                    checked={settings.spamDetection}
+                    onChange={handleInputChange}
+                  />
+                  Enable spam detection
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Reports & Actions Section */}
+          <div className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <h2>Reports &amp; Actions</h2>
+              <p>Configure how reports are handled</p>
+            </div>
+            <div className={styles.sectionContent}>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Report Threshold</label>
                 <input
-                  type="checkbox"
-                  name="requireApproval"
-                  checked={settings.requireApproval}
+                  type="number"
+                  name="reportThreshold"
+                  value={settings.reportThreshold}
                   onChange={handleInputChange}
+                  min="1"
+                  max="20"
+                  className={styles.input}
+                  style={{ width: '80px' }}
                 />
-                Require approval for new posts
-              </label>
-            </AdminFormGroup>
+                <span className={styles.help}>Number of reports before content is automatically hidden</span>
+              </div>
 
-            <AdminFormGroup 
-              label="New User Post Threshold"
-              help="Number of posts before new users bypass approval"
-            >
-              <input
-                type="number"
-                name="newUserPostThreshold"
-                value={settings.newUserPostThreshold}
-                onChange={handleInputChange}
-                min="0"
-                max="100"
-                style={{
-                  padding: '0.5rem',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '0.375rem',
-                  width: '100px'
-                }}
-              />
-            </AdminFormGroup>
-          </AdminFormSection>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Auto-lock Reported Content</label>
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    name="autoLockReports"
+                    checked={settings.autoLockReports}
+                    onChange={handleInputChange}
+                  />
+                  Automatically lock content when report threshold is reached
+                </label>
+              </div>
+            </div>
+          </div>
 
-          <AdminFormSection 
-            title="Content Filtering"
-            description="Configure content filtering options"
-          >
-            <AdminFormGroup label="Profanity Filter">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <input
-                  type="checkbox"
-                  name="profanityFilter"
-                  checked={settings.profanityFilter}
-                  onChange={handleInputChange}
-                />
-                Enable profanity filtering
-              </label>
-            </AdminFormGroup>
+          {/* Notifications Section */}
+          <div className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <h2>Notifications</h2>
+              <p>Configure moderation notifications</p>
+            </div>
+            <div className={styles.sectionContent}>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Email Notifications</label>
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    name="emailNotifications"
+                    checked={settings.emailNotifications}
+                    onChange={handleInputChange}
+                  />
+                  Send email notifications for moderation actions
+                </label>
+              </div>
 
-            <AdminFormGroup label="Spam Detection">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <input
-                  type="checkbox"
-                  name="spamDetection"
-                  checked={settings.spamDetection}
-                  onChange={handleInputChange}
-                />
-                Enable spam detection
-              </label>
-            </AdminFormGroup>
-          </AdminFormSection>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Moderator Notifications</label>
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    name="moderatorNotifications"
+                    checked={settings.moderatorNotifications}
+                    onChange={handleInputChange}
+                  />
+                  Notify moderators of new reports
+                </label>
+              </div>
+            </div>
+          </div>
 
-          <AdminFormSection 
-            title="Reports & Actions"
-            description="Configure how reports are handled"
-          >
-            <AdminFormGroup 
-              label="Report Threshold"
-              help="Number of reports before content is automatically hidden"
-            >
-              <input
-                type="number"
-                name="reportThreshold"
-                value={settings.reportThreshold}
-                onChange={handleInputChange}
-                min="1"
-                max="20"
-                style={{
-                  padding: '0.5rem',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '0.375rem',
-                  width: '100px'
-                }}
-              />
-            </AdminFormGroup>
-
-            <AdminFormGroup label="Auto-lock Reported Content">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <input
-                  type="checkbox"
-                  name="autoLockReports"
-                  checked={settings.autoLockReports}
-                  onChange={handleInputChange}
-                />
-                Automatically lock content when report threshold is reached
-              </label>
-            </AdminFormGroup>
-          </AdminFormSection>
-
-          <AdminFormSection 
-            title="Notifications"
-            description="Configure moderation notifications"
-          >
-            <AdminFormGroup label="Email Notifications">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <input
-                  type="checkbox"
-                  name="emailNotifications"
-                  checked={settings.emailNotifications}
-                  onChange={handleInputChange}
-                />
-                Send email notifications for moderation actions
-              </label>
-            </AdminFormGroup>
-
-            <AdminFormGroup label="Moderator Notifications">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <input
-                  type="checkbox"
-                  name="moderatorNotifications"
-                  checked={settings.moderatorNotifications}
-                  onChange={handleInputChange}
-                />
-                Notify moderators of new reports
-              </label>
-            </AdminFormGroup>
-          </AdminFormSection>
-
-          <div style={{
-            padding: '2rem',
-            borderTop: '1px solid #e2e8f0',
-            background: '#f8fafc'
-          }}>
-            <AdminButton
+          {/* Form Actions */}
+          <div className={styles.formActions}>
+            <button
               type="submit"
-              variant="primary"
-              loading={isSaving}
+              className={styles.saveButton}
               disabled={isSaving}
             >
               {isSaving ? 'Saving...' : 'Save Settings'}
-            </AdminButton>
+            </button>
           </div>
-        </AdminCard>
-      </form>
+        </form>
+      </div>
     </ModerationLayout>
   );
 }
