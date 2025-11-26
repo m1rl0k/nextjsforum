@@ -270,60 +270,68 @@
   border-color: #e87e7e;
 }
 
-/* Matrix View */
+/* Matrix View - vBulletin Style */
 .matrixContainer {
   overflow-x: auto;
-  background: white;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  background: #fff;
+  border: 1px solid #c0c0c0;
 }
 
 .matrixTable {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 11px;
 }
 
 .matrixTable th,
 .matrixTable td {
-  padding: 12px;
+  padding: 6px 10px;
   text-align: left;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .matrixTable th {
-  background: #f9fafb;
-  font-weight: 600;
-  color: #374151;
-  font-size: 12px;
+  background: linear-gradient(to bottom, #5a7faa 0%, #4a6f9a 100%);
+  font-weight: bold;
+  color: #fff;
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.matrixTable tbody tr:nth-child(odd) {
+  background: #f9f9f9;
+}
+
+.matrixTable tbody tr:nth-child(even) {
+  background: #fff;
 }
 
 .matrixTable tbody tr:hover {
-  background: #f9fafb;
+  background: #e8f4ff;
 }
 
 .groupName {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .colorDot {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
 .defaultTag {
-  background: #10B981;
-  color: white;
-  padding: 2px 6px;
-  border-radius: 8px;
-  font-size: 10px;
-  margin-left: 8px;
+  background: linear-gradient(to bottom, #5a9e5a 0%, #4a8e4a 100%);
+  color: #fff;
+  padding: 1px 5px;
+  font-size: 9px;
+  font-weight: bold;
+  margin-left: 5px;
+  border: 1px solid #3a6e3a;
 }
 
 .permCell {
@@ -331,33 +339,32 @@
 }
 
 .checkmark {
-  color: #10B981;
+  color: #3a7e3a;
   font-weight: bold;
 }
 
 .cross {
-  color: #D1D5DB;
+  color: #ccc;
 }
 
 .rowActions {
   display: flex;
-  gap: 4px;
+  gap: 3px;
 }
 
 .rowActions button {
-  padding: 4px 8px;
-  border: none;
-  background: transparent;
+  padding: 3px 6px;
+  border: 1px solid #c0c0c0;
+  background: linear-gradient(to bottom, #f5f5f5 0%, #e5e5e5 100%);
   cursor: pointer;
-  border-radius: 4px;
-  transition: background 0.2s;
+  font-size: 11px;
 }
 
 .rowActions button:hover {
-  background: #f3f4f6;
+  background: linear-gradient(to bottom, #fff 0%, #f0f0f0 100%);
 }
 
-/* Modal Styles */
+/* Modal Styles - vBulletin Style */
 .modalBackdrop {
   position: fixed;
   top: 0;
@@ -369,112 +376,112 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 20px;
+  padding: 15px;
 }
 
 .modal {
-  background: white;
-  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #c0c0c0;
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .modalHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 8px 10px;
+  background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
+  border-bottom: 1px solid #1e3a5f;
 }
 
 .modalHeader h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .closeBtn {
   background: none;
   border: none;
-  font-size: 20px;
+  font-size: 16px;
   cursor: pointer;
-  color: #666;
-  padding: 4px;
+  color: #fff;
+  padding: 2px;
 }
 
 .closeBtn:hover {
-  color: #333;
+  color: #c5d4e8;
 }
 
-/* Form Styles */
+/* Form Styles - vBulletin Style */
 .form {
-  padding: 24px;
+  padding: 10px;
 }
 
 .formRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 10px;
 }
 
 .formGroup {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .formGroup label {
   display: block;
-  font-size: 13px;
-  font-weight: 500;
-  color: #374151;
-  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 4px;
 }
 
 .formGroup input[type="text"],
 .formGroup input[type="number"],
 .formGroup textarea {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: border-color 0.2s;
+  padding: 5px 8px;
+  border: 1px solid #c0c0c0;
+  font-size: 11px;
 }
 
 .formGroup input:focus,
 .formGroup textarea:focus {
   outline: none;
-  border-color: #3B82F6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #4C76B2;
 }
 
 .formGroup small {
   display: block;
-  margin-top: 4px;
-  font-size: 12px;
+  margin-top: 2px;
+  font-size: 10px;
   color: #666;
 }
 
 .colorInput {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .colorInput input[type="color"] {
-  width: 40px;
-  height: 40px;
-  border: none;
-  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #c0c0c0;
   cursor: pointer;
 }
 
 .colorInput span {
-  font-size: 13px;
+  font-size: 11px;
   color: #666;
   font-family: monospace;
 }
@@ -482,54 +489,60 @@
 .checkboxLabel {
   display: flex !important;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
   cursor: pointer;
+  font-size: 11px;
 }
 
 .checkboxLabel input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   cursor: pointer;
 }
 
-/* Permissions Section */
+/* Permissions Section - vBulletin Style */
 .permissionsSection {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid #e5e7eb;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #c0c0c0;
 }
 
 .permissionsSection h3 {
-  margin: 0 0 16px 0;
-  font-size: 14px;
-  color: #374151;
+  margin: 0 0 8px 0;
+  padding: 6px 10px;
+  background: linear-gradient(to bottom, #5a7faa 0%, #4a6f9a 100%);
+  color: #fff;
+  font-size: 11px;
+  font-weight: bold;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  border: 1px solid #3a5f8a;
 }
 
 .permissionsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 5px;
 }
 
 .permCheckbox {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  padding: 10px;
-  background: #f9fafb;
-  border-radius: 6px;
+  gap: 6px;
+  padding: 6px 8px;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
   cursor: pointer;
-  transition: background 0.2s;
 }
 
 .permCheckbox:hover {
-  background: #f3f4f6;
+  background: #e8f4ff;
+  border-color: #7eb8f7;
 }
 
 .permCheckbox input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  margin-top: 2px;
+  width: 14px;
+  height: 14px;
+  margin-top: 1px;
   cursor: pointer;
 }
 
@@ -539,87 +552,85 @@
 }
 
 .permLabel strong {
-  font-size: 13px;
-  color: #1a1a2e;
+  font-size: 11px;
+  color: #333;
 }
 
 .permLabel small {
-  font-size: 11px;
+  font-size: 10px;
   color: #666;
 }
 
 .formError {
-  background: #FEE2E2;
-  color: #DC2626;
-  padding: 10px 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  margin-bottom: 16px;
+  background: #ffe8e8;
+  color: #993333;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border: 1px solid #e87e7e;
+  font-size: 11px;
 }
 
 .modalActions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid #e5e7eb;
+  gap: 5px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #c0c0c0;
 }
 
 .cancelBtn {
-  padding: 10px 20px;
-  background: white;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  padding: 5px 12px;
+  background: linear-gradient(to bottom, #f5f5f5 0%, #e5e5e5 100%);
+  border: 1px solid #c0c0c0;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 11px;
+  font-weight: bold;
 }
 
 .cancelBtn:hover {
-  background: #f9fafb;
+  background: linear-gradient(to bottom, #fff 0%, #f0f0f0 100%);
 }
 
 .submitBtn {
-  padding: 10px 24px;
-  background: #3B82F6;
-  color: white;
-  border: none;
-  border-radius: 6px;
+  padding: 5px 15px;
+  background: linear-gradient(to bottom, #5C8BC7 0%, #4C76B2 100%);
+  color: #fff;
+  border: 1px solid #1e3a5f;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: bold;
 }
 
 .submitBtn:hover {
-  background: #2563EB;
+  background: linear-gradient(to bottom, #6C9BD7 0%, #5C86C2 100%);
 }
 
 .submitBtn:disabled {
-  background: #93C5FD;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* Members Modal */
+/* Members Modal - vBulletin Style */
 .membersContent {
-  padding: 20px 24px;
+  padding: 10px;
 }
 
 .addMemberSection {
   position: relative;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .addMemberSection input {
   width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 14px;
+  padding: 5px 8px;
+  border: 1px solid #c0c0c0;
+  font-size: 11px;
 }
 
 .addMemberSection input:focus {
   outline: none;
-  border-color: #3B82F6;
+  border-color: #4C76B2;
 }
 
 .userSuggestions {
@@ -627,11 +638,10 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  max-height: 200px;
+  background: #fff;
+  border: 1px solid #c0c0c0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  max-height: 150px;
   overflow-y: auto;
   z-index: 10;
 }
@@ -639,39 +649,49 @@
 .userSuggestion {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
+  gap: 8px;
+  padding: 6px 10px;
   cursor: pointer;
-  transition: background 0.2s;
+  font-size: 11px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.userSuggestion:last-child {
+  border-bottom: none;
 }
 
 .userSuggestion:hover {
-  background: #f3f4f6;
+  background: #e8f4ff;
 }
 
 .userSuggestion .addIcon {
   margin-left: auto;
-  color: #3B82F6;
+  color: #4C76B2;
   font-weight: bold;
 }
 
 .membersList {
-  max-height: 400px;
+  max-height: 300px;
   overflow-y: auto;
 }
 
 .noMembers {
   text-align: center;
   color: #666;
-  padding: 40px 20px;
+  padding: 20px;
+  font-size: 11px;
 }
 
 .memberItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px;
-  border-bottom: 1px solid #f3f4f6;
+  padding: 8px 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.memberItem:nth-child(odd) {
+  background: #f9f9f9;
 }
 
 .memberItem:last-child {
@@ -681,7 +701,7 @@
 .memberInfo {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .memberInfo div {
@@ -690,40 +710,40 @@
 }
 
 .memberInfo strong {
-  font-size: 14px;
-  color: #1a1a2e;
+  font-size: 11px;
+  color: #2B4F81;
 }
 
 .memberInfo small {
-  font-size: 12px;
+  font-size: 10px;
   color: #666;
 }
 
 .avatar {
-  width: 36px;
-  height: 36px;
-  background: #3B82F6;
-  color: white;
+  width: 28px;
+  height: 28px;
+  background: #4C76B2;
+  color: #fff;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: bold;
+  font-size: 11px;
 }
 
 .removeBtn {
-  background: none;
-  border: none;
-  color: #DC2626;
+  background: linear-gradient(to bottom, #cc4444 0%, #aa3333 100%);
+  border: 1px solid #882222;
+  color: #fff;
   cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: 16px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: bold;
 }
 
 .removeBtn:hover {
-  background: #FEE2E2;
+  background: linear-gradient(to bottom, #dd5555 0%, #bb4444 100%);
 }
 
 /* Responsive */
@@ -755,3 +775,11 @@
   }
 }
 
+/* Focus states */
+.createButton:focus,
+.submitBtn:focus,
+.cancelBtn:focus,
+.closeBtn:focus {
+  outline: 2px solid #4C76B2;
+  outline-offset: 1px;
+}
