@@ -1,130 +1,142 @@
+/* Container */
 .container {
   max-width: 1000px;
-  padding: 20px;
+  padding: 10px;
 }
 
+/* Header - vBulletin Style */
 .header {
-  margin-bottom: 30px;
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
+  border: 1px solid #1e3a5f;
 }
 
 .headerContent {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px;
+  align-items: center;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .headerActions {
   display: flex;
-  gap: 10px;
+  gap: 5px;
   flex-wrap: wrap;
 }
 
 .header h1 {
-  margin: 0 0 10px 0;
-  color: #333;
-  font-size: 28px;
+  margin: 0;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
 }
 
 .header p {
-  margin: 0;
-  color: #666;
-  font-size: 16px;
+  margin: 4px 0 0;
+  color: #c0d8f0;
+  font-size: 10px;
 }
 
+/* Preview Banner - vBulletin Style */
 .previewBanner {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 16px 20px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  border: none;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-  font-size: 15px;
+  background: linear-gradient(to bottom, #8a6ab5 0%, #7a5aa5 100%);
+  color: #fff;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border: 1px solid #5a3a85;
+  font-size: 11px;
+  font-weight: bold;
   text-align: center;
-  animation: slideDown 0.3s ease;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
 }
 
 @keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
+/* Messages - vBulletin Style */
 .message {
-  background: #d4edda;
-  color: #155724;
-  padding: 12px 16px;
-  border-radius: 6px;
-  margin-bottom: 20px;
-  border: 1px solid #c3e6cb;
+  background: linear-gradient(to bottom, #e8ffe8 0%, #d8f0d8 100%);
+  color: #3a7e3a;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border: 1px solid #7eb87e;
+  font-size: 11px;
 }
 
 .error {
-  background: #f8d7da;
-  color: #721c24;
-  padding: 12px 16px;
-  border-radius: 6px;
-  margin-bottom: 20px;
-  border: 1px solid #f5c6cb;
+  background: #ffe8e8;
+  color: #993333;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border: 1px solid #e87e7e;
+  font-size: 11px;
 }
 
+/* Tabs - vBulletin Style */
 .tabs {
   display: flex;
-  border-bottom: 1px solid #dee2e6;
-  margin-bottom: 30px;
+  border-bottom: 1px solid #1e3a5f;
+  margin-bottom: 10px;
+  background: #f5f5f5;
   gap: 0;
 }
 
 .tab {
-  padding: 12px 24px;
-  background: none;
-  border: none;
-  border-bottom: 3px solid transparent;
+  padding: 6px 15px;
+  background: linear-gradient(to bottom, #e8e8e8 0%, #d8d8d8 100%);
+  border: 1px solid #c0c0c0;
+  border-bottom: none;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  color: #6c757d;
-  transition: all 0.2s ease;
+  font-size: 11px;
+  font-weight: bold;
+  color: #333;
+  margin-right: 2px;
 }
 
 .tab:hover {
-  color: #495057;
-  background: #f8f9fa;
+  background: linear-gradient(to bottom, #f0f0f0 0%, #e8e8e8 100%);
 }
 
 .tab.active {
-  color: #007bff;
-  border-bottom-color: #007bff;
-  background: #f8f9fa;
+  background: linear-gradient(to bottom, #5C8BC7 0%, #4C76B2 100%);
+  color: #fff;
+  border-color: #1e3a5f;
 }
 
+/* Form - vBulletin Style */
 .form {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background: #fff;
+  border: 1px solid #c0c0c0;
   overflow: hidden;
 }
 
 .section {
-  padding: 24px;
+  padding: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.section:last-child {
+  border-bottom: none;
 }
 
 .section h2 {
-  margin: 0 0 20px 0;
-  color: #495057;
-  font-size: 20px;
-  font-weight: 600;
+  margin: 0 0 10px 0;
+  padding: 6px 10px;
+  background: linear-gradient(to bottom, #5a7faa 0%, #4a6f9a 100%);
+  color: #fff;
+  font-size: 11px;
+  font-weight: bold;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  border: 1px solid #3a5f8a;
 }
 
 .formGroup {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .formGroup:last-child {
@@ -134,29 +146,27 @@
 .formRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 10px;
 }
 
 .formGroup label {
   display: block;
-  margin-bottom: 6px;
-  font-weight: 500;
-  color: #495057;
+  margin-bottom: 4px;
+  font-weight: bold;
+  font-size: 11px;
+  color: #333;
 }
 
 .input, .textarea, .select {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  font-size: 14px;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  padding: 5px 8px;
+  border: 1px solid #c0c0c0;
+  font-size: 11px;
 }
 
 .input:focus, .textarea:focus, .select:focus {
   outline: none;
-  border-color: #80bdff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  border-color: #4C76B2;
 }
 
 .textarea {
@@ -166,11 +176,10 @@
 }
 
 .colorInput {
-  width: 60px;
-  height: 40px;
+  width: 50px;
+  height: 30px;
   padding: 2px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
+  border: 1px solid #c0c0c0;
   cursor: pointer;
 }
 
@@ -180,15 +189,15 @@
 
 .colorInput::-webkit-color-swatch {
   border: none;
-  border-radius: 2px;
 }
 
 .checkboxLabel {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
   cursor: pointer;
   font-weight: normal;
+  font-size: 11px;
 }
 
 .checkboxLabel input[type="checkbox"] {
@@ -198,123 +207,96 @@
 
 .helpText {
   display: block;
-  margin-top: 4px;
-  font-size: 12px;
-  color: #6c757d;
-}
-
-.formActions {
-  padding: 24px;
-  background: #f8f9fa;
-  border-top: 1px solid #e9ecef;
-  display: flex;
-  gap: 12px;
-}
-
-.saveButton {
-  padding: 12px 24px;
-  background: #4299e1;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(66, 153, 225, 0.2);
-}
-
-.saveButton:hover:not(:disabled) {
-  background: #3182ce;
-  box-shadow: 0 4px 8px rgba(66, 153, 225, 0.3);
-  transform: translateY(-1px);
-}
-
-.saveButton:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(66, 153, 225, 0.2);
-}
-
-.saveButton:disabled {
-  background: #a0aec0;
-  cursor: not-allowed;
-  box-shadow: none;
-  opacity: 0.6;
-}
-
-.resetButton {
-  padding: 12px 24px;
-  background: #fc8181;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(252, 129, 129, 0.2);
-}
-
-.resetButton:hover {
-  background: #f56565;
-  box-shadow: 0 4px 8px rgba(252, 129, 129, 0.3);
-  transform: translateY(-1px);
-}
-
-.resetButton:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(252, 129, 129, 0.2);
-}
-
-.previewButton {
-  padding: 12px 24px;
-  background: #48bb78;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(72, 187, 120, 0.2);
-}
-
-.previewButton:hover {
-  background: #38a169;
-  box-shadow: 0 4px 8px rgba(72, 187, 120, 0.3);
-  transform: translateY(-1px);
-}
-
-.previewButton:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(72, 187, 120, 0.2);
-}
-
-.loading {
-  text-align: center;
-  padding: 40px;
+  margin-top: 2px;
+  font-size: 10px;
   color: #666;
 }
 
+/* Form Actions - vBulletin Style */
+.formActions {
+  padding: 10px;
+  background: #f5f5f5;
+  border-top: 1px solid #c0c0c0;
+  display: flex;
+  gap: 5px;
+}
+
+.saveButton {
+  padding: 5px 12px;
+  background: linear-gradient(to bottom, #5C8BC7 0%, #4C76B2 100%);
+  color: #fff;
+  border: 1px solid #1e3a5f;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.saveButton:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #6C9BD7 0%, #5C86C2 100%);
+}
+
+.saveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.resetButton {
+  padding: 5px 12px;
+  background: linear-gradient(to bottom, #cc4444 0%, #aa3333 100%);
+  color: #fff;
+  border: 1px solid #882222;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.resetButton:hover {
+  background: linear-gradient(to bottom, #dd5555 0%, #bb4444 100%);
+}
+
+.previewButton {
+  padding: 5px 12px;
+  background: linear-gradient(to bottom, #5a9e5a 0%, #4a8e4a 100%);
+  color: #fff;
+  border: 1px solid #3a6e3a;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.previewButton:hover {
+  background: linear-gradient(to bottom, #6aae6a 0%, #5a9e5a 100%);
+}
+
+/* Loading State */
+.loading {
+  text-align: center;
+  padding: 30px;
+  color: #666;
+  font-size: 11px;
+}
+
+/* Preview Section - vBulletin Style */
 .preview {
-  margin-top: 20px;
-  padding: 20px;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  background: #f8f9fa;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #c0c0c0;
+  background: #f5f5f5;
 }
 
 .preview h3 {
-  margin: 0 0 15px 0;
-  color: #495057;
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 11px;
+  font-weight: bold;
 }
 
 .previewItem {
-  margin-bottom: 15px;
-  padding: 10px;
-  background: white;
-  border-radius: 4px;
-  border: 1px solid #dee2e6;
+  margin-bottom: 8px;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  font-size: 11px;
 }
 
 /* Responsive */
