@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../../../context/AuthContext';
 import AdminLayout from '../../../components/admin/AdminLayout';
@@ -24,9 +24,31 @@ const AdminUserEdit = () => {
     displayName: ''
   });
 
+  // Group management state
+  const [userGroups, setUserGroups] = useState([]);
+  const [availableGroups, setAvailableGroups] = useState([]);
+  const [groupsLoading, setGroupsLoading] = useState(false);
+
+  const fetchUserGroups = useCallback(async () => {
+    if (!id) return;
+    setGroupsLoading(true);
+    try {
+      const res = await fetch(`/api/admin/users/${id}/groups`, { credentials: 'include' });
+      const data = await res.json();
+      if (res.ok) {
+        setUserGroups(data.data.userGroups || []);
+        setAvailableGroups(data.data.availableGroups || []);
+      }
+    } catch (err) {
+      console.error('Error fetching user groups:', err);
+    } finally {
+      setGroupsLoading(false);
+    }
+  }, [id]);
+
   useEffect(() => {
     if (authLoading) return;
-    
+
     if (!currentUser || currentUser.role !== 'ADMIN') {
       router.push('/');
       return;
@@ -34,8 +56,9 @@ const AdminUserEdit = () => {
 
     if (id) {
       fetchUser();
+      fetchUserGroups();
     }
-  }, [currentUser, authLoading, router, id]);
+  }, [currentUser, authLoading, router, id, fetchUserGroups]);
 
   const fetchUser = async () => {
     try {
