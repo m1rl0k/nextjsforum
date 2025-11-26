@@ -1,120 +1,125 @@
+/* Container */
 .container {
   max-width: 800px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 10px;
 }
 
+/* Header - vBulletin Style */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
-  padding-bottom: 15px;
-  border-bottom: 2px solid #2B4F81;
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
+  border: 1px solid #1e3a5f;
 }
 
 .header h1 {
   margin: 0;
-  color: #2B4F81;
-  font-size: 28px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
 }
 
 .backButton {
-  padding: 8px 16px;
-  background: #6c757d;
-  color: white;
-  border: none;
-  border-radius: 4px;
+  padding: 5px 10px;
+  background: linear-gradient(to bottom, #666 0%, #555 100%);
+  color: #fff;
+  border: 1px solid #444;
   cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s;
+  font-size: 11px;
+  font-weight: bold;
 }
 
 .backButton:hover {
-  background: #5a6268;
+  background: linear-gradient(to bottom, #777 0%, #666 100%);
 }
 
+/* States */
 .loading {
   text-align: center;
-  padding: 40px;
-  font-size: 18px;
+  padding: 30px;
+  font-size: 11px;
   color: #666;
 }
 
 .error {
-  background: #f8d7da;
-  color: #721c24;
-  padding: 12px 20px;
-  border-radius: 4px;
-  margin-bottom: 20px;
-  border: 1px solid #f5c6cb;
+  background: #ffe8e8;
+  color: #993333;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border: 1px solid #e87e7e;
+  font-size: 11px;
 }
 
 .success {
-  background: #d4edda;
-  color: #155724;
-  padding: 12px 20px;
-  border-radius: 4px;
-  margin-bottom: 20px;
-  border: 1px solid #c3e6cb;
+  background: linear-gradient(to bottom, #e8ffe8 0%, #d8f0d8 100%);
+  color: #3a7e3a;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border: 1px solid #7eb87e;
+  font-size: 11px;
 }
 
+/* Form - vBulletin Style */
 .form {
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
+  background: #fff;
+  padding: 10px;
+  border: 1px solid #c0c0c0;
+  margin-bottom: 10px;
 }
 
 .formGroup {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .formGroup label {
   display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
+  margin-bottom: 4px;
+  font-weight: bold;
   color: #333;
+  font-size: 11px;
 }
 
 .formGroup small {
   display: block;
-  margin-top: 4px;
+  margin-top: 2px;
   color: #666;
-  font-size: 12px;
+  font-size: 10px;
 }
 
 .input,
 .select,
 .textarea {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
+  padding: 5px 8px;
+  border: 1px solid #c0c0c0;
+  font-size: 11px;
   font-family: inherit;
-  transition: border-color 0.2s;
 }
 
 .input:focus,
 .select:focus,
 .textarea:focus {
   outline: none;
-  border-color: #2B4F81;
+  border-color: #4C76B2;
 }
 
 .textarea {
   resize: vertical;
-  min-height: 80px;
+  min-height: 60px;
 }
 
 .checkboxLabel {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
   cursor: pointer;
   font-weight: normal !important;
+  font-size: 11px;
 }
 
 .checkboxLabel input[type="checkbox"] {
@@ -122,150 +127,154 @@
   cursor: pointer;
 }
 
+/* Actions - vBulletin Style */
 .actions {
   display: flex;
-  gap: 12px;
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid #eee;
+  gap: 5px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #c0c0c0;
 }
 
 .saveButton,
 .deleteButton {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
-  font-weight: 600;
+  padding: 5px 15px;
+  font-size: 11px;
+  font-weight: bold;
   cursor: pointer;
-  transition: all 0.2s;
 }
 
 .saveButton {
-  background: #2B4F81;
-  color: white;
+  background: linear-gradient(to bottom, #5C8BC7 0%, #4C76B2 100%);
+  color: #fff;
+  border: 1px solid #1e3a5f;
   flex: 1;
 }
 
 .saveButton:hover:not(:disabled) {
-  background: #1e3a5f;
+  background: linear-gradient(to bottom, #6C9BD7 0%, #5C86C2 100%);
 }
 
 .saveButton:disabled {
-  background: #ccc;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .deleteButton {
-  background: #dc3545;
-  color: white;
+  background: linear-gradient(to bottom, #cc4444 0%, #aa3333 100%);
+  color: #fff;
+  border: 1px solid #882222;
 }
 
 .deleteButton:hover:not(:disabled) {
-  background: #c82333;
+  background: linear-gradient(to bottom, #dd5555 0%, #bb4444 100%);
 }
 
 .deleteButton:disabled {
-  background: #ccc;
+  opacity: 0.5;
   cursor: not-allowed;
-  opacity: 0.6;
 }
 
+/* User Info Section - vBulletin Style */
 .userInfo {
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  padding: 10px;
+  border: 1px solid #c0c0c0;
 }
 
 .userInfo h2 {
-  margin: 0 0 20px 0;
-  color: #2B4F81;
-  font-size: 20px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #eee;
+  margin: 0 0 10px 0;
+  padding: 6px 10px;
+  background: linear-gradient(to bottom, #5a7faa 0%, #4a6f9a 100%);
+  color: #fff;
+  font-size: 11px;
+  font-weight: bold;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  border: 1px solid #3a5f8a;
 }
 
 .infoGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 5px;
 }
 
 .infoItem {
-  padding: 12px;
-  background: #f8f9fa;
-  border-radius: 4px;
-  border-left: 3px solid #2B4F81;
+  padding: 8px;
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-left: 3px solid #4C76B2;
 }
 
 .infoItem strong {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   color: #666;
-  font-size: 12px;
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
-/* Group Membership Section */
+/* Group Membership Section - vBulletin Style */
 .groupsSection {
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 30px;
+  background: #fff;
+  padding: 10px;
+  border: 1px solid #c0c0c0;
+  margin-bottom: 10px;
 }
 
 .groupsSection h2 {
-  margin: 0 0 8px 0;
-  color: #2B4F81;
-  font-size: 20px;
+  margin: 0 0 5px 0;
+  padding: 6px 10px;
+  background: linear-gradient(to bottom, #5a7faa 0%, #4a6f9a 100%);
+  color: #fff;
+  font-size: 11px;
+  font-weight: bold;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  border: 1px solid #3a5f8a;
 }
 
 .groupsDescription {
-  margin: 0 0 20px 0;
+  margin: 8px 0;
   color: #666;
-  font-size: 14px;
+  font-size: 10px;
 }
 
 .groupsLoading {
   text-align: center;
-  padding: 20px;
+  padding: 15px;
   color: #666;
+  font-size: 11px;
 }
 
 .groupsList {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
 }
 
 .groupItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  background: #f8f9fa;
-  border-radius: 6px;
-  border: 1px solid #e9ecef;
-  transition: all 0.2s;
+  padding: 8px 10px;
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
 }
 
 .groupItem.memberGroup {
-  background: #e8f4fd;
-  border-color: #b8daff;
+  background: linear-gradient(to bottom, #e8f4ff 0%, #d8e8f0 100%);
+  border-color: #7eb8f7;
 }
 
 .groupInfo {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .groupColor {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -276,66 +285,68 @@
 }
 
 .groupInfo strong {
-  font-size: 14px;
+  font-size: 11px;
   color: #333;
 }
 
 .groupInfo small {
-  font-size: 12px;
+  font-size: 10px;
   color: #666;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .addGroupBtn,
 .removeGroupBtn {
-  padding: 6px 14px;
-  border: none;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: 500;
+  padding: 4px 10px;
+  font-size: 10px;
+  font-weight: bold;
   cursor: pointer;
-  transition: all 0.2s;
 }
 
 .addGroupBtn {
-  background: #28a745;
-  color: white;
+  background: linear-gradient(to bottom, #5a9e5a 0%, #4a8e4a 100%);
+  color: #fff;
+  border: 1px solid #3a6e3a;
 }
 
 .addGroupBtn:hover {
-  background: #218838;
+  background: linear-gradient(to bottom, #6aae6a 0%, #5a9e5a 100%);
 }
 
 .removeGroupBtn {
-  background: #dc3545;
-  color: white;
+  background: linear-gradient(to bottom, #cc4444 0%, #aa3333 100%);
+  color: #fff;
+  border: 1px solid #882222;
 }
 
 .removeGroupBtn:hover {
-  background: #c82333;
+  background: linear-gradient(to bottom, #dd5555 0%, #bb4444 100%);
 }
 
 .noGroups {
   text-align: center;
   color: #666;
-  padding: 20px;
+  padding: 15px;
   font-style: italic;
+  font-size: 11px;
 }
 
+/* Responsive */
 @media (max-width: 768px) {
   .container {
-    padding: 15px;
+    padding: 10px;
   }
 
   .header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 15px;
+    gap: 8px;
   }
 
   .form,
-  .userInfo {
-    padding: 20px;
+  .userInfo,
+  .groupsSection {
+    padding: 10px;
   }
 
   .actions {
@@ -350,5 +361,15 @@
   .infoGrid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Focus states */
+.backButton:focus,
+.saveButton:focus,
+.deleteButton:focus,
+.addGroupBtn:focus,
+.removeGroupBtn:focus {
+  outline: 2px solid #4C76B2;
+  outline-offset: 1px;
 }
 

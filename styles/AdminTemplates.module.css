@@ -302,50 +302,55 @@
 /* Responsive */
 @media (max-width: 768px) {
   .container {
-    padding: 15px;
+    padding: 10px;
   }
-  
+
   .formRow {
     grid-template-columns: 1fr;
-    gap: 15px;
+    gap: 8px;
   }
-  
+
   .section {
-    padding: 20px;
+    padding: 10px;
   }
-  
+
   .formActions {
-    padding: 20px;
+    padding: 10px;
     flex-direction: column;
   }
-  
-  .header h1 {
-    font-size: 24px;
-  }
-  
+
   .tabs {
     overflow-x: auto;
     white-space: nowrap;
   }
-  
+
   .tab {
-    padding: 10px 16px;
-    font-size: 13px;
+    padding: 5px 10px;
+    font-size: 10px;
   }
 }
 
 @media (max-width: 480px) {
   .colorInput {
-    width: 50px;
-    height: 35px;
+    width: 40px;
+    height: 25px;
   }
-  
+
   .formActions {
-    gap: 8px;
+    gap: 5px;
   }
-  
-  .saveButton, .resetButton {
-    padding: 10px 20px;
-    font-size: 14px;
+
+  .saveButton, .resetButton, .previewButton {
+    padding: 5px 10px;
+    font-size: 10px;
   }
+}
+
+/* Focus states */
+.saveButton:focus,
+.resetButton:focus,
+.previewButton:focus,
+.tab:focus {
+  outline: 2px solid #4C76B2;
+  outline-offset: 1px;
 }
