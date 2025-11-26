@@ -10,6 +10,7 @@ const AdminForums = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [expandedCategories, setExpandedCategories] = useState({});
   const [isCreating, setIsCreating] = useState(false);
   const [isEditing, setIsEditing] = useState(null);
@@ -27,6 +28,12 @@ const AdminForums = () => {
     isActive: true,
     icon: ''
   });
+
+  // Permissions modal state
+  const [showPermissionsModal, setShowPermissionsModal] = useState(false);
+  const [selectedForum, setSelectedForum] = useState(null);
+  const [groupPermissions, setGroupPermissions] = useState([]);
+  const [permissionsLoading, setPermissionsLoading] = useState(false);
 
 
   useEffect(() => {
@@ -197,6 +204,62 @@ const AdminForums = () => {
     }
   };
 
+  // Permissions modal functions
+  const openPermissionsModal = async (forum) => {
+    setSelectedForum(forum);
+    setShowPermissionsModal(true);
+    setPermissionsLoading(true);
+
+    try {
+      const res = await fetch(`/api/admin/subjects/${forum.id}/permissions`, {
+        credentials: 'include'
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setGroupPermissions(data.data || []);
+      }
+    } catch (err) {
+      console.error('Error loading permissions:', err);
+    } finally {
+      setPermissionsLoading(false);
+    }
+  };
+
+  const handlePermissionChange = (groupId, field, value) => {
+    setGroupPermissions(prev => prev.map(gp =>
+      gp.groupId === groupId ? { ...gp, [field]: value, hasCustomPermissions: true } : gp
+    ));
+  };
+
+  const savePermissions = async () => {
+    if (!selectedForum) return;
+
+    try {
+      const res = await fetch(`/api/admin/subjects/${selectedForum.id}/permissions`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          permissions: groupPermissions.filter(gp => gp.hasCustomPermissions).map(gp => ({
+            groupId: gp.groupId,
+            canView: gp.canView,
+            canPost: gp.canPost,
+            canReply: gp.canReply
+          }))
+        })
+      });
+
+      if (res.ok) {
+        setSuccess('Permissions saved successfully');
+        setShowPermissionsModal(false);
+        setTimeout(() => setSuccess(''), 3000);
+      }
+    } catch (err) {
+      setError('Failed to save permissions');
+      console.error('Error saving permissions:', err);
+    }
+  };
+
   const handleDelete = async (forumId, isCategory = false, cascade = false) => {
     if (!cascade && !confirm(`Are you sure you want to delete this ${isCategory ? 'category' : 'forum'}? This action cannot be undone.`)) {
       return;
@@ -281,6 +344,15 @@ const AdminForums = () => {
             >
               ✏️ Edit
             </button>
+            {!forum.isCategory && (
+              <button
+                onClick={() => openPermissionsModal(forum)}
+                className={styles.actionButton}
+                title="Group Permissions"
+              >
+                🔐 Permissions
+              </button>
+            )}
             <button
               onClick={() => handleToggleActive(forum.id, forum.isActive, forum.isCategory)}
               className={styles.actionButton}
@@ -557,7 +629,95 @@ const AdminForums = () => {
             </div>
           )}
         </div>
+
+        {success && <div className={styles.successToast}>{success}</div>}
       </div>
+
+      {/* Permissions Modal */}
+      {showPermissionsModal && selectedForum && (
+        <div
+          className={styles.modalBackdrop}
+          onClick={() => setShowPermissionsModal(false)}
+          onKeyDown={(e) => e.key === 'Escape' && setShowPermissionsModal(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="permissions-modal-title"
+        >
+          <div className={styles.modal} onClick={e => e.stopPropagation()} role="document">
+            <div className={styles.modalHeader}>
+              <h2 id="permissions-modal-title">🔐 Group Permissions: {selectedForum.name}</h2>
+              <button onClick={() => setShowPermissionsModal(false)} className={styles.closeBtn}>✕</button>
+            </div>
+
+            <div className={styles.modalContent}>
+              <p className={styles.permissionsInfo}>
+                Configure which groups can access and interact with this forum.
+                Groups without custom permissions will use their default settings.
+              </p>
+
+              {permissionsLoading ? (
+                <div className={styles.loading}>Loading permissions...</div>
+              ) : (
+                <table className={styles.permissionsTable}>
+                  <thead>
+                    <tr>
+                      <th>Group</th>
+                      <th>Members</th>
+                      <th>Can View</th>
+                      <th>Can Post</th>
+                      <th>Can Reply</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupPermissions.map(gp => (
+                      <tr key={gp.groupId} className={gp.hasCustomPermissions ? styles.customRow : ''}>
+                        <td>
+                          <span
+                            className={styles.groupDot}
+                            style={{ backgroundColor: gp.groupColor || '#3B82F6' }}
+                          />
+                          {gp.groupName}
+                        </td>
+                        <td>{gp.memberCount}</td>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={gp.canView}
+                            onChange={(e) => handlePermissionChange(gp.groupId, 'canView', e.target.checked)}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={gp.canPost}
+                            onChange={(e) => handlePermissionChange(gp.groupId, 'canPost', e.target.checked)}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={gp.canReply}
+                            onChange={(e) => handlePermissionChange(gp.groupId, 'canReply', e.target.checked)}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+
+            <div className={styles.modalActions}>
+              <button onClick={() => setShowPermissionsModal(false)} className={styles.cancelButton}>
+                Cancel
+              </button>
+              <button onClick={savePermissions} className={styles.saveButton}>
+                Save Permissions
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 };

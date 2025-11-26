@@ -1,5 +1,6 @@
 {
-  "siteName": "Forum New",
+  "siteName": "NextJS Forum",
+  "logoEnabled": false,
   "logoUrl": "",
   "faviconUrl": "/favicon.ico",
   "siteDescription": "A modern forum built with Next.js",

@@ -208,6 +208,120 @@
   letter-spacing: 0.5px;
 }
 
+/* Group Membership Section */
+.groupsSection {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.groupsSection h2 {
+  margin: 0 0 8px 0;
+  color: #2B4F81;
+  font-size: 20px;
+}
+
+.groupsDescription {
+  margin: 0 0 20px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.groupsLoading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.groupsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.groupItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s;
+}
+
+.groupItem.memberGroup {
+  background: #e8f4fd;
+  border-color: #b8daff;
+}
+
+.groupInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.groupColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.groupInfo div {
+  display: flex;
+  flex-direction: column;
+}
+
+.groupInfo strong {
+  font-size: 14px;
+  color: #333;
+}
+
+.groupInfo small {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+
+.addGroupBtn,
+.removeGroupBtn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.addGroupBtn {
+  background: #28a745;
+  color: white;
+}
+
+.addGroupBtn:hover {
+  background: #218838;
+}
+
+.removeGroupBtn {
+  background: #dc3545;
+  color: white;
+}
+
+.removeGroupBtn:hover {
+  background: #c82333;
+}
+
+.noGroups {
+  text-align: center;
+  color: #666;
+  padding: 20px;
+  font-style: italic;
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 15px;

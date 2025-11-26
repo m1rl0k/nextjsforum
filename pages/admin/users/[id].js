@@ -156,7 +156,7 @@ const AdminUserEdit = () => {
       }
 
       setSuccess('User deleted successfully');
-      
+
       // Redirect back to users list
       setTimeout(() => {
         router.push('/admin/users');
@@ -166,6 +166,31 @@ const AdminUserEdit = () => {
       console.error('Error deleting user:', err);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleGroupToggle = async (groupId, isMember) => {
+    try {
+      const currentGroupIds = userGroups.map(g => g.id);
+      const newGroupIds = isMember
+        ? currentGroupIds.filter(gid => gid !== groupId)
+        : [...currentGroupIds, groupId];
+
+      const res = await fetch(`/api/admin/users/${id}/groups`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ groupIds: newGroupIds })
+      });
+
+      if (res.ok) {
+        await fetchUserGroups();
+        setSuccess(isMember ? 'Removed from group' : 'Added to group');
+        setTimeout(() => setSuccess(''), 2000);
+      }
+    } catch (err) {
+      setError('Failed to update group membership');
+      console.error('Error updating groups:', err);
     }
   };
 
@@ -327,6 +352,48 @@ const AdminUserEdit = () => {
             </button>
           </div>
         </form>
+
+        {/* Group Membership Section */}
+        <div className={styles.groupsSection}>
+          <h2>Group Membership</h2>
+          <p className={styles.groupsDescription}>
+            Manage which groups this user belongs to. Groups grant additional permissions.
+          </p>
+
+          {groupsLoading ? (
+            <div className={styles.groupsLoading}>Loading groups...</div>
+          ) : (
+            <div className={styles.groupsList}>
+              {availableGroups.map(group => (
+                <div
+                  key={group.id}
+                  className={`${styles.groupItem} ${group.isMember ? styles.memberGroup : ''}`}
+                >
+                  <div className={styles.groupInfo}>
+                    <span
+                      className={styles.groupColor}
+                      style={{ backgroundColor: group.color || '#3B82F6' }}
+                    />
+                    <div>
+                      <strong>{group.name}</strong>
+                      {group.description && <small>{group.description}</small>}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleGroupToggle(group.id, group.isMember)}
+                    className={group.isMember ? styles.removeGroupBtn : styles.addGroupBtn}
+                  >
+                    {group.isMember ? 'Remove' : 'Add'}
+                  </button>
+                </div>
+              ))}
+              {availableGroups.length === 0 && (
+                <p className={styles.noGroups}>No groups available. Create groups in the Permissions page.</p>
+              )}
+            </div>
+          )}
+        </div>
 
         {user && (
           <div className={styles.userInfo}>

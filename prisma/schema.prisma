@@ -85,29 +85,30 @@ model Category {
 }
 
 model Subject {
-  id               Int                @id @default(autoincrement())
+  id               Int                       @id @default(autoincrement())
   name             String
   description      String?
   icon             String?
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  order            Int                @default(0)
-  isActive         Boolean            @default(true)
-  requiresApproval Boolean            @default(false)
-  canPost          Boolean            @default(true)
-  canReply         Boolean            @default(true)
-  guestPosting     Boolean            @default(false)
-  threadCount      Int                @default(0)
-  postCount        Int                @default(0)
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
+  order            Int                       @default(0)
+  isActive         Boolean                   @default(true)
+  requiresApproval Boolean                   @default(false)
+  canPost          Boolean                   @default(true)
+  canReply         Boolean                   @default(true)
+  guestPosting     Boolean                   @default(false)
+  threadCount      Int                       @default(0)
+  postCount        Int                       @default(0)
   lastPost         DateTime?
   lastPostUserId   Int?
   lastThreadId     Int?
   slug             String?
   metaDescription  String?
   categoryId       Int
-  category         Category           @relation(fields: [categoryId], references: [id])
+  category         Category                  @relation(fields: [categoryId], references: [id])
   moderators       SubjectModerator[]
   threads          Thread[]
+  groupPermissions SubjectGroupPermission[]
 
   @@index([categoryId, order])
   @@index([slug])
@@ -323,23 +324,24 @@ model InstallationStatus {
 }
 
 model UserGroup {
-  id              Int               @id @default(autoincrement())
-  name            String            @unique
-  description     String?
-  color           String?
-  isDefault       Boolean           @default(false)
-  priority        Int               @default(0)
-  canPost         Boolean           @default(true)
-  canReply        Boolean           @default(true)
-  canEdit         Boolean           @default(false)
-  canDelete       Boolean           @default(false)
-  canModerate     Boolean           @default(false)
-  canAdmin        Boolean           @default(false)
-  canViewProfiles Boolean           @default(true)
-  canSendMessages Boolean           @default(true)
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  members         UserGroupMember[]
+  id                 Int                      @id @default(autoincrement())
+  name               String                   @unique
+  description        String?
+  color              String?
+  isDefault          Boolean                  @default(false)
+  priority           Int                      @default(0)
+  canPost            Boolean                  @default(true)
+  canReply           Boolean                  @default(true)
+  canEdit            Boolean                  @default(false)
+  canDelete          Boolean                  @default(false)
+  canModerate        Boolean                  @default(false)
+  canAdmin           Boolean                  @default(false)
+  canViewProfiles    Boolean                  @default(true)
+  canSendMessages    Boolean                  @default(true)
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+  members            UserGroupMember[]
+  subjectPermissions SubjectGroupPermission[]
 }
 
 model UserGroupMember {
@@ -363,6 +365,24 @@ model SubjectModerator {
   user       User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, subjectId])
+}
+
+// Forum-level group permissions (ACL)
+model SubjectGroupPermission {
+  id        Int       @id @default(autoincrement())
+  subjectId Int
+  groupId   Int
+  canView   Boolean   @default(true)
+  canPost   Boolean   @default(true)
+  canReply  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  subject   Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  group     UserGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([subjectId, groupId])
+  @@index([subjectId])
+  @@index([groupId])
 }
 
 model ThreadSubscription {

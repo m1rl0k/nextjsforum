@@ -36,20 +36,27 @@
 }
 
 .steps {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
   background: #f8f9fa;
   border-bottom: 1px solid #e9ecef;
-  overflow-x: auto;
+  width: 100%;
 }
 
 .step {
-  flex: 1;
   display: flex;
   align-items: center;
-  padding: 20px 15px;
-  min-width: 150px;
+  padding: 15px 10px;
   border-right: 1px solid #e9ecef;
+  border-top: none;
+  border-bottom: none;
+  border-left: none;
+  background: transparent;
   transition: all 0.3s ease;
+  cursor: default;
+  text-align: left;
+  font-family: inherit;
+  font-size: inherit;
 }
 
 .step:last-child {
@@ -64,6 +71,19 @@
 .step.completed {
   background: #e8f5e8;
   color: #2e7d32;
+}
+
+.step.clickable {
+  cursor: pointer;
+}
+
+.step.clickable:hover {
+  background: #d4edda;
+  color: #1e5631;
+}
+
+.step:disabled {
+  cursor: default;
 }
 
 .stepNumber {
@@ -455,13 +475,226 @@
   margin-top: 4px;
 }
 
+/* Database Test Section */
+.dbTestSection {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.dbTestButtons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.testButton {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  background: #2B4F81;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.testButton:hover:not(:disabled) {
+  background: #1e3a5f;
+}
+
+.testButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.connectionResult {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.connectionResult.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.connectionResult.failure {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.statusIcon {
+  font-size: 1.2rem;
+}
+
+.dbInfoPanel {
+  margin-top: 24px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.dbInfoPanel h3 {
+  margin: 0 0 16px 0;
+  font-size: 1.1rem;
+  color: #2B4F81;
+}
+
+.dbInfoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.dbInfoItem {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.dbInfoItem label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #6c757d;
+  margin-bottom: 4px;
+}
+
+.dbInfoItem span {
+  font-weight: 600;
+  color: #333;
+}
+
+.existingTables {
+  margin-top: 20px;
+  padding: 16px;
+  background: #fff3cd;
+  border: 1px solid #ffeeba;
+  border-radius: 6px;
+}
+
+.existingTables h4 {
+  margin: 0 0 12px 0;
+  color: #856404;
+}
+
+.tableList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tableTag {
+  padding: 4px 10px;
+  background: #ffc107;
+  color: #856404;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-family: monospace;
+}
+
+.warning {
+  font-size: 0.9rem;
+  color: #856404;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.resetButton {
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.resetButton:hover {
+  background: #c82333;
+}
+
+.resetConfirm {
+  padding: 16px;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  margin-top: 12px;
+}
+
+.resetConfirm p {
+  margin: 0 0 12px 0;
+  color: #721c24;
+}
+
+.resetConfirmButtons {
+  display: flex;
+  gap: 12px;
+}
+
+.confirmResetButton {
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.confirmResetButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.cancelButton:hover {
+  background: #5a6268;
+}
+
+@media (max-width: 992px) {
+  .steps {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .stepDescription {
+    display: none;
+  }
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 10px;
   }
 
   .steps {
-    flex-direction: column;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .step {
@@ -479,6 +712,14 @@
 
   .formRow {
     grid-template-columns: 1fr;
+  }
+
+  .dbInfoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .resetConfirmButtons {
+    flex-direction: column;
   }
 
   .navigation {

@@ -181,6 +181,12 @@ const InstallWizard = () => {
       return;
     }
 
+    // Step 5 is the final review/complete step - go directly to completion
+    if (currentStep === 5) {
+      await completeInstallation();
+      return;
+    }
+
     if (!validateStep(currentStep)) {
       return;
     }
@@ -189,7 +195,7 @@ const InstallWizard = () => {
     setStepProgress('Processing...');
 
     try {
-      // Save current step data
+      // Save current step data (steps 1-4 only)
       const res = await fetch('/api/install/step', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -221,12 +227,8 @@ const InstallWizard = () => {
         throw new Error(result.message || 'Installation step failed');
       }
 
-      if (currentStep < 5) {
-        setCurrentStep(currentStep + 1);
-      } else {
-        // Final step - complete installation
-        await completeInstallation();
-      }
+      // Move to next step
+      setCurrentStep(currentStep + 1);
     } catch (error) {
       console.error('Installation step error:', error);
       setErrors({ general: error.message });
@@ -271,6 +273,15 @@ const InstallWizard = () => {
   const prevStep = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
+      setErrors({});
+    }
+  };
+
+  const goToStep = (stepNumber) => {
+    // Only allow going to steps that have been completed or current step
+    // For simplicity, allow going back to any previous step
+    if (stepNumber <= currentStep && stepNumber >= 0) {
+      setCurrentStep(stepNumber);
       setErrors({});
     }
   };
@@ -327,23 +338,30 @@ const InstallWizard = () => {
 
           {/* Progress Steps */}
           <div className={styles.steps}>
-            {steps.map((step) => (
-              <div
-                key={step.number}
-                className={`${styles.step} ${
-                  step.number === currentStep ? styles.active :
-                  step.number < currentStep ? styles.completed : ''
-                }`}
-              >
-                <div className={styles.stepNumber}>
-                  {step.number < currentStep ? '✓' : step.number + 1}
-                </div>
-                <div className={styles.stepInfo}>
-                  <div className={styles.stepTitle}>{step.title}</div>
-                  <div className={styles.stepDescription}>{step.description}</div>
-                </div>
-              </div>
-            ))}
+            {steps.map((step) => {
+              const isCompleted = step.number < currentStep;
+              const isActive = step.number === currentStep;
+              const isClickable = step.number < currentStep;
+
+              return (
+                <button
+                  type="button"
+                  key={step.number}
+                  className={`${styles.step} ${isActive ? styles.active : ''} ${isCompleted ? styles.completed : ''} ${isClickable ? styles.clickable : ''}`}
+                  onClick={() => isClickable && goToStep(step.number)}
+                  disabled={!isClickable}
+                  title={isClickable ? `Go back to ${step.title}` : ''}
+                >
+                  <div className={styles.stepNumber}>
+                    {isCompleted ? '✓' : step.number + 1}
+                  </div>
+                  <div className={styles.stepInfo}>
+                    <div className={styles.stepTitle}>{step.title}</div>
+                    <div className={styles.stepDescription}>{step.description}</div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
 
           {/* Error Display */}
@@ -410,7 +428,7 @@ const InstallWizard = () => {
 
           {/* Navigation */}
           <div className={styles.navigation}>
-            {currentStep > 0 && currentStep < 5 && (
+            {currentStep > 0 ? (
               <button
                 type="button"
                 onClick={prevStep}
@@ -419,9 +437,9 @@ const InstallWizard = () => {
               >
                 ← Previous
               </button>
+            ) : (
+              <div></div>
             )}
-
-            {currentStep === 0 && <div></div>}
 
             <button
               type="button"
@@ -493,95 +511,159 @@ const RequirementsStep = ({ requirements, installationStatus }) => (
 );
 
 // Step Components
-const DatabaseStep = ({ data, errors, onChange }) => (
-  <div className={styles.stepForm}>
-    <h2>Database Configuration</h2>
-    <p>Configure your database connection. SQLite is recommended for most installations.</p>
+const DatabaseStep = ({ data, errors, onChange }) => {
+  const [connectionStatus, setConnectionStatus] = useState(null);
+  const [dbInfo, setDbInfo] = useState(null);
+  const [testing, setTesting] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
-    <div className={styles.formGroup}>
-      <label>Database Type</label>
-      <select
-        value={data.dbType}
-        onChange={(e) => onChange('dbType', e.target.value)}
-        className={styles.select}
-      >
-        <option value="sqlite">SQLite (Recommended)</option>
-        <option value="postgresql">PostgreSQL</option>
-        <option value="mysql">MySQL</option>
-      </select>
-    </div>
+  const testConnection = async () => {
+    setTesting(true);
+    setConnectionStatus(null);
+    try {
+      const res = await fetch('/api/install/test-connection', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'info' })
+      });
+      const result = await res.json();
+      setConnectionStatus(result);
+      if (result.success) {
+        setDbInfo(result);
+      }
+    } catch (e) {
+      setConnectionStatus({ success: false, message: 'Failed to test connection' });
+    }
+    setTesting(false);
+  };
 
-    {data.dbType !== 'sqlite' && (
-      <>
-        <div className={styles.formRow}>
-          <div className={styles.formGroup}>
-            <label>Host</label>
-            <input
-              type="text"
-              value={data.dbHost}
-              onChange={(e) => onChange('dbHost', e.target.value)}
-              className={`${styles.input} ${errors.dbHost ? styles.error : ''}`}
-              placeholder="localhost"
-            />
-            {errors.dbHost && <span className={styles.errorText}>{errors.dbHost}</span>}
-          </div>
+  const resetDatabase = async () => {
+    setResetting(true);
+    try {
+      const res = await fetch('/api/install/test-connection', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'reset' })
+      });
+      const result = await res.json();
+      setConnectionStatus(result);
+      if (result.success) {
+        setDbInfo({ ...dbInfo, tables: [], tableCount: 0, hasExistingData: false });
+      }
+    } catch (e) {
+      setConnectionStatus({ success: false, message: 'Failed to reset database' });
+    }
+    setResetting(false);
+    setShowResetConfirm(false);
+  };
 
-          <div className={styles.formGroup}>
-            <label>Port</label>
-            <input
-              type="text"
-              value={data.dbPort}
-              onChange={(e) => onChange('dbPort', e.target.value)}
-              className={styles.input}
-              placeholder={data.dbType === 'postgresql' ? '5432' : '3306'}
-            />
-          </div>
+  return (
+    <div className={styles.stepForm}>
+      <h2>Database Configuration</h2>
+      <p>Your database connection is configured via environment variables. Test the connection below.</p>
+
+      {/* Connection Test Section */}
+      <div className={styles.dbTestSection}>
+        <div className={styles.dbTestButtons}>
+          <button
+            type="button"
+            onClick={testConnection}
+            disabled={testing}
+            className={styles.testButton}
+          >
+            {testing ? '🔄 Testing...' : '🔌 Test Connection'}
+          </button>
         </div>
 
-        <div className={styles.formGroup}>
-          <label>Database Name</label>
-          <input
-            type="text"
-            value={data.dbName}
-            onChange={(e) => onChange('dbName', e.target.value)}
-            className={`${styles.input} ${errors.dbName ? styles.error : ''}`}
-            placeholder="nextjs_forum"
-          />
-          {errors.dbName && <span className={styles.errorText}>{errors.dbName}</span>}
-        </div>
-
-        <div className={styles.formRow}>
-          <div className={styles.formGroup}>
-            <label>Username</label>
-            <input
-              type="text"
-              value={data.dbUser}
-              onChange={(e) => onChange('dbUser', e.target.value)}
-              className={`${styles.input} ${errors.dbUser ? styles.error : ''}`}
-            />
-            {errors.dbUser && <span className={styles.errorText}>{errors.dbUser}</span>}
+        {connectionStatus && (
+          <div className={`${styles.connectionResult} ${connectionStatus.success ? styles.success : styles.failure}`}>
+            <span className={styles.statusIcon}>
+              {connectionStatus.success ? '✅' : '❌'}
+            </span>
+            <span>{connectionStatus.message}</span>
           </div>
-
-          <div className={styles.formGroup}>
-            <label>Password</label>
-            <input
-              type="password"
-              value={data.dbPassword}
-              onChange={(e) => onChange('dbPassword', e.target.value)}
-              className={styles.input}
-            />
-          </div>
-        </div>
-      </>
-    )}
-
-    {data.dbType === 'sqlite' && (
-      <div className={styles.info}>
-        <p>✓ SQLite will be used with a local database file. No additional configuration needed.</p>
+        )}
       </div>
-    )}
-  </div>
-);
+
+      {/* Database Info */}
+      {dbInfo && dbInfo.success && (
+        <div className={styles.dbInfoPanel}>
+          <h3>Database Information</h3>
+          <div className={styles.dbInfoGrid}>
+            <div className={styles.dbInfoItem}>
+              <label>Version</label>
+              <span>{dbInfo.dbVersion}</span>
+            </div>
+            <div className={styles.dbInfoItem}>
+              <label>Size</label>
+              <span>{dbInfo.dbSize}</span>
+            </div>
+            <div className={styles.dbInfoItem}>
+              <label>Tables</label>
+              <span>{dbInfo.tableCount}</span>
+            </div>
+          </div>
+
+          {dbInfo.tables && dbInfo.tables.length > 0 && (
+            <div className={styles.existingTables}>
+              <h4>⚠️ Existing Tables Found</h4>
+              <div className={styles.tableList}>
+                {dbInfo.tables.map(table => (
+                  <span key={table} className={styles.tableTag}>{table}</span>
+                ))}
+              </div>
+              <p className={styles.warning}>
+                The database contains existing tables. You can reset the database to start fresh,
+                or continue with the installation (existing forum data will be preserved if compatible).
+              </p>
+
+              {!showResetConfirm ? (
+                <button
+                  type="button"
+                  onClick={() => setShowResetConfirm(true)}
+                  className={styles.resetButton}
+                >
+                  🗑️ Reset Database
+                </button>
+              ) : (
+                <div className={styles.resetConfirm}>
+                  <p><strong>⚠️ Warning:</strong> This will DELETE ALL DATA in the database!</p>
+                  <div className={styles.resetConfirmButtons}>
+                    <button
+                      type="button"
+                      onClick={resetDatabase}
+                      disabled={resetting}
+                      className={styles.confirmResetButton}
+                    >
+                      {resetting ? 'Resetting...' : 'Yes, Delete Everything'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowResetConfirm(false)}
+                      className={styles.cancelButton}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {dbInfo.tables && dbInfo.tables.length === 0 && (
+            <div className={styles.info}>
+              <p>✅ Database is empty and ready for installation.</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Hidden fields for form data */}
+      <input type="hidden" value={data.dbType} />
+    </div>
+  );
+};
 
 const AdminStep = ({ data, errors, onChange }) => (
   <div className={styles.stepForm}>
