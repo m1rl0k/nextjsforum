@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import styles from '../../styles/Install.module.css';
 
 const InstallWizard = () => {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0); // 0 = requirements check
   const [installationData, setInstallationData] = useState({
     // Database Configuration
     dbType: 'sqlite',
@@ -14,19 +14,19 @@ const InstallWizard = () => {
     dbName: 'nextjs_forum',
     dbUser: '',
     dbPassword: '',
-    
+
     // Admin Account
     adminUsername: '',
     adminEmail: '',
     adminPassword: '',
     adminPasswordConfirm: '',
-    
+
     // Site Configuration
     siteName: 'NextJS Forum',
     siteDescription: 'A modern forum built with Next.js',
     adminEmailContact: '',
-    timezone: 'UTC',
-    
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+
     // Forum Structure
     createSampleData: true,
     defaultCategories: [
@@ -35,62 +35,123 @@ const InstallWizard = () => {
       { name: 'Announcements', description: 'Important announcements' }
     ]
   });
-  
+
   const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [stepProgress, setStepProgress] = useState('');
   const [installationStatus, setInstallationStatus] = useState(null);
+  const [systemRequirements, setSystemRequirements] = useState(null);
 
-  useEffect(() => {
-    checkInstallationStatus();
-  }, []);
-
-  const checkInstallationStatus = async () => {
+  const checkInstallationStatus = useCallback(async () => {
+    setIsLoading(true);
     try {
       const res = await fetch('/api/install/status');
       const data = await res.json();
-      
+
       if (data.isInstalled) {
         router.push('/');
         return;
       }
-      
+
       setInstallationStatus(data);
-      setCurrentStep(data.installationStep || 1);
+      setSystemRequirements(data.requirements);
+
+      // If database is connected and steps were started, resume from last step
+      if (data.dbConnected && data.installationStep > 1) {
+        setCurrentStep(data.installationStep);
+      } else {
+        setCurrentStep(0); // Start with requirements check
+      }
     } catch (error) {
       console.error('Error checking installation status:', error);
+      setErrors({ general: 'Unable to connect to the server. Please check if the application is running correctly.' });
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    checkInstallationStatus();
+  }, [checkInstallationStatus]);
 
   const validateStep = (step) => {
     const newErrors = {};
-    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+
     switch (step) {
+      case 0: // Requirements check - always valid
+        break;
+
       case 1: // Database Configuration
         if (installationData.dbType !== 'sqlite') {
-          if (!installationData.dbHost) newErrors.dbHost = 'Database host is required';
-          if (!installationData.dbName) newErrors.dbName = 'Database name is required';
-          if (!installationData.dbUser) newErrors.dbUser = 'Database user is required';
+          if (!installationData.dbHost?.trim()) newErrors.dbHost = 'Database host is required';
+          if (!installationData.dbName?.trim()) newErrors.dbName = 'Database name is required';
+          if (!installationData.dbUser?.trim()) newErrors.dbUser = 'Database user is required';
+          if (installationData.dbPort && !/^\d+$/.test(installationData.dbPort)) {
+            newErrors.dbPort = 'Port must be a number';
+          }
         }
         break;
-        
-      case 2: // Admin Account
-        if (!installationData.adminUsername) newErrors.adminUsername = 'Admin username is required';
-        if (!installationData.adminEmail) newErrors.adminEmail = 'Admin email is required';
-        if (!installationData.adminPassword) newErrors.adminPassword = 'Admin password is required';
+
+      case 2: // Admin Account - Strict validation
+        if (!installationData.adminUsername?.trim()) {
+          newErrors.adminUsername = 'Admin username is required';
+        } else if (installationData.adminUsername.length < 3) {
+          newErrors.adminUsername = 'Username must be at least 3 characters';
+        } else if (installationData.adminUsername.length > 30) {
+          newErrors.adminUsername = 'Username must be at most 30 characters';
+        } else if (!usernameRegex.test(installationData.adminUsername)) {
+          newErrors.adminUsername = 'Username can only contain letters, numbers, underscores, and hyphens';
+        }
+
+        if (!installationData.adminEmail?.trim()) {
+          newErrors.adminEmail = 'Admin email is required';
+        } else if (!emailRegex.test(installationData.adminEmail)) {
+          newErrors.adminEmail = 'Please enter a valid email address';
+        }
+
+        if (!installationData.adminPassword) {
+          newErrors.adminPassword = 'Admin password is required';
+        } else {
+          if (installationData.adminPassword.length < 8) {
+            newErrors.adminPassword = 'Password must be at least 8 characters';
+          } else if (!/[A-Z]/.test(installationData.adminPassword)) {
+            newErrors.adminPassword = 'Password must contain at least one uppercase letter';
+          } else if (!/[a-z]/.test(installationData.adminPassword)) {
+            newErrors.adminPassword = 'Password must contain at least one lowercase letter';
+          } else if (!/[0-9]/.test(installationData.adminPassword)) {
+            newErrors.adminPassword = 'Password must contain at least one number';
+          } else if (!/[^A-Za-z0-9]/.test(installationData.adminPassword)) {
+            newErrors.adminPassword = 'Password must contain at least one special character';
+          }
+        }
+
         if (installationData.adminPassword !== installationData.adminPasswordConfirm) {
           newErrors.adminPasswordConfirm = 'Passwords do not match';
         }
-        if (installationData.adminPassword && installationData.adminPassword.length < 6) {
-          newErrors.adminPassword = 'Password must be at least 6 characters';
+        break;
+
+      case 3: // Site Configuration
+        if (!installationData.siteName?.trim()) {
+          newErrors.siteName = 'Site name is required';
+        } else if (installationData.siteName.length < 2) {
+          newErrors.siteName = 'Site name must be at least 2 characters';
+        } else if (/<|>/.test(installationData.siteName)) {
+          newErrors.siteName = 'Site name cannot contain < or >';
+        }
+
+        if (!installationData.adminEmailContact?.trim()) {
+          newErrors.adminEmailContact = 'Contact email is required';
+        } else if (!emailRegex.test(installationData.adminEmailContact)) {
+          newErrors.adminEmailContact = 'Please enter a valid email address';
         }
         break;
-        
-      case 3: // Site Configuration
-        if (!installationData.siteName) newErrors.siteName = 'Site name is required';
-        if (!installationData.adminEmailContact) newErrors.adminEmailContact = 'Contact email is required';
+
+      case 4: // Forum Structure - no required fields
         break;
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -100,7 +161,7 @@ const InstallWizard = () => {
       ...prev,
       [field]: value
     }));
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({
@@ -111,12 +172,22 @@ const InstallWizard = () => {
   };
 
   const nextStep = async () => {
+    // Clear previous errors
+    setErrors({});
+
+    // Step 0 is requirements check, just proceed
+    if (currentStep === 0) {
+      setCurrentStep(1);
+      return;
+    }
+
     if (!validateStep(currentStep)) {
       return;
     }
-    
+
     setIsLoading(true);
-    
+    setStepProgress('Processing...');
+
     try {
       // Save current step data
       const res = await fetch('/api/install/step', {
@@ -127,12 +198,29 @@ const InstallWizard = () => {
           data: installationData
         })
       });
-      
+
+      const result = await res.json();
+
       if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || 'Installation step failed');
+        // Handle specific error codes
+        if (result.code === 'ALREADY_INSTALLED') {
+          router.push('/');
+          return;
+        }
+
+        // Handle validation errors
+        if (result.errors && Array.isArray(result.errors)) {
+          const fieldErrors = {};
+          result.errors.forEach(err => {
+            fieldErrors[err.field] = err.message;
+          });
+          setErrors(fieldErrors);
+          return;
+        }
+
+        throw new Error(result.message || 'Installation step failed');
       }
-      
+
       if (currentStep < 5) {
         setCurrentStep(currentStep + 1);
       } else {
@@ -144,51 +232,92 @@ const InstallWizard = () => {
       setErrors({ general: error.message });
     } finally {
       setIsLoading(false);
+      setStepProgress('');
     }
   };
 
   const completeInstallation = async () => {
+    setIsLoading(true);
+    setStepProgress('Completing installation...');
+
     try {
       const res = await fetch('/api/install/complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(installationData)
       });
-      
+
+      const result = await res.json();
+
       if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || 'Installation failed');
+        if (result.code === 'ALREADY_INSTALLED') {
+          router.push('/');
+          return;
+        }
+        throw new Error(result.message || 'Installation failed');
       }
-      
+
       // Redirect to login page
       router.push('/login?message=Installation completed successfully! Please log in with your admin account.');
     } catch (error) {
       console.error('Installation completion error:', error);
       setErrors({ general: error.message });
+    } finally {
+      setIsLoading(false);
+      setStepProgress('');
     }
   };
 
   const prevStep = () => {
-    if (currentStep > 1) {
+    if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
+      setErrors({});
     }
   };
 
   const steps = [
-    { number: 1, title: 'Database Setup', description: 'Configure your database connection' },
-    { number: 2, title: 'Admin Account', description: 'Create your administrator account' },
-    { number: 3, title: 'Site Configuration', description: 'Configure your forum settings' },
-    { number: 4, title: 'Forum Structure', description: 'Set up categories and forums' },
-    { number: 5, title: 'Complete', description: 'Finalize your installation' }
+    { number: 0, title: 'Requirements', description: 'System requirements check' },
+    { number: 1, title: 'Database', description: 'Configure database' },
+    { number: 2, title: 'Admin Account', description: 'Create admin user' },
+    { number: 3, title: 'Site Config', description: 'Forum settings' },
+    { number: 4, title: 'Structure', description: 'Categories & forums' },
+    { number: 5, title: 'Complete', description: 'Finalize' }
   ];
+
+  // Show loading screen while checking status
+  if (isLoading && currentStep === 0 && !systemRequirements) {
+    return (
+      <>
+        <Head>
+          <title>NextJS Forum Installation</title>
+          <meta name="description" content="Install NextJS Forum" />
+        </Head>
+        <div className={styles.container}>
+          <div className={styles.wizard}>
+            <div className={styles.header}>
+              <h1>NextJS Forum Installation</h1>
+              <p>Checking system requirements...</p>
+            </div>
+            <div className={styles.stepForm}>
+              <div className={styles.loadingSpinner}>
+                <div className={styles.spinner}></div>
+                <p>Please wait...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
       <Head>
-        <title>NextJS Forum Installation</title>
+        <title>NextJS Forum Installation - Step {currentStep + 1}</title>
         <meta name="description" content="Install NextJS Forum" />
+        <meta name="robots" content="noindex, nofollow" />
       </Head>
-      
+
       <div className={styles.container}>
         <div className={styles.wizard}>
           <div className={styles.header}>
@@ -206,8 +335,10 @@ const InstallWizard = () => {
                   step.number < currentStep ? styles.completed : ''
                 }`}
               >
-                <div className={styles.stepNumber}>{step.number}</div>
-                <div className={styles.stepContent}>
+                <div className={styles.stepNumber}>
+                  {step.number < currentStep ? '✓' : step.number + 1}
+                </div>
+                <div className={styles.stepInfo}>
                   <div className={styles.stepTitle}>{step.title}</div>
                   <div className={styles.stepDescription}>{step.description}</div>
                 </div>
@@ -218,14 +349,29 @@ const InstallWizard = () => {
           {/* Error Display */}
           {errors.general && (
             <div className={styles.error}>
-              {errors.general}
+              <strong>Error:</strong> {errors.general}
+            </div>
+          )}
+
+          {/* Loading Progress */}
+          {isLoading && stepProgress && (
+            <div className={styles.progressBar}>
+              <div className={styles.progressText}>{stepProgress}</div>
+              <div className={styles.progressIndicator}></div>
             </div>
           )}
 
           {/* Step Content */}
           <div className={styles.stepContent}>
+            {currentStep === 0 && (
+              <RequirementsStep
+                requirements={systemRequirements}
+                installationStatus={installationStatus}
+              />
+            )}
+
             {currentStep === 1 && (
-              <DatabaseStep 
+              <DatabaseStep
                 data={installationData}
                 errors={errors}
                 onChange={handleInputChange}
@@ -249,9 +395,8 @@ const InstallWizard = () => {
             )}
             
             {currentStep === 4 && (
-              <ForumStructureStep 
+              <ForumStructureStep
                 data={installationData}
-                errors={errors}
                 onChange={handleInputChange}
               />
             )}
@@ -265,25 +410,32 @@ const InstallWizard = () => {
 
           {/* Navigation */}
           <div className={styles.navigation}>
-            {currentStep > 1 && (
+            {currentStep > 0 && currentStep < 5 && (
               <button
                 type="button"
                 onClick={prevStep}
                 className={styles.prevButton}
                 disabled={isLoading}
               >
-                Previous
+                ← Previous
               </button>
             )}
-            
+
+            {currentStep === 0 && <div></div>}
+
             <button
               type="button"
               onClick={nextStep}
               className={styles.nextButton}
               disabled={isLoading}
             >
-              {isLoading ? 'Processing...' : 
-               currentStep === 5 ? 'Complete Installation' : 'Next'}
+              {isLoading && (
+                <span className={styles.buttonSpinner}></span>
+              )}
+              {isLoading && 'Processing...'}
+              {!isLoading && currentStep === 0 && 'Begin Installation →'}
+              {!isLoading && currentStep === 5 && 'Complete Installation ✓'}
+              {!isLoading && currentStep > 0 && currentStep < 5 && 'Next Step →'}
             </button>
           </div>
         </div>
@@ -291,6 +443,54 @@ const InstallWizard = () => {
     </>
   );
 };
+
+// Requirements Check Step
+const RequirementsStep = ({ requirements, installationStatus }) => (
+  <div className={styles.stepForm}>
+    <h2>System Requirements Check</h2>
+    <p>Before we begin, let's verify your system meets the requirements.</p>
+
+    <div className={styles.requirementsList}>
+      <div className={styles.requirementItem}>
+        <span className={styles.requirementIcon}>✓</span>
+        <div className={styles.requirementInfo}>
+          <strong>Node.js</strong>
+          <span>{requirements?.nodeVersion || 'Checking...'}</span>
+        </div>
+      </div>
+
+      <div className={styles.requirementItem}>
+        <span className={styles.requirementIcon}>
+          {installationStatus?.dbConnected ? '✓' : '⚠'}
+        </span>
+        <div className={styles.requirementInfo}>
+          <strong>Database Connection</strong>
+          <span>{installationStatus?.dbConnected ? 'Connected' : 'Not connected - will test in next step'}</span>
+        </div>
+      </div>
+
+      <div className={styles.requirementItem}>
+        <span className={styles.requirementIcon}>✓</span>
+        <div className={styles.requirementInfo}>
+          <strong>Memory Available</strong>
+          <span>{requirements?.memoryAvailable || 'Checking...'}</span>
+        </div>
+      </div>
+
+      <div className={styles.requirementItem}>
+        <span className={styles.requirementIcon}>✓</span>
+        <div className={styles.requirementInfo}>
+          <strong>Platform</strong>
+          <span>{requirements?.platform || 'Checking...'}</span>
+        </div>
+      </div>
+    </div>
+
+    <div className={styles.info}>
+      <p><strong>Ready to install!</strong> Click "Begin Installation" to start setting up your forum.</p>
+    </div>
+  </div>
+);
 
 // Step Components
 const DatabaseStep = ({ data, errors, onChange }) => (
@@ -499,7 +699,7 @@ const SiteConfigStep = ({ data, errors, onChange }) => (
   </div>
 );
 
-const ForumStructureStep = ({ data, errors, onChange }) => (
+const ForumStructureStep = ({ data, onChange }) => (
   <div className={styles.stepForm}>
     <h2>Forum Structure</h2>
     <p>Set up your initial forum categories and structure.</p>
