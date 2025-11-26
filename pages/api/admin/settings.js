@@ -145,21 +145,31 @@ export default async function handler(req, res) {
 
       // Also update theme settings if site name or description changed
       // This keeps them in sync for backward compatibility
-      if (validatedSettings.siteName || validatedSettings.siteDescription) {
+      // Note: validatedSettings uses snake_case keys (site_name, site_description)
+      if (validatedSettings.site_name || validatedSettings.site_description) {
         try {
           const themeSettings = await prisma.themeSettings.findFirst();
-          if (themeSettings) {
-            const updateData = {};
-            if (validatedSettings.siteName) {
-              updateData.siteName = validatedSettings.siteName;
-            }
-            if (validatedSettings.siteDescription) {
-              updateData.siteDescription = validatedSettings.siteDescription;
-            }
+          const updateData = {};
+          if (validatedSettings.site_name) {
+            updateData.siteName = validatedSettings.site_name;
+          }
+          if (validatedSettings.site_description) {
+            updateData.siteDescription = validatedSettings.site_description;
+          }
 
+          if (themeSettings) {
+            // Update existing record
             await prisma.themeSettings.update({
               where: { id: themeSettings.id },
               data: updateData
+            });
+          } else {
+            // Create new record if none exists
+            await prisma.themeSettings.create({
+              data: {
+                ...updateData,
+                isActive: true
+              }
             });
           }
         } catch (error) {

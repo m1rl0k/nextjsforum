@@ -338,3 +338,31 @@
   margin-top: 2px;
   line-height: 1.4;
 }
+
+/* Checkbox groups */
+.checkboxGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Info section lists - vBulletin Style */
+.infoSection ul,
+.infoSection ol {
+  margin: 5px 0 0;
+  padding-left: 18px;
+  font-size: 10px;
+  color: #2c5282;
+}
+
+.infoSection li {
+  margin-bottom: 3px;
+}
+
+.infoSection code {
+  background: #d0e0f0;
+  padding: 1px 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  border: 1px solid #b0c8e0;
+}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
@@ -12,23 +12,6 @@ const Navigation = () => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [siteSettings, setSiteSettings] = useState(null);
-
-  // Fetch site settings for site name (separate from theme)
-  useEffect(() => {
-    const fetchSiteSettings = async () => {
-      try {
-        const res = await fetch('/api/site-info');
-        if (res.ok) {
-          const data = await res.json();
-          setSiteSettings(data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch site settings:', error);
-      }
-    };
-    fetchSiteSettings();
-  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -120,12 +103,12 @@ const Navigation = () => {
               {themeSettings?.logoEnabled && themeSettings?.logoUrl ? (
                 <img
                   src={themeSettings.logoUrl}
-                  alt={siteSettings?.siteName || 'NextJS Forum'}
+                  alt={themeSettings?.siteName || 'NextJS Forum'}
                   className={styles.logoImage}
                 />
               ) : (
                 <span className={styles.logoText}>
-                  {siteSettings?.siteName || 'NextJS Forum'}
+                  {themeSettings?.siteName || 'NextJS Forum'}
                 </span>
               )}
             </Link>
