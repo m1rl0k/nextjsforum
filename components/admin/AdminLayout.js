@@ -143,9 +143,17 @@ const AdminLayout = ({ children }) => {
               <span className={styles.userName}>{user.username}</span>
               <span className={styles.userEmail}>{user.email}</span>
             </div>
-            <button onClick={handleLogout} className={styles.logoutButton}>
-              Logout
-            </button>
+            <div className={styles.actions}>
+              <Link href="/" className={styles.backToForum}>
+                ← Back to Forum
+              </Link>
+              <Link href="/moderation" className={styles.modPanel}>
+                Mod Panel
+              </Link>
+              <button onClick={handleLogout} className={styles.logoutButton}>
+                Logout
+              </button>
+            </div>
           </div>
         </nav>
       </aside>

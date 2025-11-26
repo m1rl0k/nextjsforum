@@ -144,12 +144,45 @@
   color: #a0b8d0;
 }
 
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.backToForum,
+.modPanel {
+  color: #fff;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 6px 10px;
+  text-align: center;
+  background: linear-gradient(to bottom, #5C8BC7 0%, #4C76B2 100%);
+  border: 1px solid #1e3a5f;
+}
+
+.backToForum:hover,
+.modPanel:hover {
+  background: linear-gradient(to bottom, #6C9BD7 0%, #5C86C2 100%);
+  color: #fff;
+}
+
+.modPanel {
+  background: linear-gradient(to bottom, #5a9e5a 0%, #4a8e4a 100%);
+  border-color: #3a6e3a;
+}
+
+.modPanel:hover {
+  background: linear-gradient(to bottom, #6aae6a 0%, #5a9e5a 100%);
+}
+
 .logoutButton {
   width: 100%;
   padding: 6px 10px;
-  background: linear-gradient(to bottom, #cc4444 0%, #aa3333 100%);
+  background: linear-gradient(to bottom, #666 0%, #555 100%);
   color: white;
-  border: 1px solid #882222;
+  border: 1px solid #444;
   cursor: pointer;
   font-weight: bold;
   font-size: 11px;
@@ -157,7 +190,7 @@
 }
 
 .logoutButton:hover {
-  background: linear-gradient(to bottom, #dd5555 0%, #bb4444 100%);
+  background: linear-gradient(to bottom, #777 0%, #666 100%);
 }
 
 /* Main Content */
