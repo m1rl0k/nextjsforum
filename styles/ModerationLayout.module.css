@@ -58,6 +58,7 @@
   font-weight: bold;
   cursor: pointer;
   padding: 5px 10px;
+  display: block;
 }
 
 .sidebarToggle:hover {
@@ -68,6 +69,7 @@
 .nav {
   flex: 1;
   padding: 8px 0;
+  overflow-y: auto;
 }
 
 .nav ul {
@@ -101,11 +103,13 @@
   color: white;
 }
 
-/* Sidebar Footer */
+/* Sidebar Footer - Always visible at bottom */
 .sidebarFooter {
   padding: 12px 15px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+  margin-top: auto;
 }
 
 .userInfo {
