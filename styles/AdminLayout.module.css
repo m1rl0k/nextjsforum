@@ -498,36 +498,32 @@
   flex-wrap: wrap;
 }
 
-.backButton,
-.logoutButton {
-  padding: 12px 24px;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 500;
+/* Access Denied Buttons - vBulletin Style */
+.accessDeniedActions .backButton,
+.accessDeniedActions .logoutButton {
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: bold;
   text-decoration: none;
-  transition: all 0.3s ease;
   cursor: pointer;
-  border: none;
 }
 
-.backButton {
-  background: #3498db;
-  color: white;
+.accessDeniedActions .backButton {
+  background: linear-gradient(to bottom, #5C8BC7 0%, #4C76B2 100%);
+  color: #fff;
+  border: 1px solid #1e3a5f;
 }
 
-.backButton:hover {
-  background: #2980b9;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+.accessDeniedActions .backButton:hover {
+  background: linear-gradient(to bottom, #6C9BD7 0%, #5C86C2 100%);
 }
 
-.logoutButton {
-  background: #95a5a6;
-  color: white;
+.accessDeniedActions .logoutButton {
+  background: linear-gradient(to bottom, #666 0%, #555 100%);
+  color: #fff;
+  border: 1px solid #444;
 }
 
-.logoutButton:hover {
-  background: #7f8c8d;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(149, 165, 166, 0.3);
+.accessDeniedActions .logoutButton:hover {
+  background: linear-gradient(to bottom, #777 0%, #666 100%);
 }

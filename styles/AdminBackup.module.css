@@ -182,79 +182,74 @@
 
 /* Import Section */
 .importSection {
-  background-color: #f7fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.375rem;
-  padding: 1.5rem;
+  background: #f5f5f5;
+  border: 1px solid #c0c0c0;
+  padding: 10px;
 }
 
 .importDescription {
-  margin: 0 0 1rem;
-  color: #4a5568;
-  font-size: 0.875rem;
+  margin: 0 0 8px;
+  color: #333;
+  font-size: 11px;
 }
 
 .importActions {
   display: flex;
-  gap: 1rem;
+  gap: 5px;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 8px;
 }
 
 .fileInput {
   flex: 1;
-  padding: 0.5rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
+  padding: 5px 8px;
+  border: 1px solid #c0c0c0;
+  font-size: 11px;
 }
 
 .importButton {
-  background-color: #ed8936;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
+  background: linear-gradient(to bottom, #e8a858 0%, #d89848 100%);
+  color: #fff;
+  border: 1px solid #996600;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.2s;
   white-space: nowrap;
 }
 
 .importButton:hover {
-  background-color: #dd6b20;
+  background: linear-gradient(to bottom, #f8b868 0%, #e8a858 100%);
 }
 
 .importWarning {
-  background-color: #fef5e7;
-  color: #744210;
-  padding: 0.75rem;
-  border-radius: 0.375rem;
-  font-size: 0.75rem;
-  border: 1px solid #f6e05e;
+  background: linear-gradient(to bottom, #fff8e8 0%, #f0e8d8 100%);
+  color: #996600;
+  padding: 8px;
+  font-size: 10px;
+  border: 1px solid #e8c87e;
 }
 
 /* Export Grid */
 .exportGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 5px;
 }
 
 .exportButton {
-  background-color: #805ad5;
-  color: white;
-  border: none;
-  padding: 0.75rem 1rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
+  background: linear-gradient(to bottom, #8a6ab5 0%, #7a5aa5 100%);
+  color: #fff;
+  border: 1px solid #5a3a85;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.2s;
   text-align: center;
 }
 
 .exportButton:hover {
-  background-color: #6b46c1;
+  background: linear-gradient(to bottom, #9a7ac5 0%, #8a6ab5 100%);
 }
 
 /* States */
@@ -262,67 +257,65 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 3rem;
-  font-size: 1.125rem;
-  color: #718096;
+  padding: 30px;
+  font-size: 11px;
+  color: #666;
 }
 
 .error {
-  background-color: #fed7d7;
-  color: #c53030;
-  padding: 1rem;
-  border-radius: 0.375rem;
-  margin-bottom: 1.5rem;
-  border: 1px solid #feb2b2;
+  background: #ffe8e8;
+  color: #993333;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border: 1px solid #e87e7e;
+  font-size: 11px;
 }
 
 .success {
-  background-color: #c6f6d5;
-  color: #2f855a;
-  padding: 1rem;
-  border-radius: 0.375rem;
-  margin-bottom: 1.5rem;
-  border: 1px solid #9ae6b4;
+  background: linear-gradient(to bottom, #e8ffe8 0%, #d8f0d8 100%);
+  color: #3a7e3a;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border: 1px solid #7eb87e;
+  font-size: 11px;
 }
 
 .emptyState {
   text-align: center;
-  padding: 2rem;
-  color: #718096;
-  font-size: 0.875rem;
-  background-color: #f7fafc;
-  border-radius: 0.375rem;
-  border: 1px solid #e2e8f0;
+  padding: 30px;
+  color: #666;
+  font-size: 11px;
+  background: #f9f9f9;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .container {
-    padding: 1rem;
+    padding: 10px;
   }
-  
+
   .section {
-    padding: 1.5rem;
+    padding: 10px;
   }
-  
+
   .optionsGrid {
     grid-template-columns: 1fr;
   }
-  
+
   .exportGrid {
     grid-template-columns: 1fr;
   }
-  
+
   .backupItem {
     flex-direction: column;
     align-items: stretch;
-    gap: 1rem;
+    gap: 8px;
   }
-  
+
   .backupActions {
     justify-content: center;
   }
-  
+
   .importActions {
     flex-direction: column;
     align-items: stretch;
@@ -334,42 +327,42 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1rem;
-  margin-top: 2rem;
-  padding: 1rem;
-  border-top: 1px solid #e2e8f0;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 8px;
+  background: #f5f5f5;
+  border: 1px solid #c0c0c0;
 }
 
 .paginationButton {
-  background-color: #4299e1;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
+  background: linear-gradient(to bottom, #5C8BC7 0%, #4C76B2 100%);
+  color: #fff;
+  border: 1px solid #1e3a5f;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.2s;
 }
 
 .paginationButton:hover:not(:disabled) {
-  background-color: #3182ce;
+  background: linear-gradient(to bottom, #6C9BD7 0%, #5C86C2 100%);
 }
 
 .paginationButton:disabled {
-  background-color: #a0aec0;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .paginationInfo {
-  font-size: 0.875rem;
-  color: #4a5568;
-  font-weight: 500;
+  font-size: 11px;
+  color: #666;
+  font-weight: bold;
 }
 
 .backupDescription {
-  font-size: 0.75rem;
-  color: #718096;
-  margin-top: 0.25rem;
+  font-size: 10px;
+  color: #666;
+  margin-top: 2px;
   font-style: italic;
 }
 
@@ -380,6 +373,6 @@
 .importButton:focus,
 .exportButton:focus,
 .paginationButton:focus {
-  outline: 2px solid #4299e1;
-  outline-offset: 2px;
+  outline: 2px solid #4C76B2;
+  outline-offset: 1px;
 }
