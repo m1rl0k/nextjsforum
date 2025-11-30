@@ -1,0 +1,140 @@
+/* vBulletin-style Error Boundary */
+.errorContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  padding: 20px;
+  background-color: var(--background-color, #E0E8F5);
+}
+
+.errorBox {
+  max-width: 500px;
+  background: #fff;
+  border: 1px solid #c0c0c0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.errorHeader {
+  background: linear-gradient(to bottom, #c9302c 0%, #a02622 100%);
+  color: #fff;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  font-weight: bold;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.errorHeader h2 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.errorIcon {
+  font-size: 16px;
+}
+
+.errorMessage {
+  padding: 15px;
+  font-size: 11px;
+  color: #333;
+  line-height: 1.5;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.errorDetails {
+  padding: 10px 15px;
+  font-size: 10px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.errorDetails summary {
+  cursor: pointer;
+  color: #666;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.errorDetails pre {
+  margin: 5px 0;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid #ddd;
+  overflow-x: auto;
+  font-size: 9px;
+  color: #c7254e;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.errorActions {
+  padding: 12px 15px;
+  display: flex;
+  gap: 10px;
+  background: #f9f9f9;
+}
+
+.retryButton {
+  background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
+  color: #fff;
+  border: 1px solid #1e3a5f;
+  padding: 6px 15px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.retryButton:hover {
+  background: linear-gradient(to bottom, #5a86c2 0%, #3b5f91 100%);
+}
+
+.homeButton {
+  background: linear-gradient(to bottom, #f5f5f5 0%, #e5e5e5 100%);
+  color: #333;
+  border: 1px solid #c0c0c0;
+  padding: 6px 15px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.homeButton:hover {
+  background: linear-gradient(to bottom, #fff 0%, #f0f0f0 100%);
+}
+
+/* Dark mode support */
+:global(.dark-mode) .errorBox {
+  background: #22272e;
+  border-color: #444c56;
+}
+
+:global(.dark-mode) .errorMessage {
+  color: #e0e0e0;
+  border-color: #444c56;
+}
+
+:global(.dark-mode) .errorDetails {
+  background: #2d333b;
+  border-color: #444c56;
+}
+
+:global(.dark-mode) .errorDetails pre {
+  background: #1a1d21;
+  border-color: #444c56;
+}
+
+:global(.dark-mode) .errorActions {
+  background: #2d333b;
+}
+
+:global(.dark-mode) .homeButton {
+  background: linear-gradient(to bottom, #3a4149 0%, #2d333b 100%);
+  color: #e0e0e0;
+  border-color: #444c56;
+}
+

@@ -68,6 +68,24 @@
   text-decoration: underline;
 }
 
+/* Dark Mode Toggle */
+.darkModeToggle {
+  background: none;
+  border: 1px solid #555;
+  border-radius: 3px;
+  color: #ccc;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 6px;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.darkModeToggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #888;
+}
+
 /* Logo Bar */
 .logoBar {
   background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);

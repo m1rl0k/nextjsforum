@@ -1,6 +1,82 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const ThemeContext = createContext();
+
+// Cache configuration
+const CACHE_KEY = 'theme_settings_cache';
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const DARK_MODE_KEY = 'dark_mode_preference';
+
+// Default vBulletin theme settings
+const defaultThemeSettings = {
+  primaryColor: '#2B4F81',
+  secondaryColor: '#4C76B2',
+  backgroundColor: '#E0E8F5',
+  textColor: '#000000',
+  linkColor: '#006699',
+  linkHoverColor: '#0088CC',
+  headerBackground: '#2B4F81',
+  headerText: '#FFFFFF',
+  navbarBackground: '#4C76B2',
+  navbarText: '#FFFFFF',
+  categoryHeaderBackground: '#738FBF',
+  categoryHeaderText: '#FFFFFF',
+  subjectHeaderBackground: '#DEE4F2',
+  subjectHeaderText: '#000000',
+  threadBackground: '#FFFFFF',
+  threadAltBackground: '#F5F5FF',
+  threadHoverBackground: '#E8EFFD',
+  postHeaderBackground: '#DEE4F2',
+  postBodyBackground: '#FFFFFF',
+  postFooterBackground: '#F5F5FF',
+  sidebarBackground: '#E0E8F5',
+  borderColor: '#94A3C4',
+  buttonBackground: '#4C76B2',
+  buttonText: '#FFFFFF',
+  buttonHoverBackground: '#0088CC',
+  inputBackground: '#FFFFFF',
+  inputText: '#000000',
+  inputBorderColor: '#94A3C4',
+  buttonRadius: '0px',
+  cardRadius: '0px',
+  fontSize: '13px',
+  fontFamily: 'Verdana, Arial, sans-serif',
+  siteName: 'NextJS Forum',
+  logoUrl: '',
+  enableDarkMode: false
+};
+
+// Dark mode color overrides for vBulletin style
+const darkModeColors = {
+  primaryColor: '#4A6FA5',
+  secondaryColor: '#5B82B8',
+  backgroundColor: '#1a1d21',
+  textColor: '#e0e0e0',
+  linkColor: '#6fa8dc',
+  linkHoverColor: '#9fc5e8',
+  headerBackground: '#252a30',
+  headerText: '#FFFFFF',
+  navbarBackground: '#2d333b',
+  navbarText: '#e0e0e0',
+  categoryHeaderBackground: '#3a4149',
+  categoryHeaderText: '#FFFFFF',
+  subjectHeaderBackground: '#2d333b',
+  subjectHeaderText: '#e0e0e0',
+  threadBackground: '#22272e',
+  threadAltBackground: '#2d333b',
+  threadHoverBackground: '#3a4149',
+  postHeaderBackground: '#2d333b',
+  postBodyBackground: '#22272e',
+  postFooterBackground: '#2d333b',
+  sidebarBackground: '#252a30',
+  borderColor: '#444c56',
+  buttonBackground: '#4A6FA5',
+  buttonText: '#FFFFFF',
+  buttonHoverBackground: '#5B82B8',
+  inputBackground: '#2d333b',
+  inputText: '#e0e0e0',
+  inputBorderColor: '#444c56'
+};
 
 export const useTheme = () => {
   const context = useContext(ThemeContext);
@@ -10,47 +86,68 @@ export const useTheme = () => {
   return context;
 };
 
-const ThemeProvider = ({ children }) => {
-  const [themeSettings, setThemeSettings] = useState({
-    // Default vBulletin colors to prevent flash
-    primaryColor: '#2B4F81',
-    secondaryColor: '#4C76B2',
-    backgroundColor: '#E0E8F5',
-    textColor: '#000000',
-    linkColor: '#006699',
-    linkHoverColor: '#0088CC',
-    headerBackground: '#2B4F81',
-    headerText: '#FFFFFF',
-    navbarBackground: '#4C76B2',
-    navbarText: '#FFFFFF',
-    categoryHeaderBackground: '#738FBF',
-    categoryHeaderText: '#FFFFFF',
-    subjectHeaderBackground: '#DEE4F2',
-    subjectHeaderText: '#000000',
-    threadBackground: '#FFFFFF',
-    threadAltBackground: '#F5F5FF',
-    threadHoverBackground: '#E8EFFD',
-    postHeaderBackground: '#DEE4F2',
-    postBodyBackground: '#FFFFFF',
-    postFooterBackground: '#F5F5FF',
-    sidebarBackground: '#E0E8F5',
-    borderColor: '#94A3C4',
-    buttonBackground: '#4C76B2',
-    buttonText: '#FFFFFF',
-    buttonHoverBackground: '#0088CC',
-    inputBackground: '#FFFFFF',
-    inputText: '#000000',
-    inputBorderColor: '#94A3C4',
-    buttonRadius: '0px',
-    cardRadius: '0px',
-    fontSize: '13px',
-    fontFamily: 'Verdana, Arial, sans-serif',
-    siteName: 'NextJS Forum',
-    logoUrl: ''
-  });
+// Helper to get cached settings
+const getCachedSettings = () => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (!cached) return null;
+    const { data, timestamp } = JSON.parse(cached);
+    if (Date.now() - timestamp > CACHE_DURATION) {
+      localStorage.removeItem(CACHE_KEY);
+      return null;
+    }
+    return data;
+  } catch {
+    return null;
+  }
+};
 
-  const loadThemeSettings = async () => {
+// Helper to set cached settings
+const setCachedSettings = (data) => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      data,
+      timestamp: Date.now()
+    }));
+  } catch {
+    // Storage full or unavailable
+  }
+};
+
+// Helper to get dark mode preference
+const getDarkModePreference = () => {
+  if (typeof window === 'undefined') return false;
+  try {
+    const saved = localStorage.getItem(DARK_MODE_KEY);
+    if (saved !== null) return saved === 'true';
+    // Check system preference
+    return window.matchMedia?.('(prefers-color-scheme: dark)')?.matches || false;
+  } catch {
+    return false;
+  }
+};
+
+const ThemeProvider = ({ children }) => {
+  const [themeSettings, setThemeSettings] = useState(() => {
+    // Initialize with cached settings if available
+    const cached = getCachedSettings();
+    return cached ? { ...defaultThemeSettings, ...cached } : defaultThemeSettings;
+  });
+  const [darkMode, setDarkMode] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Load dark mode preference on mount
+  useEffect(() => {
+    setDarkMode(getDarkModePreference());
+  }, []);
+
+  const loadThemeSettings = useCallback(async (forceRefresh = false) => {
     try {
+      setError(null);
+
       // Check if we're in preview mode
       if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search);
@@ -61,58 +158,131 @@ const ThemeProvider = ({ children }) => {
           if (previewTheme) {
             const previewSettings = JSON.parse(previewTheme);
             setThemeSettings(prev => ({ ...prev, ...previewSettings }));
+            setLoading(false);
             return;
           }
         }
       }
 
+      // Use cache if available and not forcing refresh
+      if (!forceRefresh) {
+        const cached = getCachedSettings();
+        if (cached) {
+          setThemeSettings(prev => ({ ...prev, ...cached }));
+          setLoading(false);
+          // Still fetch in background to update cache (stale-while-revalidate)
+          fetchAndCacheSettings();
+          return;
+        }
+      }
+
+      await fetchAndCacheSettings();
+    } catch (err) {
+      console.error('Failed to load theme settings:', err);
+      setError('Failed to load theme settings');
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchAndCacheSettings = async () => {
+    try {
       const res = await fetch('/api/theme-settings');
       if (res.ok) {
         const data = await res.json();
+        setCachedSettings(data);
         setThemeSettings(prev => ({ ...prev, ...data }));
+      } else {
+        throw new Error(`HTTP ${res.status}`);
       }
-    } catch (error) {
-      console.error('Failed to load theme settings:', error);
+    } catch (err) {
+      console.error('Failed to fetch theme settings:', err);
+      setError('Failed to fetch theme settings');
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    let mounted = true;
-
-    const loadSettings = async () => {
-      if (mounted) {
-        await loadThemeSettings();
+  // Toggle dark mode
+  const toggleDarkMode = useCallback(() => {
+    setDarkMode(prev => {
+      const newValue = !prev;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(DARK_MODE_KEY, String(newValue));
       }
-    };
-
-    loadSettings();
-
-    return () => {
-      mounted = false;
-    };
+      return newValue;
+    });
   }, []);
+
+  // Clear cache (useful when settings are updated)
+  const clearCache = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(CACHE_KEY);
+    }
+  }, []);
+
+  // Refresh settings and clear cache
+  const refreshThemeSettings = useCallback(async () => {
+    clearCache();
+    await loadThemeSettings(true);
+  }, [clearCache, loadThemeSettings]);
+
+  useEffect(() => {
+    loadThemeSettings();
+  }, [loadThemeSettings]);
+
+  // Get effective theme colors (apply dark mode overrides if enabled)
+  const getEffectiveColors = useCallback(() => {
+    if (darkMode && themeSettings.enableDarkMode !== false) {
+      return { ...themeSettings, ...darkModeColors };
+    }
+    return themeSettings;
+  }, [darkMode, themeSettings]);
 
   // Apply theme styles using CSS custom properties
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const root = document.documentElement;
+    const colors = getEffectiveColors();
+
+    // Set dark mode class on html element
+    if (darkMode) {
+      root.classList.add('dark-mode');
+    } else {
+      root.classList.remove('dark-mode');
+    }
 
     // Apply CSS custom properties - Colors
-    root.style.setProperty('--primary-color', themeSettings.primaryColor);
-    root.style.setProperty('--secondary-color', themeSettings.secondaryColor);
-    root.style.setProperty('--header-bg', themeSettings.headerBackground || themeSettings.headerBg);
-    root.style.setProperty('--header-text', themeSettings.headerText);
-    root.style.setProperty('--navbar-bg', themeSettings.navbarBackground || themeSettings.primaryColor);
-    root.style.setProperty('--navbar-text', themeSettings.navbarText || themeSettings.headerText);
-    root.style.setProperty('--background-color', themeSettings.backgroundColor);
-    root.style.setProperty('--text-color', themeSettings.textColor);
-    root.style.setProperty('--link-color', themeSettings.linkColor);
-    root.style.setProperty('--link-hover-color', themeSettings.linkHoverColor);
-    root.style.setProperty('--button-bg', themeSettings.buttonBackground || themeSettings.buttonBg);
-    root.style.setProperty('--button-text', themeSettings.buttonText);
-    root.style.setProperty('--button-hover-bg', themeSettings.buttonHoverBackground || themeSettings.buttonHoverBg);
-    root.style.setProperty('--border-color', themeSettings.borderColor);
+    root.style.setProperty('--primary-color', colors.primaryColor);
+    root.style.setProperty('--secondary-color', colors.secondaryColor);
+    root.style.setProperty('--header-bg', colors.headerBackground || colors.headerBg);
+    root.style.setProperty('--header-text', colors.headerText);
+    root.style.setProperty('--navbar-bg', colors.navbarBackground || colors.primaryColor);
+    root.style.setProperty('--navbar-text', colors.navbarText || colors.headerText);
+    root.style.setProperty('--background-color', colors.backgroundColor);
+    root.style.setProperty('--text-color', colors.textColor);
+    root.style.setProperty('--link-color', colors.linkColor);
+    root.style.setProperty('--link-hover-color', colors.linkHoverColor);
+    root.style.setProperty('--button-bg', colors.buttonBackground || colors.buttonBg);
+    root.style.setProperty('--button-text', colors.buttonText);
+    root.style.setProperty('--button-hover-bg', colors.buttonHoverBackground || colors.buttonHoverBg);
+    root.style.setProperty('--border-color', colors.borderColor);
+
+    // Dark mode specific variables
+    root.style.setProperty('--category-header-bg', colors.categoryHeaderBackground);
+    root.style.setProperty('--category-header-text', colors.categoryHeaderText);
+    root.style.setProperty('--subject-header-bg', colors.subjectHeaderBackground);
+    root.style.setProperty('--subject-header-text', colors.subjectHeaderText);
+    root.style.setProperty('--thread-bg', colors.threadBackground);
+    root.style.setProperty('--thread-alt-bg', colors.threadAltBackground);
+    root.style.setProperty('--thread-hover', colors.threadHoverBackground);
+    root.style.setProperty('--post-header-bg', colors.postHeaderBackground);
+    root.style.setProperty('--post-body-bg', colors.postBodyBackground);
+    root.style.setProperty('--post-footer-bg', colors.postFooterBackground);
+    root.style.setProperty('--sidebar-bg', colors.sidebarBackground);
+    root.style.setProperty('--input-bg', colors.inputBackground);
+    root.style.setProperty('--input-text', colors.inputText);
+    root.style.setProperty('--input-border', colors.inputBorderColor);
 
     // Apply Layout Variables
     root.style.setProperty('--header-height', themeSettings.headerHeight || '60px');
@@ -136,9 +306,9 @@ const ThemeProvider = ({ children }) => {
     // Apply body styles
     document.body.style.fontFamily = themeSettings.fontFamily || 'Verdana, Arial, sans-serif';
     document.body.style.fontSize = themeSettings.fontSize || '13px';
-    document.body.style.backgroundColor = themeSettings.backgroundColor || '#E0E8F5';
-    document.body.style.color = themeSettings.textColor || '#000000';
-  }, [themeSettings]);
+    document.body.style.backgroundColor = colors.backgroundColor || '#E0E8F5';
+    document.body.style.color = colors.textColor || '#000000';
+  }, [themeSettings, darkMode, getEffectiveColors]);
 
 
 
@@ -374,8 +544,19 @@ const ThemeProvider = ({ children }) => {
     `;
   };
 
+  const contextValue = {
+    themeSettings,
+    setThemeSettings,
+    refreshThemeSettings,
+    darkMode,
+    toggleDarkMode,
+    loading,
+    error,
+    clearCache
+  };
+
   return (
-    <ThemeContext.Provider value={{ themeSettings, setThemeSettings, refreshThemeSettings: loadThemeSettings }}>
+    <ThemeContext.Provider value={contextValue}>
       {children}
     </ThemeContext.Provider>
   );

@@ -8,7 +8,7 @@ import styles from '../styles/Navigation.module.css';
 
 const Navigation = () => {
   const { user, logout, loading } = useAuth();
-  const { themeSettings } = useTheme();
+  const { themeSettings, darkMode, toggleDarkMode } = useTheme();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -83,6 +83,13 @@ const Navigation = () => {
             )}
           </div>
           <div className={styles.topBarRight}>
+            <button
+              onClick={toggleDarkMode}
+              className={styles.darkModeToggle}
+              title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {darkMode ? '☀️' : '🌙'}
+            </button>
             {user && (
               <>
                 <NotificationDropdown />
