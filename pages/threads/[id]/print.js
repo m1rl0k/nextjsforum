@@ -17,17 +17,30 @@ export default function PrintThread() {
 
   const fetchThreadData = async () => {
     try {
-      const [threadRes, postsRes] = await Promise.all([
-        fetch(`/api/threads/${id}`),
-        fetch(`/api/threads/${id}/posts?limit=1000`) // Get all posts for printing
-      ]);
+      const threadRes = await fetch(`/api/threads/${id}`);
 
-      if (threadRes.ok && postsRes.ok) {
+      if (threadRes.ok) {
         const threadData = await threadRes.json();
-        const postsData = await postsRes.json();
-        
         setThread(threadData);
-        setPosts(postsData.posts || []);
+
+        // Fetch all posts with pagination (max 100 per page)
+        let allPosts = [];
+        let page = 1;
+        let hasMore = true;
+
+        while (hasMore) {
+          const postsRes = await fetch(`/api/threads/${id}/posts?page=${page}&limit=100`);
+          if (postsRes.ok) {
+            const postsData = await postsRes.json();
+            allPosts = [...allPosts, ...(postsData.posts || [])];
+            hasMore = postsData.pagination?.hasNextPage || false;
+            page++;
+          } else {
+            hasMore = false;
+          }
+        }
+
+        setPosts(allPosts);
       }
     } catch (error) {
       console.error('Error fetching thread:', error);
