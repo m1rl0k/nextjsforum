@@ -1,0 +1,91 @@
+.container {
+  margin: 15px 0;
+  border: 1px solid #6B84AA;
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.header {
+  background: linear-gradient(to bottom, #8FA3C7 0%, #738FBF 100%);
+  color: #FFFFFF;
+  padding: 6px 12px;
+  font-weight: bold;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+}
+
+.icon {
+  margin-right: 6px;
+  font-size: 11px;
+}
+
+.title {
+  flex: 1;
+}
+
+.content {
+  padding: 10px 12px;
+  background: #F5F5F5;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+}
+
+.select {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid #808080;
+  font-size: 11px;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+  background: #FFFFFF;
+  color: #333;
+  cursor: pointer;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #4C76B2;
+}
+
+.select:disabled {
+  background: #EEEEEE;
+  cursor: not-allowed;
+}
+
+.select optgroup {
+  font-weight: bold;
+  color: #22497D;
+  background: #E8EEF7;
+}
+
+.select option {
+  font-weight: normal;
+  color: #333;
+  padding: 2px 4px;
+}
+
+.goButton {
+  background: linear-gradient(to bottom, #F5F5F5 0%, #E0E0E0 50%, #D0D0D0 51%, #EFEFEF 100%);
+  color: #000000;
+  border: 1px solid #808080;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: bold;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+  cursor: pointer;
+}
+
+.goButton:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #FFFFFF 0%, #E8E8E8 50%, #D8D8D8 51%, #F5F5F5 100%);
+}
+
+.goButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+

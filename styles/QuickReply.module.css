@@ -1,0 +1,144 @@
+.container {
+  margin: 20px 0;
+  border: 1px solid #6B84AA;
+  background: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.header {
+  background: linear-gradient(to bottom, #8FA3C7 0%, #738FBF 100%);
+  color: #FFFFFF;
+  padding: 8px 15px;
+  font-weight: bold;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+}
+
+.header:hover {
+  background: linear-gradient(to bottom, #9AB0D1 0%, #8FA3C7 100%);
+}
+
+.icon {
+  margin-right: 8px;
+  font-size: 12px;
+}
+
+.title {
+  flex: 1;
+}
+
+.toggle {
+  font-size: 9px;
+  opacity: 0.8;
+}
+
+.form {
+  padding: 15px;
+  background: #F5F5F5;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+}
+
+.userInfo {
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.userInfo strong {
+  color: #22497D;
+}
+
+.textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #808080;
+  font-size: 12px;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+  resize: vertical;
+  min-height: 100px;
+  box-sizing: border-box;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #4C76B2;
+  box-shadow: 0 0 3px rgba(76, 118, 178, 0.3);
+}
+
+.textarea:disabled {
+  background: #EEEEEE;
+  cursor: not-allowed;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.submitButton {
+  background: linear-gradient(to bottom, #F5F5F5 0%, #E0E0E0 50%, #D0D0D0 51%, #EFEFEF 100%);
+  color: #000000;
+  border: 1px solid #808080;
+  padding: 6px 15px;
+  font-size: 11px;
+  font-weight: bold;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+  cursor: pointer;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #FFFFFF 0%, #E8E8E8 50%, #D8D8D8 51%, #F5F5F5 100%);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.advancedLink {
+  font-size: 11px;
+  color: #22497D;
+  text-decoration: none;
+}
+
+.advancedLink:hover {
+  text-decoration: underline;
+  color: #FF4400;
+}
+
+.error {
+  background: #FFEBEE;
+  color: #C62828;
+  padding: 8px 12px;
+  border: 1px solid #EF5350;
+  margin-bottom: 10px;
+  font-size: 11px;
+}
+
+.loginPrompt {
+  padding: 15px;
+  background: #F5F5F5;
+  font-size: 11px;
+  color: #666;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+}
+
+.loginPrompt a {
+  color: #22497D;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.loginPrompt a:hover {
+  text-decoration: underline;
+  color: #FF4400;
+}
+

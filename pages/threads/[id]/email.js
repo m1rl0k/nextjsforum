@@ -241,75 +241,100 @@ export default function EmailThread() {
         .email-thread {
           max-width: 600px;
           margin: 0 auto;
-          padding: 20px;
+          padding: 10px;
+          font-family: Tahoma, Verdana, Arial, sans-serif;
+          font-size: 11px;
+        }
+
+        .email-thread h1 {
+          background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
+          color: white;
+          padding: 8px 12px;
+          margin: 0;
+          font-size: 12px;
+          font-weight: bold;
+          border: 1px solid #6B84AA;
+          border-bottom: none;
         }
 
         .breadcrumb {
-          margin-bottom: 20px;
+          margin-bottom: 10px;
           color: #666;
+          font-size: 10px;
         }
 
         .breadcrumb a {
-          color: #007bff;
+          color: #22497D;
           text-decoration: none;
         }
 
+        .breadcrumb a:hover {
+          color: #FF4400;
+          text-decoration: underline;
+        }
+
         .thread-info {
-          background: #f8f9fa;
-          padding: 15px;
-          border-radius: 5px;
-          margin-bottom: 20px;
+          background: #F5F5F5;
+          padding: 10px;
+          border: 1px solid #6B84AA;
+          border-top: none;
         }
 
         .thread-info h2 {
-          margin: 0 0 10px 0;
+          margin: 0 0 8px 0;
+          color: #22497D;
+          font-size: 12px;
+        }
+
+        .thread-info p {
+          margin: 3px 0;
           color: #333;
         }
 
         .email-form {
           background: white;
-          padding: 20px;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          padding: 15px;
+          border: 1px solid #6B84AA;
+          border-top: none;
         }
 
         .form-group {
-          margin-bottom: 20px;
+          margin-bottom: 12px;
         }
 
         .form-row {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 15px;
+          gap: 10px;
         }
 
         .form-group label {
           display: block;
-          margin-bottom: 5px;
-          font-weight: 500;
+          margin-bottom: 4px;
+          font-weight: bold;
           color: #333;
         }
 
         .form-input,
         .form-textarea {
           width: 100%;
-          padding: 10px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          font-size: 14px;
+          padding: 6px 8px;
+          border: 1px solid #808080;
+          font-size: 11px;
+          font-family: Tahoma, Verdana, Arial, sans-serif;
+          box-sizing: border-box;
         }
 
         .form-input:focus,
         .form-textarea:focus {
           outline: none;
-          border-color: #007bff;
-          box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+          border-color: #4C76B2;
         }
 
         .checkbox-label {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
           cursor: pointer;
         }
 
@@ -319,33 +344,36 @@ export default function EmailThread() {
 
         .form-actions {
           display: flex;
-          gap: 10px;
-          margin-top: 20px;
+          gap: 8px;
+          margin-top: 15px;
+          padding-top: 12px;
+          border-top: 1px solid #C0C0C0;
         }
 
         .button {
-          padding: 10px 20px;
-          border: 1px solid #ddd;
-          background: white;
+          padding: 5px 15px;
+          border: 1px solid #808080;
+          background: linear-gradient(to bottom, #F5F5F5 0%, #E0E0E0 100%);
           color: #333;
-          border-radius: 4px;
           cursor: pointer;
           text-decoration: none;
           display: inline-block;
+          font-size: 11px;
+          font-family: Tahoma, Verdana, Arial, sans-serif;
         }
 
         .button:hover {
-          background: #f8f9fa;
+          background: linear-gradient(to bottom, #E0E0E0 0%, #D0D0D0 100%);
         }
 
         .button.primary {
-          background: #007bff;
+          background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
           color: white;
-          border-color: #007bff;
+          border-color: #2B4F81;
         }
 
         .button.primary:hover {
-          background: #0056b3;
+          background: linear-gradient(to bottom, #3A6090 0%, #1E3A5F 100%);
         }
 
         .button:disabled {
@@ -354,26 +382,26 @@ export default function EmailThread() {
         }
 
         .success {
-          background: #d4edda;
+          background: #D4EDDA;
           color: #155724;
-          padding: 10px;
-          border-radius: 4px;
-          margin-bottom: 20px;
+          padding: 8px 10px;
+          border: 1px solid #C3E6CB;
+          margin-bottom: 10px;
         }
 
         .error {
-          background: #f8d7da;
-          color: #721c24;
-          padding: 10px;
-          border-radius: 4px;
-          margin-bottom: 20px;
+          background: #F8D7DA;
+          color: #721C24;
+          padding: 8px 10px;
+          border: 1px solid #F5C6CB;
+          margin-bottom: 10px;
         }
 
         @media (max-width: 768px) {
           .form-row {
             grid-template-columns: 1fr;
           }
-          
+
           .form-actions {
             flex-direction: column;
           }

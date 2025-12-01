@@ -1,0 +1,204 @@
+/* vBulletin Classic Verify Email Styling */
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #E5E5E5;
+  padding: 20px;
+}
+
+.card {
+  background: #FFFFFF;
+  border: 1px solid #6B84AA;
+  width: 100%;
+  max-width: 450px;
+  box-sizing: border-box;
+}
+
+.title {
+  background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 6px 10px;
+  margin: 0;
+  text-align: left;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+}
+
+.content {
+  padding: 15px;
+  background: #F5F5F5;
+}
+
+.description {
+  font-size: 11px;
+  color: #000000;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+  margin: 0 0 15px 0;
+  line-height: 1.5;
+}
+
+.statusBox {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.icon {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.iconSuccess {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 10px;
+  color: #2E7D32;
+}
+
+.iconError {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 10px;
+  color: #CC0000;
+}
+
+.statusText {
+  font-size: 11px;
+  font-weight: bold;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+  margin-bottom: 10px;
+}
+
+.statusTextSuccess {
+  font-size: 12px;
+  font-weight: bold;
+  color: #2E7D32;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+  margin-bottom: 10px;
+}
+
+.statusTextError {
+  font-size: 12px;
+  font-weight: bold;
+  color: #CC0000;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+  margin-bottom: 10px;
+}
+
+.infoMessage {
+  background-color: #E3F2FD;
+  color: #1565C0;
+  padding: 10px;
+  font-size: 11px;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+  border: 1px solid #90CAF9;
+  margin-bottom: 15px;
+}
+
+.successMessage {
+  background-color: #E8F5E9;
+  color: #2E7D32;
+  padding: 10px;
+  font-size: 11px;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+  border: 1px solid #A5D6A7;
+  margin-top: 10px;
+}
+
+.error {
+  background-color: #FFEBE8;
+  color: #CC0000;
+  padding: 8px 10px;
+  font-size: 11px;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+  border: 1px solid #CC0000;
+  margin-top: 10px;
+}
+
+.divider {
+  border-top: 1px solid #C0C0C0;
+  margin: 15px 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.label {
+  font-size: 11px;
+  color: #000000;
+  font-weight: bold;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+}
+
+.input {
+  padding: 4px 6px;
+  border: 1px solid #808080;
+  font-size: 11px;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+  background: #FFFFFF;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #4C76B2;
+}
+
+.submitButton {
+  background: linear-gradient(to bottom, #F5F5F5 0%, #E0E0E0 50%, #D0D0D0 51%, #EFEFEF 100%);
+  color: #000000;
+  border: 1px solid #808080;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: bold;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.submitButton:hover {
+  background: linear-gradient(to bottom, #FFFFFF 0%, #E8E8E8 50%, #D8D8D8 51%, #F5F5F5 100%);
+}
+
+.submitButton:disabled {
+  color: #888888;
+  cursor: not-allowed;
+}
+
+.footer {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid #C0C0C0;
+  text-align: center;
+}
+
+.link {
+  color: #22497D;
+  text-decoration: none;
+  font-size: 11px;
+  font-family: Tahoma, Verdana, Arial, sans-serif;
+}
+
+.link:hover {
+  color: #FF4400;
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .container { padding: 10px; }
+  .card { max-width: 100%; }
+}
+

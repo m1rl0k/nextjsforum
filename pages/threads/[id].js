@@ -5,6 +5,7 @@ import Layout from '../../components/Layout';
 import Post from '../../components/Post';
 import ReportButton from '../../components/ReportButton';
 import Poll from '../../components/Poll';
+import QuickReply from '../../components/QuickReply';
 import { useAuth } from '../../context/AuthContext';
 
 export default function ThreadPage() {
@@ -151,8 +152,8 @@ export default function ThreadPage() {
           <h1 className="thread-title">
             {thread.threadType === 'ANNOUNCEMENT' && <span className="thread-badge pinned">📍 PINNED</span>}
             {thread.threadType === 'POLL' && <span className="thread-badge poll">📊 POLL</span>}
-            {thread.sticky && thread.threadType !== 'ANNOUNCEMENT' && <span className="thread-badge sticky">📌 STICKY</span>}
-            {thread.locked && <span className="thread-badge locked">🔒 LOCKED</span>}
+            {thread.isSticky && thread.threadType !== 'ANNOUNCEMENT' && <span className="thread-badge sticky">📌 STICKY</span>}
+            {thread.isLocked && <span className="thread-badge locked">🔒 LOCKED</span>}
             {thread.title}
           </h1>
 
@@ -161,19 +162,19 @@ export default function ThreadPage() {
               <h3>Thread Management</h3>
               <div className="management-buttons">
                 <button
-                  onClick={() => handleThreadAction(thread.locked ? 'unlock' : 'lock')}
+                  onClick={() => handleThreadAction(thread.isLocked ? 'unlock' : 'lock')}
                   className="button"
                   disabled={isPerformingAction}
                 >
-                  {thread.locked ? '🔓 Unlock' : '🔒 Lock'} Thread
+                  {thread.isLocked ? '🔓 Unlock' : '🔒 Lock'} Thread
                 </button>
 
                 <button
-                  onClick={() => handleThreadAction(thread.sticky ? 'unsticky' : 'sticky')}
+                  onClick={() => handleThreadAction(thread.isSticky ? 'unsticky' : 'sticky')}
                   className="button"
                   disabled={isPerformingAction}
                 >
-                  {thread.sticky ? '📌 Unsticky' : '📌 Make Sticky'}
+                  {thread.isSticky ? '📌 Unsticky' : '📌 Make Sticky'}
                 </button>
 
                 <button
@@ -196,7 +197,7 @@ export default function ThreadPage() {
         <div className="thread-actions top">
           <Link href={`/subjects/${thread.subjectId}/new-thread`} className="button">New Thread</Link>
           {user ? (
-            thread.locked ? (
+            thread.isLocked ? (
               <span className="button disabled">🔒 Thread Locked</span>
             ) : (
               <Link href={`/threads/${id}/reply`} className="button">Reply</Link>
@@ -244,7 +245,7 @@ export default function ThreadPage() {
         <div className="thread-actions bottom">
           <Link href={`/subjects/${thread.subjectId}/new-thread`} className="button">New Thread</Link>
           {user ? (
-            thread.locked ? (
+            thread.isLocked ? (
               <span className="button disabled">🔒 Thread Locked</span>
             ) : (
               <Link href={`/threads/${id}/reply`} className="button">Reply</Link>
@@ -254,7 +255,12 @@ export default function ThreadPage() {
           )}
           <a href="#top" className="button">Top</a>
         </div>
-        
+
+        {/* Quick Reply Box - only show if thread is not locked */}
+        {!thread.isLocked && (
+          <QuickReply threadId={thread.id} onReplyPosted={fetchThread} />
+        )}
+
         <div className="thread-tools">
           <h3>Thread Tools</h3>
           <ul>

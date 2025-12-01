@@ -4,6 +4,9 @@ import Layout from '../components/Layout';
 import Category from '../components/Category';
 import CreateCategoryModal from '../components/CreateCategoryModal';
 import CreateForumModal from '../components/CreateForumModal';
+import WhosOnline from '../components/WhosOnline';
+import ForumStats from '../components/ForumStats';
+import JumpToDropdown from '../components/JumpToDropdown';
 import { useAuth } from '../context/AuthContext';
 
 export default function Home() {
@@ -183,20 +186,14 @@ export default function Home() {
           ))
         )}
 
-        <div className="forum-stats">
-          <div className="stat">
-            <strong>Threads:</strong> {stats?.totalThreads || 0}
-          </div>
-          <div className="stat">
-            <strong>Posts:</strong> {stats?.totalPosts || 0}
-          </div>
-          <div className="stat">
-            <strong>Members:</strong> {stats?.totalMembers || 0}
-          </div>
-          <div className="stat">
-            <strong>Welcome to our newest member:</strong> {stats?.newestMember?.username || 'No members yet'}
-          </div>
-        </div>
+        {/* Who's Online Box */}
+        <WhosOnline />
+
+        {/* Forum Statistics */}
+        <ForumStats stats={stats} />
+
+        {/* Jump To Dropdown */}
+        <JumpToDropdown />
       </div>
 
       {/* Modals */}

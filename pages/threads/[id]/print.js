@@ -123,101 +123,118 @@ export default function PrintThread() {
           .print-layout {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
-            font-family: Arial, sans-serif;
+            padding: 10px;
+            font-family: Tahoma, Verdana, Arial, sans-serif;
+            font-size: 11px;
           }
 
           .print-controls {
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 5px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #F5F5F5;
+            border: 1px solid #C0C0C0;
             display: flex;
-            gap: 10px;
+            gap: 8px;
           }
 
           .print-header {
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #333;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
+            color: white;
+            border: 1px solid #6B84AA;
           }
 
           .print-header h1 {
-            margin: 0 0 15px 0;
-            color: #333;
+            margin: 0 0 10px 0;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+          }
+
+          .thread-meta {
+            background: #F5F5F5;
+            padding: 10px;
+            border: 1px solid #C0C0C0;
+            margin-top: 10px;
           }
 
           .thread-meta p {
-            margin: 5px 0;
-            color: #666;
+            margin: 3px 0;
+            color: #333;
           }
 
           .post {
-            margin-bottom: 30px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #6B84AA;
           }
 
           .post-header {
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
+            background: linear-gradient(to bottom, #8FA3C7 0%, #738FBF 100%);
+            padding: 8px 10px;
+            border-bottom: 1px solid #6B84AA;
           }
 
           .post-header h3 {
-            margin: 0 0 5px 0;
-            color: #333;
-            font-size: 1.1em;
+            margin: 0 0 3px 0;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
           }
 
           .post-date {
             margin: 0;
-            color: #666;
-            font-size: 0.9em;
+            color: #E0E0E0;
+            font-size: 10px;
           }
 
           .post-content {
-            line-height: 1.6;
+            padding: 10px;
+            line-height: 1.5;
             color: #333;
+            background: white;
           }
 
           .post-signature {
-            margin-top: 15px;
-            padding-top: 10px;
-            font-size: 0.9em;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px dashed #C0C0C0;
+            font-size: 10px;
             color: #666;
           }
 
           .print-footer {
-            margin-top: 40px;
+            margin-top: 20px;
             text-align: center;
             color: #666;
+            padding: 10px;
+            border-top: 1px solid #C0C0C0;
           }
 
           .button {
-            padding: 10px 20px;
-            border: 1px solid #ddd;
-            background: white;
+            padding: 5px 15px;
+            border: 1px solid #808080;
+            background: linear-gradient(to bottom, #F5F5F5 0%, #E0E0E0 100%);
             color: #333;
             text-decoration: none;
-            border-radius: 4px;
             cursor: pointer;
             display: inline-block;
+            font-size: 11px;
+            font-family: Tahoma, Verdana, Arial, sans-serif;
           }
 
           .button:hover {
-            background: #f8f9fa;
+            background: linear-gradient(to bottom, #E0E0E0 0%, #D0D0D0 100%);
           }
 
           .button.primary {
-            background: #007bff;
+            background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
             color: white;
-            border-color: #007bff;
+            border-color: #2B4F81;
           }
 
           .button.primary:hover {
-            background: #0056b3;
+            background: linear-gradient(to bottom, #3A6090 0%, #1E3A5F 100%);
           }
 
           @media print {
@@ -227,13 +244,26 @@ export default function PrintThread() {
               padding: 0;
             }
 
+            .print-header {
+              background: #333 !important;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+
             .post {
               border: 1px solid #000;
-              margin-bottom: 20pt;
+              margin-bottom: 15pt;
+              page-break-inside: avoid;
+            }
+
+            .post-header {
+              background: #666 !important;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
             }
 
             .post-header h3 {
-              font-size: 12pt;
+              font-size: 11pt;
             }
           }
         `

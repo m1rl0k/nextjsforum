@@ -7,6 +7,18 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
 
+  // Track user activity
+  const updateActivity = async () => {
+    try {
+      await fetch('/api/users/activity', {
+        method: 'POST',
+        credentials: 'include'
+      });
+    } catch (error) {
+      // Silent fail - activity tracking shouldn't break the app
+    }
+  };
+
   useEffect(() => {
     // Only check auth once per session
     if (authChecked) {
@@ -32,6 +44,8 @@ export function AuthProvider({ children }) {
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);
+          // Update activity on auth check
+          updateActivity();
         } else {
           setUser(null);
         }
@@ -57,6 +71,14 @@ export function AuthProvider({ children }) {
 
     checkAuth();
   }, [authChecked]);
+
+  // Periodic activity update (every 5 minutes)
+  useEffect(() => {
+    if (!user) return;
+
+    const interval = setInterval(updateActivity, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   const login = async (email, password) => {
     try {

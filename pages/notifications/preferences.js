@@ -254,20 +254,24 @@ export default function NotificationPreferences() {
         .preferences-page {
           max-width: 700px;
           margin: 0 auto;
-          padding: 20px;
+          padding: 10px;
+          font-family: Tahoma, Verdana, Arial, sans-serif;
+          font-size: 11px;
         }
 
         .page-header {
-          margin-bottom: 30px;
-          padding-bottom: 20px;
-          border-bottom: 2px solid var(--border-color);
+          background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
+          color: white;
+          padding: 8px 12px;
+          border: 1px solid #6B84AA;
+          border-bottom: none;
         }
 
         .back-link {
-          color: var(--primary-color);
+          color: #FFFFFF;
           text-decoration: none;
-          font-size: 0.9rem;
-          margin-bottom: 10px;
+          font-size: 10px;
+          margin-bottom: 5px;
           display: inline-block;
         }
 
@@ -276,84 +280,89 @@ export default function NotificationPreferences() {
         }
 
         .page-header h1 {
-          margin: 10px 0;
-          color: var(--text-color);
+          margin: 5px 0;
+          font-size: 12px;
+          font-weight: bold;
         }
 
         .page-header p {
-          color: #666;
+          color: #D0D0D0;
           margin: 0;
+          font-size: 10px;
         }
 
         .message {
-          padding: 12px 16px;
-          border-radius: 4px;
-          margin-bottom: 20px;
-          font-weight: 500;
+          padding: 8px 12px;
+          margin-bottom: 10px;
+          font-size: 11px;
+          border: 1px solid;
         }
 
         .message.success {
-          background: #d4edda;
+          background: #D4EDDA;
           color: #155724;
-          border: 1px solid #c3e6cb;
+          border-color: #C3E6CB;
         }
 
         .message.error {
-          background: #f8d7da;
-          color: #721c24;
-          border: 1px solid #f5c6cb;
+          background: #F8D7DA;
+          color: #721C24;
+          border-color: #F5C6CB;
         }
 
         .loading {
           text-align: center;
-          padding: 40px;
+          padding: 30px;
           color: #666;
         }
 
         .preferences-form {
-          background: white;
-          border: 1px solid var(--border-color);
-          border-radius: 8px;
-          overflow: hidden;
+          background: #F5F5F5;
+          border: 1px solid #6B84AA;
+          border-top: none;
         }
 
         .preference-section {
-          padding: 25px;
-          border-bottom: 1px solid var(--border-color);
+          padding: 15px;
+          border-bottom: 1px solid #C0C0C0;
+          background: white;
+          margin: 8px;
+          border: 1px solid #C0C0C0;
         }
 
-        .preference-section:last-child {
-          border-bottom: none;
+        .preference-section:last-of-type {
+          margin-bottom: 0;
         }
 
         .preference-section h2 {
-          margin: 0 0 8px 0;
-          color: var(--text-color);
-          font-size: 1.2rem;
+          margin: 0 0 5px 0;
+          color: #22497D;
+          font-size: 12px;
+          font-weight: bold;
         }
 
         .preference-section > p {
-          margin: 0 0 20px 0;
+          margin: 0 0 12px 0;
           color: #666;
-          font-size: 0.9rem;
+          font-size: 10px;
         }
 
         .preference-group {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 8px;
         }
 
         .preference-item {
           display: flex;
           align-items: flex-start;
-          gap: 12px;
+          gap: 8px;
           cursor: pointer;
-          padding: 8px 0;
+          padding: 4px 0;
         }
 
         .preference-item input[type="checkbox"] {
-          margin-top: 2px;
+          margin-top: 1px;
           cursor: pointer;
         }
 
@@ -363,60 +372,60 @@ export default function NotificationPreferences() {
         }
 
         .email-digest-section {
-          margin-top: 20px;
-          padding-top: 20px;
-          border-top: 1px solid #eee;
+          margin-top: 12px;
+          padding-top: 12px;
+          border-top: 1px solid #E0E0E0;
         }
 
         .digest-frequency {
-          margin-top: 15px;
-          margin-left: 24px;
+          margin-top: 10px;
+          margin-left: 20px;
         }
 
         .digest-frequency label {
           display: flex;
           align-items: center;
-          gap: 10px;
-          font-size: 0.9rem;
+          gap: 8px;
+          font-size: 11px;
           color: #666;
         }
 
         .digest-frequency select {
-          padding: 4px 8px;
-          border: 1px solid var(--border-color);
-          border-radius: 4px;
-          font-size: 0.9rem;
+          padding: 3px 6px;
+          border: 1px solid #808080;
+          font-size: 11px;
+          font-family: Tahoma, Verdana, Arial, sans-serif;
         }
 
         .form-actions {
-          padding: 25px;
-          background: #f8f9fa;
+          padding: 12px;
+          background: #E5E5E5;
           text-align: center;
+          border-top: 1px solid #C0C0C0;
         }
 
         .button {
-          padding: 12px 24px;
-          border: 1px solid var(--border-color);
-          background: white;
-          color: var(--text-color);
-          border-radius: 4px;
+          padding: 5px 15px;
+          border: 1px solid #808080;
+          background: linear-gradient(to bottom, #F5F5F5 0%, #E0E0E0 100%);
+          color: #333;
           cursor: pointer;
-          font-size: 1rem;
-          transition: all 0.2s;
+          font-size: 11px;
+          font-family: Tahoma, Verdana, Arial, sans-serif;
         }
 
         .button:hover {
-          background: #f5f5f5;
+          background: linear-gradient(to bottom, #E0E0E0 0%, #D0D0D0 100%);
         }
 
         .button.primary {
-          background: var(--primary-color);
+          background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
           color: white;
-          border-color: var(--primary-color);
+          border-color: #2B4F81;
         }
 
         .button.primary:hover {
-          background: var(--primary-color-dark);
+          background: linear-gradient(to bottom, #3A6090 0%, #1E3A5F 100%);
         }
 
         .button:disabled {
@@ -426,15 +435,16 @@ export default function NotificationPreferences() {
 
         @media (max-width: 768px) {
           .preferences-page {
-            padding: 15px;
+            padding: 8px;
           }
 
           .preference-section {
-            padding: 20px 15px;
+            padding: 12px;
+            margin: 5px;
           }
 
           .form-actions {
-            padding: 20px 15px;
+            padding: 10px;
           }
         }
       `}</style>

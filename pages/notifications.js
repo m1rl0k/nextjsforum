@@ -271,96 +271,102 @@ export default function NotificationsPage() {
         .notifications-page {
           max-width: 800px;
           margin: 0 auto;
-          padding: 20px;
+          padding: 10px;
+          font-family: Tahoma, Verdana, Arial, sans-serif;
+          font-size: 11px;
         }
 
         .page-header {
+          background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
+          color: white;
+          padding: 8px 12px;
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 30px;
-          padding-bottom: 20px;
-          border-bottom: 2px solid var(--border-color);
+          border: 1px solid #6B84AA;
+          border-bottom: none;
         }
 
         .page-header h1 {
           margin: 0;
-          color: var(--text-color);
+          font-size: 12px;
+          font-weight: bold;
         }
 
         .header-actions {
           display: flex;
-          gap: 10px;
+          gap: 5px;
         }
 
         .notifications-controls {
-          margin-bottom: 20px;
+          background: #F5F5F5;
+          border: 1px solid #6B84AA;
+          border-top: none;
+          padding: 8px;
         }
 
         .filter-tabs {
           display: flex;
-          gap: 5px;
-          margin-bottom: 15px;
+          gap: 3px;
+          margin-bottom: 8px;
           flex-wrap: wrap;
         }
 
         .filter-tab {
-          padding: 8px 16px;
-          border: 1px solid var(--border-color);
-          background: white;
+          padding: 4px 10px;
+          border: 1px solid #808080;
+          background: linear-gradient(to bottom, #F5F5F5 0%, #E0E0E0 100%);
           cursor: pointer;
-          border-radius: 4px;
-          font-size: 0.9rem;
-          transition: all 0.2s;
+          font-size: 11px;
+          font-family: Tahoma, Verdana, Arial, sans-serif;
         }
 
         .filter-tab:hover {
-          background: #f5f5f5;
+          background: linear-gradient(to bottom, #E0E0E0 0%, #D0D0D0 100%);
         }
 
         .filter-tab.active {
-          background: var(--primary-color);
+          background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
           color: white;
-          border-color: var(--primary-color);
+          border-color: #2B4F81;
         }
 
         .bulk-actions {
           display: flex;
           align-items: center;
-          gap: 15px;
-          padding: 10px;
-          background: #f8f9fa;
-          border-radius: 4px;
+          gap: 10px;
+          padding: 6px;
+          background: #E5E5E5;
+          border: 1px solid #C0C0C0;
         }
 
         .select-all {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 5px;
           cursor: pointer;
-          font-size: 0.9rem;
+          font-size: 11px;
         }
 
         .selected-actions {
           display: flex;
-          gap: 10px;
+          gap: 5px;
         }
 
         .notifications-list {
           background: white;
-          border: 1px solid var(--border-color);
-          border-radius: 8px;
-          overflow: hidden;
+          border: 1px solid #6B84AA;
+          border-top: none;
         }
 
         .loading {
-          padding: 40px;
+          padding: 30px;
           text-align: center;
           color: #666;
         }
 
         .no-notifications {
-          padding: 60px 20px;
+          padding: 40px 20px;
         }
 
         .empty-state {
@@ -369,29 +375,29 @@ export default function NotificationsPage() {
         }
 
         .empty-icon {
-          font-size: 4rem;
-          margin-bottom: 20px;
+          font-size: 3rem;
+          margin-bottom: 15px;
         }
 
         .empty-state h3 {
-          margin: 0 0 10px 0;
+          margin: 0 0 8px 0;
           color: #333;
+          font-size: 12px;
         }
 
         .notification-item {
           display: flex;
           align-items: flex-start;
-          padding: 15px;
-          border-bottom: 1px solid #f0f0f0;
-          transition: background-color 0.2s;
+          padding: 8px 10px;
+          border-bottom: 1px solid #E0E0E0;
         }
 
         .notification-item:hover {
-          background-color: #f8f9fa;
+          background-color: #F5F5F5;
         }
 
         .notification-item.unread {
-          background-color: #f0f8ff;
+          background-color: #FFFDE7;
         }
 
         .notification-item:last-child {
@@ -399,7 +405,7 @@ export default function NotificationsPage() {
         }
 
         .notification-checkbox {
-          margin-right: 15px;
+          margin-right: 10px;
           cursor: pointer;
         }
 
@@ -411,8 +417,8 @@ export default function NotificationsPage() {
         }
 
         .notification-icon {
-          font-size: 1.5rem;
-          margin-right: 15px;
+          font-size: 1.2rem;
+          margin-right: 10px;
           flex-shrink: 0;
         }
 
@@ -422,70 +428,70 @@ export default function NotificationsPage() {
         }
 
         .notification-title {
-          font-weight: 600;
-          margin-bottom: 5px;
-          color: #333;
+          font-weight: bold;
+          margin-bottom: 3px;
+          color: #22497D;
+          font-size: 11px;
         }
 
         .notification-description {
-          color: #666;
-          margin-bottom: 8px;
+          color: #333;
+          margin-bottom: 5px;
           line-height: 1.4;
         }
 
         .notification-meta {
           display: flex;
-          gap: 15px;
-          font-size: 0.85rem;
-          color: #999;
+          gap: 10px;
+          font-size: 10px;
+          color: #808080;
         }
 
         .unread-indicator {
-          width: 8px;
-          height: 8px;
-          background: var(--primary-color);
+          width: 6px;
+          height: 6px;
+          background: #FF4400;
           border-radius: 50%;
-          margin-left: 10px;
+          margin-left: 8px;
           flex-shrink: 0;
-          margin-top: 6px;
+          margin-top: 4px;
         }
 
         .button {
-          padding: 8px 16px;
-          border: 1px solid var(--border-color);
-          background: white;
-          color: var(--text-color);
+          padding: 4px 10px;
+          border: 1px solid #808080;
+          background: linear-gradient(to bottom, #F5F5F5 0%, #E0E0E0 100%);
+          color: #333;
           text-decoration: none;
-          border-radius: 4px;
           cursor: pointer;
-          font-size: 0.9rem;
-          transition: all 0.2s;
+          font-size: 11px;
+          font-family: Tahoma, Verdana, Arial, sans-serif;
           display: inline-block;
         }
 
         .button:hover {
-          background: #f5f5f5;
+          background: linear-gradient(to bottom, #E0E0E0 0%, #D0D0D0 100%);
         }
 
         .button.small {
-          padding: 6px 12px;
-          font-size: 0.85rem;
+          padding: 3px 8px;
+          font-size: 10px;
         }
 
         .button.danger {
-          color: #dc3545;
-          border-color: #dc3545;
+          color: #CC0000;
+          border-color: #CC0000;
         }
 
         .button.danger:hover {
-          background: #dc3545;
+          background: #CC0000;
           color: white;
         }
 
         @media (max-width: 768px) {
           .page-header {
             flex-direction: column;
-            gap: 15px;
+            gap: 8px;
             align-items: flex-start;
           }
 
@@ -496,7 +502,7 @@ export default function NotificationsPage() {
           .bulk-actions {
             flex-direction: column;
             align-items: flex-start;
-            gap: 10px;
+            gap: 8px;
           }
 
           .selected-actions {
@@ -504,12 +510,12 @@ export default function NotificationsPage() {
           }
 
           .notification-item {
-            padding: 12px;
+            padding: 8px;
           }
 
           .notification-meta {
             flex-direction: column;
-            gap: 5px;
+            gap: 3px;
           }
         }
       `}</style>

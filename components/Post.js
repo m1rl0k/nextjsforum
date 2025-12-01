@@ -4,6 +4,7 @@ import ReportButton from './ReportButton';
 import { sanitizeHtml } from '../lib/sanitize';
 import { useAuth } from '../context/AuthContext';
 import EditPostModal from './EditPostModal';
+import { RankBadge } from './UserRank';
 
 export default function Post({ post, isFirstPost = false, onPostUpdated }) {
   const { user } = useAuth();
@@ -47,10 +48,14 @@ export default function Post({ post, isFirstPost = false, onPostUpdated }) {
             </Link>
           </div>
           <div className="post-userinfo">
+            {/* User Rank Badge */}
+            <div className="post-rank">
+              <RankBadge postCount={currentPost.user?.postCount || 0} />
+            </div>
             <div>Posts: {currentPost.user?.postCount || 0}</div>
             <div>Joined: {currentPost.user?.createdAt ? new Date(currentPost.user.createdAt).toLocaleDateString() : 'N/A'}</div>
             {currentPost.user?.role && currentPost.user.role !== 'USER' && (
-              <div style={{ color: currentPost.user.role === 'ADMIN' ? '#d32f2f' : '#1976d2', fontSize: '11px', fontWeight: 'bold' }}>
+              <div className="post-staff-badge" style={{ color: currentPost.user.role === 'ADMIN' ? '#C62828' : '#1565C0' }}>
                 {currentPost.user.role === 'ADMIN' ? '👑 Administrator' : '🛡️ Moderator'}
               </div>
             )}
@@ -65,11 +70,6 @@ export default function Post({ post, isFirstPost = false, onPostUpdated }) {
               From: {currentPost.user.location}
             </div>
           )}
-          {currentPost.user?.signature && (
-            <div className="post-signature">
-              {currentPost.user.signature}
-            </div>
-          )}
         </div>
         <div className="post-content">
           <div className="post-message" dangerouslySetInnerHTML={{ __html: sanitizeHtml(formatPostContent(currentPost.content)) }} />
@@ -77,6 +77,14 @@ export default function Post({ post, isFirstPost = false, onPostUpdated }) {
           {currentPost.editedAt && currentPost.editReason && (
             <div className="post-edit-note">
               Edit reason: {currentPost.editReason}
+            </div>
+          )}
+
+          {/* User Signature - appears at bottom of post content */}
+          {currentPost.user?.signature && (
+            <div className="post-signature">
+              <div className="signature-separator">__________________</div>
+              <div className="signature-content">{currentPost.user.signature}</div>
             </div>
           )}
         </div>

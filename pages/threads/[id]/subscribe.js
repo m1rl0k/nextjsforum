@@ -239,117 +239,149 @@ export default function SubscribeThread() {
         .subscribe-thread {
           max-width: 600px;
           margin: 0 auto;
-          padding: 20px;
+          padding: 10px;
+          font-family: Tahoma, Verdana, Arial, sans-serif;
+          font-size: 11px;
+        }
+
+        .subscribe-thread h1 {
+          background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
+          color: white;
+          padding: 8px 12px;
+          margin: 0 0 0 0;
+          font-size: 12px;
+          font-weight: bold;
+          border: 1px solid #6B84AA;
+          border-bottom: none;
         }
 
         .breadcrumb {
-          margin-bottom: 20px;
+          margin-bottom: 10px;
           color: #666;
+          font-size: 10px;
         }
 
         .breadcrumb a {
-          color: #007bff;
+          color: #22497D;
           text-decoration: none;
         }
 
+        .breadcrumb a:hover {
+          color: #FF4400;
+          text-decoration: underline;
+        }
+
         .thread-info {
-          background: #f8f9fa;
-          padding: 15px;
-          border-radius: 5px;
-          margin-bottom: 20px;
+          background: #F5F5F5;
+          padding: 10px;
+          border: 1px solid #6B84AA;
+          border-top: none;
         }
 
         .thread-info h2 {
-          margin: 0 0 10px 0;
+          margin: 0 0 8px 0;
+          color: #22497D;
+          font-size: 12px;
+        }
+
+        .thread-info p {
+          margin: 3px 0;
           color: #333;
         }
 
         .subscription-card {
           background: white;
-          padding: 30px;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          padding: 20px;
+          border: 1px solid #6B84AA;
+          border-top: none;
           text-align: center;
-          margin-bottom: 20px;
         }
 
         .status-icon {
-          font-size: 3rem;
-          margin-bottom: 15px;
+          font-size: 2.5rem;
+          margin-bottom: 10px;
         }
 
         .subscription-card h3 {
-          margin: 0 0 15px 0;
-          color: #333;
+          margin: 0 0 10px 0;
+          color: #22497D;
+          font-size: 12px;
+        }
+
+        .subscribed-state,
+        .unsubscribed-state {
+          padding: 10px;
         }
 
         .subscription-details,
         .subscription-benefits {
           text-align: left;
-          margin: 20px 0;
-          padding: 15px;
-          background: #f8f9fa;
-          border-radius: 5px;
+          margin: 15px 0;
+          padding: 10px;
+          background: #F5F5F5;
+          border: 1px solid #C0C0C0;
         }
 
         .subscription-details h4,
         .subscription-benefits h4 {
-          margin: 0 0 10px 0;
+          margin: 0 0 8px 0;
           color: #333;
+          font-size: 11px;
+          font-weight: bold;
         }
 
         .subscription-details ul,
         .subscription-benefits ul {
           margin: 0;
-          padding-left: 20px;
+          padding-left: 18px;
         }
 
         .subscription-details li,
         .subscription-benefits li {
-          margin-bottom: 5px;
+          margin-bottom: 4px;
         }
 
         .actions {
           display: flex;
-          gap: 10px;
+          gap: 8px;
           justify-content: center;
-          margin-top: 20px;
+          margin-top: 15px;
         }
 
         .button {
-          padding: 12px 24px;
-          border: 1px solid #ddd;
-          background: white;
+          padding: 5px 15px;
+          border: 1px solid #808080;
+          background: linear-gradient(to bottom, #F5F5F5 0%, #E0E0E0 100%);
           color: #333;
-          border-radius: 4px;
           cursor: pointer;
           text-decoration: none;
           display: inline-block;
-          font-size: 14px;
+          font-size: 11px;
+          font-family: Tahoma, Verdana, Arial, sans-serif;
         }
 
         .button:hover {
-          background: #f8f9fa;
+          background: linear-gradient(to bottom, #E0E0E0 0%, #D0D0D0 100%);
         }
 
         .button.primary {
-          background: #007bff;
+          background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
           color: white;
-          border-color: #007bff;
+          border-color: #2B4F81;
         }
 
         .button.primary:hover {
-          background: #0056b3;
+          background: linear-gradient(to bottom, #3A6090 0%, #1E3A5F 100%);
         }
 
         .button.danger {
-          background: #dc3545;
+          background: linear-gradient(to bottom, #CC0000 0%, #990000 100%);
           color: white;
-          border-color: #dc3545;
+          border-color: #990000;
         }
 
         .button.danger:hover {
-          background: #c82333;
+          background: linear-gradient(to bottom, #990000 0%, #660000 100%);
         }
 
         .button:disabled {
@@ -358,44 +390,47 @@ export default function SubscribeThread() {
         }
 
         .success {
-          background: #d4edda;
+          background: #D4EDDA;
           color: #155724;
-          padding: 15px;
-          border-radius: 4px;
-          margin-bottom: 20px;
+          padding: 10px;
+          border: 1px solid #C3E6CB;
+          margin-bottom: 10px;
         }
 
         .error {
-          background: #f8d7da;
-          color: #721c24;
-          padding: 15px;
-          border-radius: 4px;
-          margin-bottom: 20px;
+          background: #F8D7DA;
+          color: #721C24;
+          padding: 10px;
+          border: 1px solid #F5C6CB;
+          margin-bottom: 10px;
         }
 
         .help-text {
-          background: #e9ecef;
-          padding: 20px;
-          border-radius: 5px;
-          font-size: 14px;
+          background: #F5F5F5;
+          padding: 12px;
+          border: 1px solid #C0C0C0;
+          margin-top: 10px;
         }
 
         .help-text h4 {
-          margin: 0 0 10px 0;
-          color: #333;
+          margin: 0 0 8px 0;
+          color: #22497D;
+          font-size: 11px;
+          font-weight: bold;
         }
 
         .help-text p {
-          margin: 10px 0;
+          margin: 8px 0;
           line-height: 1.5;
         }
 
         .help-text a {
-          color: #007bff;
+          color: #22497D;
           text-decoration: none;
         }
 
         .help-text a:hover {
+          color: #FF4400;
           text-decoration: underline;
         }
 
