@@ -201,104 +201,109 @@ export default function NotificationDropdown() {
         .notification-dropdown {
           position: relative;
           display: inline-block;
+          font-family: Tahoma, Verdana, Arial, sans-serif;
+          font-size: 11px;
         }
 
         .notification-button {
           position: relative;
           background: none;
-          border: none;
-          font-size: 1.2rem;
+          border: 1px solid #555;
+          border-radius: 3px;
+          font-size: 14px;
           cursor: pointer;
-          padding: 8px;
-          border-radius: 4px;
-          transition: background-color 0.2s;
+          padding: 2px 6px;
+          color: #ccc;
+          line-height: 1;
+          transition: all 0.2s ease;
         }
 
         .notification-button:hover {
-          background-color: rgba(0, 0, 0, 0.1);
+          background: rgba(255, 255, 255, 0.1);
+          border-color: #888;
         }
 
         .notification-badge {
           position: absolute;
-          top: 2px;
-          right: 2px;
-          background: #ff4444;
+          top: -6px;
+          right: -6px;
+          background: #CC0000;
           color: white;
-          border-radius: 10px;
-          padding: 2px 6px;
-          font-size: 0.7rem;
+          border-radius: 8px;
+          padding: 1px 4px;
+          font-size: 9px;
           font-weight: bold;
-          min-width: 16px;
+          min-width: 12px;
           text-align: center;
+          border: 1px solid #990000;
         }
 
         .notification-dropdown-menu {
           position: absolute;
           top: 100%;
           right: 0;
-          background: white;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-          width: 350px;
-          max-height: 500px;
+          background: #F5F5F5;
+          border: 1px solid #6B84AA;
+          box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+          width: 320px;
+          max-height: 450px;
           overflow: hidden;
           z-index: 10000;
-          margin-top: 5px;
+          margin-top: 2px;
         }
 
         .notification-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 12px 16px;
-          border-bottom: 1px solid #eee;
-          background: #f8f9fa;
+          padding: 6px 10px;
+          background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
+          color: white;
         }
 
         .notification-header h3 {
           margin: 0;
-          font-size: 1rem;
-          font-weight: 600;
+          font-size: 11px;
+          font-weight: bold;
         }
 
         .mark-all-read-btn {
           background: none;
           border: none;
-          color: var(--primary-color);
+          color: #FFFFFF;
           cursor: pointer;
-          font-size: 0.85rem;
-          padding: 4px 8px;
-          border-radius: 4px;
+          font-size: 10px;
+          padding: 2px 5px;
+          text-decoration: underline;
         }
 
         .mark-all-read-btn:hover {
-          background: rgba(0, 0, 0, 0.05);
+          color: #FFD700;
         }
 
         .notification-list {
-          max-height: 400px;
+          max-height: 350px;
           overflow-y: auto;
+          background: white;
         }
 
         .no-notifications {
-          padding: 40px 20px;
+          padding: 25px 15px;
           text-align: center;
           color: #666;
           font-style: italic;
         }
 
         .notification-item {
-          border-bottom: 1px solid #f0f0f0;
-          transition: background-color 0.2s;
+          border-bottom: 1px solid #E0E0E0;
         }
 
         .notification-item:hover {
-          background-color: #f8f9fa;
+          background-color: #F5F5F5;
         }
 
         .notification-item.unread {
-          background-color: #f0f8ff;
+          background-color: #FFFDE7;
         }
 
         .notification-link {
@@ -309,13 +314,13 @@ export default function NotificationDropdown() {
 
         .notification-content {
           display: flex;
-          padding: 12px 16px;
+          padding: 8px 10px;
           cursor: pointer;
         }
 
         .notification-icon {
-          font-size: 1.2rem;
-          margin-right: 12px;
+          font-size: 14px;
+          margin-right: 8px;
           flex-shrink: 0;
         }
 
@@ -325,16 +330,16 @@ export default function NotificationDropdown() {
         }
 
         .notification-title {
-          font-weight: 600;
-          font-size: 0.9rem;
-          margin-bottom: 4px;
-          color: #333;
+          font-weight: bold;
+          font-size: 11px;
+          margin-bottom: 2px;
+          color: #22497D;
         }
 
         .notification-description {
-          font-size: 0.85rem;
-          color: #666;
-          margin-bottom: 4px;
+          font-size: 10px;
+          color: #333;
+          margin-bottom: 2px;
           line-height: 1.3;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -344,26 +349,26 @@ export default function NotificationDropdown() {
         }
 
         .notification-time {
-          font-size: 0.75rem;
-          color: #999;
+          font-size: 9px;
+          color: #808080;
         }
 
         .notification-footer {
-          padding: 12px 16px;
-          border-top: 1px solid #eee;
-          background: #f8f9fa;
+          padding: 6px 10px;
+          background: linear-gradient(to bottom, #8FA3C7 0%, #738FBF 100%);
           text-align: center;
         }
 
         .notification-footer a {
-          color: var(--primary-color);
+          color: white;
           text-decoration: none;
-          font-size: 0.9rem;
-          font-weight: 500;
+          font-size: 10px;
+          font-weight: bold;
         }
 
         .notification-footer a:hover {
           text-decoration: underline;
+          color: #FFD700;
         }
       `}</style>
     </div>
