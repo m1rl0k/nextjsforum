@@ -171,133 +171,160 @@ export default function MarkForumsRead() {
         .mark-read-page {
           max-width: 700px;
           margin: 0 auto;
-          padding: 20px;
+          padding: 10px;
+          font-family: Tahoma, Verdana, Arial, sans-serif;
+          font-size: 11px;
+        }
+
+        .mark-read-page h1 {
+          background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
+          color: white;
+          padding: 8px 12px;
+          margin: 0 0 0 0;
+          font-size: 12px;
+          font-weight: bold;
+          border: 1px solid #6B84AA;
+          border-bottom: none;
         }
 
         .breadcrumb {
-          margin-bottom: 20px;
+          margin-bottom: 10px;
           color: #666;
+          font-size: 10px;
         }
 
         .breadcrumb a {
-          color: #007bff;
+          color: #22497D;
           text-decoration: none;
         }
 
+        .breadcrumb a:hover {
+          color: #FF4400;
+          text-decoration: underline;
+        }
+
         .mark-read-card {
-          background: white;
-          padding: 40px;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          background: #F5F5F5;
+          padding: 20px;
+          border: 1px solid #6B84AA;
+          border-top: none;
           text-align: center;
-          margin-bottom: 30px;
+          margin-bottom: 15px;
         }
 
         .icon {
-          font-size: 4rem;
-          margin-bottom: 20px;
+          font-size: 48px;
+          margin-bottom: 15px;
         }
 
         .mark-read-card h2 {
-          margin: 0 0 15px 0;
+          margin: 0 0 10px 0;
+          color: #22497D;
+          font-size: 14px;
+        }
+
+        .mark-read-card p {
           color: #333;
+          margin: 0 0 15px 0;
         }
 
         .stats {
-          margin: 25px 0;
-          padding: 20px;
-          background: #f8f9fa;
-          border-radius: 5px;
+          margin: 15px 0;
+          padding: 15px;
+          background: white;
+          border: 1px solid #C0C0C0;
           text-align: left;
         }
 
         .stats h3 {
-          margin: 0 0 15px 0;
-          color: #333;
+          margin: 0 0 10px 0;
+          color: #22497D;
           text-align: center;
+          font-size: 12px;
         }
 
         .stat-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 15px;
+          gap: 10px;
         }
 
         .stat-item {
           text-align: center;
-          padding: 15px;
-          background: white;
-          border-radius: 5px;
-          border: 1px solid #e9ecef;
+          padding: 10px;
+          background: #F5F5F5;
+          border: 1px solid #C0C0C0;
         }
 
         .stat-number {
-          font-size: 2rem;
+          font-size: 18px;
           font-weight: bold;
-          color: #007bff;
-          margin-bottom: 5px;
+          color: #22497D;
+          margin-bottom: 3px;
         }
 
         .stat-label {
-          font-size: 0.9rem;
+          font-size: 10px;
           color: #666;
         }
 
         .warning {
-          margin: 25px 0;
-          padding: 20px;
-          background: #fff3cd;
-          border: 1px solid #ffeaa7;
-          border-radius: 5px;
+          margin: 15px 0;
+          padding: 12px;
+          background: #FFFDE7;
+          border: 1px solid #FFC107;
           text-align: left;
         }
 
         .warning h4 {
-          margin: 0 0 10px 0;
+          margin: 0 0 8px 0;
           color: #856404;
+          font-size: 11px;
         }
 
         .warning ul {
           margin: 0;
-          padding-left: 20px;
+          padding-left: 18px;
           color: #856404;
         }
 
         .warning li {
-          margin-bottom: 5px;
+          margin-bottom: 3px;
         }
 
         .actions {
           display: flex;
-          gap: 15px;
+          gap: 10px;
           justify-content: center;
-          margin-top: 30px;
+          margin-top: 20px;
+          padding-top: 15px;
+          border-top: 1px solid #C0C0C0;
         }
 
         .button {
-          padding: 12px 24px;
-          border: 1px solid #ddd;
-          background: white;
+          padding: 5px 15px;
+          border: 1px solid #808080;
+          background: linear-gradient(to bottom, #F5F5F5 0%, #E0E0E0 100%);
           color: #333;
-          border-radius: 4px;
           cursor: pointer;
           text-decoration: none;
           display: inline-block;
-          font-size: 14px;
+          font-size: 11px;
+          font-family: Tahoma, Verdana, Arial, sans-serif;
         }
 
         .button:hover {
-          background: #f8f9fa;
+          background: linear-gradient(to bottom, #E0E0E0 0%, #D0D0D0 100%);
         }
 
         .button.primary {
-          background: #007bff;
+          background: linear-gradient(to bottom, #4C76B2 0%, #2B4F81 100%);
           color: white;
-          border-color: #007bff;
+          border-color: #2B4F81;
         }
 
         .button.primary:hover {
-          background: #0056b3;
+          background: linear-gradient(to bottom, #3A6090 0%, #1E3A5F 100%);
         }
 
         .button:disabled {
@@ -306,56 +333,58 @@ export default function MarkForumsRead() {
         }
 
         .success {
-          background: #d4edda;
+          background: #D4EDDA;
           color: #155724;
-          padding: 15px;
-          border-radius: 4px;
-          margin-bottom: 20px;
+          padding: 10px;
+          border: 1px solid #C3E6CB;
+          margin-bottom: 15px;
         }
 
         .error {
-          background: #f8d7da;
-          color: #721c24;
-          padding: 15px;
-          border-radius: 4px;
-          margin-bottom: 20px;
+          background: #F8D7DA;
+          color: #721C24;
+          padding: 10px;
+          border: 1px solid #F5C6CB;
+          margin-bottom: 15px;
         }
 
         .help-section {
-          background: #f8f9fa;
-          padding: 25px;
-          border-radius: 8px;
+          background: white;
+          padding: 15px;
+          border: 1px solid #6B84AA;
         }
 
         .help-section h3 {
-          margin: 0 0 20px 0;
-          color: #333;
-          text-align: center;
+          background: linear-gradient(to bottom, #8FA3C7 0%, #738FBF 100%);
+          color: white;
+          margin: -15px -15px 15px -15px;
+          padding: 8px 12px;
+          font-size: 11px;
+          text-align: left;
         }
 
         .help-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 20px;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 10px;
         }
 
         .help-item {
-          background: white;
-          padding: 20px;
-          border-radius: 5px;
-          border: 1px solid #e9ecef;
+          background: #F5F5F5;
+          padding: 12px;
+          border: 1px solid #C0C0C0;
         }
 
         .help-item h4 {
-          margin: 0 0 10px 0;
-          color: #333;
-          font-size: 1rem;
+          margin: 0 0 6px 0;
+          color: #22497D;
+          font-size: 11px;
         }
 
         .help-item p {
           margin: 0;
-          color: #666;
-          font-size: 0.9rem;
+          color: #333;
+          font-size: 10px;
           line-height: 1.4;
         }
 
@@ -363,11 +392,11 @@ export default function MarkForumsRead() {
           .actions {
             flex-direction: column;
           }
-          
+
           .stat-grid {
             grid-template-columns: 1fr;
           }
-          
+
           .help-grid {
             grid-template-columns: 1fr;
           }
