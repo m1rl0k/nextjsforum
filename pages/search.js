@@ -207,47 +207,24 @@ export default function Search() {
 
               {/* Advanced Search Filters */}
               {showAdvanced && (
-                <div style={{
-                  padding: '15px',
-                  backgroundColor: '#f5f5f5',
-                  borderRadius: '4px',
-                  marginBottom: '15px'
-                }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '13px' }}>
-                        Author
-                      </label>
+                <div className="advanced-filters">
+                  <div className="filter-grid">
+                    <div className="filter-field">
+                      <label>Author</label>
                       <input
                         type="text"
                         placeholder="Username..."
                         value={author}
                         onChange={(e) => setAuthor(e.target.value)}
-                        style={{
-                          width: '100%',
-                          padding: '8px',
-                          border: '1px solid var(--border-color)',
-                          borderRadius: '3px',
-                          fontSize: '13px'
-                        }}
                       />
                     </div>
 
                     {searchType !== 'users' && (
-                      <div>
-                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '13px' }}>
-                          Forum
-                        </label>
+                      <div className="filter-field">
+                        <label>Forum</label>
                         <select
                           value={selectedSubject}
                           onChange={(e) => setSelectedSubject(e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '8px',
-                            border: '1px solid var(--border-color)',
-                            borderRadius: '3px',
-                            fontSize: '13px'
-                          }}
                         >
                           <option value="">All Forums</option>
                           {subjects.map(subject => (
@@ -259,58 +236,31 @@ export default function Search() {
                       </div>
                     )}
 
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '13px' }}>
-                        From Date
-                      </label>
+                    <div className="filter-field">
+                      <label>From Date</label>
                       <input
                         type="date"
                         value={dateFrom}
                         onChange={(e) => setDateFrom(e.target.value)}
-                        style={{
-                          width: '100%',
-                          padding: '8px',
-                          border: '1px solid var(--border-color)',
-                          borderRadius: '3px',
-                          fontSize: '13px'
-                        }}
                       />
                     </div>
 
-                    <div>
-                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '13px' }}>
-                        To Date
-                      </label>
+                    <div className="filter-field">
+                      <label>To Date</label>
                       <input
                         type="date"
                         value={dateTo}
                         onChange={(e) => setDateTo(e.target.value)}
-                        style={{
-                          width: '100%',
-                          padding: '8px',
-                          border: '1px solid var(--border-color)',
-                          borderRadius: '3px',
-                          fontSize: '13px'
-                        }}
                       />
                     </div>
 
                     {searchType === 'threads' && (
                       <>
-                        <div>
-                          <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '13px' }}>
-                            Sort By
-                          </label>
+                        <div className="filter-field">
+                          <label>Sort By</label>
                           <select
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value)}
-                            style={{
-                              width: '100%',
-                              padding: '8px',
-                              border: '1px solid var(--border-color)',
-                              borderRadius: '3px',
-                              fontSize: '13px'
-                            }}
                           >
                             <option value="relevance">Relevance</option>
                             <option value="date">Date</option>
@@ -319,20 +269,11 @@ export default function Search() {
                           </select>
                         </div>
 
-                        <div>
-                          <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', fontSize: '13px' }}>
-                            Order
-                          </label>
+                        <div className="filter-field">
+                          <label>Order</label>
                           <select
                             value={sortOrder}
                             onChange={(e) => setSortOrder(e.target.value)}
-                            style={{
-                              width: '100%',
-                              padding: '8px',
-                              border: '1px solid var(--border-color)',
-                              borderRadius: '3px',
-                              fontSize: '13px'
-                            }}
                           >
                             <option value="desc">Descending</option>
                             <option value="asc">Ascending</option>
@@ -342,7 +283,7 @@ export default function Search() {
                     )}
                   </div>
 
-                  <div style={{ marginTop: '15px', display: 'flex', gap: '10px' }}>
+                  <div className="filter-actions">
                     <button
                       type="button"
                       onClick={clearFilters}
@@ -533,6 +474,59 @@ export default function Search() {
         mark {
           background-color: yellow;
           padding: 1px 2px;
+        }
+        .advanced-filters {
+          padding: 15px;
+          background-color: #f5f5f5;
+          border: 1px solid #c0c0c0;
+          border-radius: 4px;
+          margin-bottom: 15px;
+        }
+        .filter-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 15px;
+        }
+        @media (max-width: 900px) {
+          .filter-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        @media (max-width: 500px) {
+          .filter-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+        .filter-field {
+          display: flex;
+          flex-direction: column;
+        }
+        .filter-field label {
+          display: block;
+          margin-bottom: 5px;
+          font-weight: 500;
+          font-size: 13px;
+          color: #333;
+        }
+        .filter-field input,
+        .filter-field select {
+          width: 100%;
+          padding: 8px;
+          border: 1px solid #808080;
+          border-radius: 3px;
+          font-size: 13px;
+          font-family: Tahoma, Verdana, Arial, sans-serif;
+          box-sizing: border-box;
+        }
+        .filter-field input:focus,
+        .filter-field select:focus {
+          border-color: #4C76B2;
+          outline: none;
+        }
+        .filter-actions {
+          margin-top: 15px;
+          display: flex;
+          gap: 10px;
         }
       `}</style>
     </Layout>
