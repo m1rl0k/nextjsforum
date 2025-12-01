@@ -189,231 +189,397 @@ export default function NewMessage() {
     <Layout title="New Message">
       <div className="new-message-page">
         <div className="breadcrumbs">
-          <Link href="/">Forum Index</Link> &raquo;
+          <Link href="/">Forum Index</Link> &raquo;{' '}
           <Link href="/messages">Private Messages</Link> &raquo;
           <span> New Message</span>
         </div>
 
         <div className="category-block">
           <div className="category-header">
+            <span className="header-icon">✏️</span>
             Compose New Message
           </div>
-          
-          <div style={{ padding: '20px', backgroundColor: 'white' }}>
+
+          <div className="form-container">
             {error && (
-              <div style={{ 
-                backgroundColor: '#ffebee', 
-                color: '#c62828', 
-                padding: '10px', 
-                marginBottom: '20px',
-                border: '1px solid #ef5350',
-                borderRadius: '3px'
-              }}>
-                {error}
+              <div className="error-box">
+                ⚠️ {error}
               </div>
             )}
 
             <form onSubmit={handleSubmit}>
-              <div className="form-group" style={{ position: 'relative' }}>
-                <label className="form-label" htmlFor="recipient">
-                  To (Username) *
-                </label>
-                <input
-                  id="recipient"
-                  name="recipient"
-                  type="text"
-                  value={formData.recipient}
-                  onChange={handleChange}
-                  className={`form-input ${errors.recipient ? 'error' : ''}`}
-                  placeholder="Enter recipient's username..."
-                  autoComplete="off"
-                />
-                {errors.recipient && (
-                  <div style={{ color: '#c62828', fontSize: '12px', marginTop: '5px' }}>
-                    {errors.recipient}
-                  </div>
-                )}
-                
-                {/* User suggestions dropdown */}
-                {showSuggestions && userSuggestions.length > 0 && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    right: 0,
-                    backgroundColor: 'white',
-                    border: '1px solid var(--border-color)',
-                    borderTop: 'none',
-                    borderRadius: '0 0 3px 3px',
-                    maxHeight: '200px',
-                    overflowY: 'auto',
-                    zIndex: 1000
-                  }}>
-                    {userSuggestions.map(user => (
-                      <div
-                        key={user.id}
-                        onClick={() => selectUser(user.username)}
-                        style={{
-                          padding: '8px 12px',
-                          cursor: 'pointer',
-                          borderBottom: '1px solid #eee',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px'
-                        }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = '#f5f5f5'}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = 'white'}
-                      >
-                        {user.avatar ? (
-                          <img 
-                            src={user.avatar} 
-                            alt={`${user.username}'s avatar`}
-                            style={{ width: '20px', height: '20px', borderRadius: '50%' }}
-                          />
-                        ) : (
-                          <div style={{ 
-                            width: '20px', 
-                            height: '20px', 
-                            borderRadius: '50%', 
-                            backgroundColor: 'var(--primary-color)', 
-                            color: 'white', 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            justifyContent: 'center', 
-                            fontSize: '10px'
-                          }}>
-                            {user.username.charAt(0).toUpperCase()}
+              <table className="form-table" cellSpacing="1" cellPadding="4">
+                <tbody>
+                  <tr>
+                    <td className="form-label-cell">To (Username) *</td>
+                    <td className="form-input-cell">
+                      <div className="recipient-wrapper">
+                        <input
+                          id="recipient"
+                          name="recipient"
+                          type="text"
+                          value={formData.recipient}
+                          onChange={handleChange}
+                          className={`vb-input ${errors.recipient ? 'error' : ''}`}
+                          placeholder="Enter recipient's username..."
+                          autoComplete="off"
+                        />
+                        {errors.recipient && (
+                          <div className="field-error">{errors.recipient}</div>
+                        )}
+
+                        {/* User suggestions dropdown */}
+                        {showSuggestions && userSuggestions.length > 0 && (
+                          <div className="suggestions-dropdown">
+                            {userSuggestions.map(u => (
+                              <div
+                                key={u.id}
+                                onClick={() => selectUser(u.username)}
+                                className="suggestion-item"
+                              >
+                                {u.avatar ? (
+                                  <img src={u.avatar} alt={u.username} className="suggestion-avatar" />
+                                ) : (
+                                  <div className="suggestion-avatar-placeholder">
+                                    {u.username.charAt(0).toUpperCase()}
+                                  </div>
+                                )}
+                                <span>{u.username}</span>
+                              </div>
+                            ))}
                           </div>
                         )}
-                        <span>{user.username}</span>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label className="form-label" htmlFor="content">
-                  Message *
-                </label>
-                <textarea
-                  id="content"
-                  name="content"
-                  value={formData.content}
-                  onChange={handleChange}
-                  className={`form-textarea ${errors.content ? 'error' : ''}`}
-                  placeholder="Enter your message..."
-                  rows="15"
-                />
-                {errors.content && (
-                  <div style={{ color: '#c62828', fontSize: '12px', marginTop: '5px' }}>
-                    {errors.content}
-                  </div>
-                )}
-              </div>
-
-              {attachments.length > 0 && (
-                <div className="attachment-preview" style={{
-                  margin: '15px 0',
-                  padding: '15px',
-                  background: '#f8f9fa',
-                  borderRadius: '4px',
-                  border: '1px solid #dee2e6'
-                }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '10px', fontSize: '13px', color: '#495057' }}>
-                    📎 Attachments:
-                  </div>
-                  {attachments.map((att, idx) => (
-                    <div key={idx} style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      padding: '8px 12px',
-                      background: 'white',
-                      border: '1px solid #dee2e6',
-                      borderRadius: '4px',
-                      margin: '5px 5px 5px 0',
-                      fontSize: '13px'
-                    }}>
-                      {att.type?.startsWith('image/') ? (
-                        <img src={att.url} alt={att.filename} style={{
-                          maxWidth: '100px',
-                          maxHeight: '60px',
-                          borderRadius: '3px'
-                        }} />
-                      ) : (
-                        <span>📄 {att.filename}</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="form-label-cell">Message *</td>
+                    <td className="form-input-cell">
+                      <textarea
+                        id="content"
+                        name="content"
+                        value={formData.content}
+                        onChange={handleChange}
+                        className={`vb-textarea ${errors.content ? 'error' : ''}`}
+                        placeholder="Enter your message..."
+                        rows="12"
+                      />
+                      {errors.content && (
+                        <div className="field-error">{errors.content}</div>
                       )}
-                      <button
-                        type="button"
-                        onClick={() => removeAttachment(idx)}
-                        style={{
-                          background: '#dc3545',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '50%',
-                          width: '20px',
-                          height: '20px',
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                          lineHeight: '1',
-                          padding: 0,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                        title="Remove attachment"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <div className="form-group">
-                <label className="attach-file-btn" style={{
-                  display: 'inline-block',
-                  padding: '10px 20px',
-                  background: '#6c757d',
-                  color: 'white',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  transition: 'background 0.2s',
-                  marginRight: '10px'
-                }}>
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/jpeg,image/jpg,image/png,image/gif,application/pdf,text/plain,application/zip"
-                    onChange={handleFileUpload}
-                    disabled={uploading || loading}
-                    style={{ display: 'none' }}
-                  />
-                  {uploading ? '⏳ Uploading...' : '📎 Attach File'}
-                </label>
-                <button
-                  type="submit"
-                  className="button"
-                  disabled={loading}
-                  style={{ marginRight: '10px' }}
-                >
-                  {loading ? 'Sending...' : 'Send Message'}
-                </button>
-                <Link href="/messages" className="button" style={{ backgroundColor: '#666' }}>
-                  Cancel
-                </Link>
-              </div>
+                    </td>
+                  </tr>
+                  {attachments.length > 0 && (
+                    <tr>
+                      <td className="form-label-cell">Attachments</td>
+                      <td className="form-input-cell">
+                        <div className="attachments-list">
+                          {attachments.map((att, idx) => (
+                            <div key={idx} className="attachment-item">
+                              {att.type?.startsWith('image/') ? (
+                                <img src={att.url} alt={att.filename} className="attachment-thumb" />
+                              ) : (
+                                <span>📄 {att.filename}</span>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => removeAttachment(idx)}
+                                className="remove-btn"
+                                title="Remove attachment"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                  <tr>
+                    <td className="form-label-cell">&nbsp;</td>
+                    <td className="form-input-cell">
+                      <div className="form-actions">
+                        <label className="attach-btn">
+                          <input
+                            type="file"
+                            multiple
+                            accept="image/jpeg,image/jpg,image/png,image/gif,application/pdf,text/plain,application/zip"
+                            onChange={handleFileUpload}
+                            disabled={uploading || loading}
+                          />
+                          {uploading ? '⏳ Uploading...' : '📎 Attach File'}
+                        </label>
+                        <button type="submit" className="vb-button" disabled={loading}>
+                          {loading ? 'Sending...' : 'Send Message'}
+                        </button>
+                        <Link href="/messages" className="vb-button secondary">
+                          Cancel
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </form>
           </div>
         </div>
       </div>
 
       <style jsx>{`
-        .form-input.error,
-        .form-textarea.error {
-          border-color: #c62828;
+        .new-message-page {
+          max-width: 800px;
+          margin: 0 auto;
+          padding: 20px;
+          font: 11px Tahoma, Verdana, Arial, sans-serif;
+        }
+
+        .breadcrumbs {
+          background-color: #F5F5F5;
+          padding: 8px 15px;
+          border: 1px solid #6B84AA;
+          border-bottom: none;
+          font-size: 11px;
+        }
+
+        .breadcrumbs a {
+          color: #22497D;
+          text-decoration: none;
+        }
+
+        .breadcrumbs a:hover {
+          color: #FF4400;
+          text-decoration: underline;
+        }
+
+        .category-block {
+          background: white;
+          border: 1px solid #6B84AA;
+        }
+
+        .category-header {
+          background: linear-gradient(to bottom, #8FA3C7 0%, #738FBF 100%);
+          color: white;
+          padding: 8px 15px;
+          font-weight: bold;
+          font-size: 12px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .header-icon {
+          font-size: 14px;
+        }
+
+        .form-container {
+          padding: 15px;
+          background: #E5E5E5;
+        }
+
+        .error-box {
+          background: #FFEBE8;
+          border: 1px solid #CC0000;
+          color: #CC0000;
+          padding: 8px 12px;
+          margin-bottom: 15px;
+          font-size: 11px;
+        }
+
+        .form-table {
+          width: 100%;
+          border-collapse: separate;
+          border-spacing: 1px;
+          background: #808080;
+        }
+
+        .form-label-cell {
+          background: linear-gradient(to bottom, #E8E8E8 0%, #D8D8D8 100%);
+          padding: 8px 12px;
+          font-weight: bold;
+          width: 120px;
+          vertical-align: top;
+        }
+
+        .form-input-cell {
+          background: #F5F5F5;
+          padding: 8px 12px;
+        }
+
+        .recipient-wrapper {
+          position: relative;
+        }
+
+        .vb-input {
+          width: 300px;
+          padding: 4px 6px;
+          border: 1px solid #808080;
+          font: 11px Tahoma, Verdana, Arial, sans-serif;
+        }
+
+        .vb-input:focus {
+          outline: none;
+          border-color: #4C76B2;
+        }
+
+        .vb-input.error {
+          border-color: #CC0000;
+        }
+
+        .vb-textarea {
+          width: 100%;
+          padding: 6px;
+          border: 1px solid #808080;
+          font: 11px Tahoma, Verdana, Arial, sans-serif;
+          resize: vertical;
+          box-sizing: border-box;
+        }
+
+        .vb-textarea:focus {
+          outline: none;
+          border-color: #4C76B2;
+        }
+
+        .vb-textarea.error {
+          border-color: #CC0000;
+        }
+
+        .field-error {
+          color: #CC0000;
+          font-size: 10px;
+          margin-top: 4px;
+        }
+
+        .suggestions-dropdown {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          width: 300px;
+          background: white;
+          border: 1px solid #808080;
+          border-top: none;
+          max-height: 200px;
+          overflow-y: auto;
+          z-index: 1000;
+        }
+
+        .suggestion-item {
+          padding: 6px 10px;
+          cursor: pointer;
+          border-bottom: 1px solid #E0E0E0;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .suggestion-item:hover {
+          background: #E8F4FD;
+        }
+
+        .suggestion-avatar {
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+        }
+
+        .suggestion-avatar-placeholder {
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: #4C76B2;
+          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 9px;
+          font-weight: bold;
+        }
+
+        .attachments-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .attachment-item {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 10px;
+          background: white;
+          border: 1px solid #808080;
+          font-size: 10px;
+        }
+
+        .attachment-thumb {
+          max-width: 60px;
+          max-height: 40px;
+        }
+
+        .remove-btn {
+          background: #CC0000;
+          color: white;
+          border: none;
+          width: 16px;
+          height: 16px;
+          cursor: pointer;
+          font-size: 10px;
+          line-height: 1;
+          padding: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .remove-btn:hover {
+          background: #990000;
+        }
+
+        .form-actions {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+        }
+
+        .attach-btn {
+          display: inline-block;
+          background: linear-gradient(to bottom, #E0E0E0 0%, #C8C8C8 100%);
+          border: 1px solid #808080;
+          padding: 5px 12px;
+          font: 11px Tahoma, Verdana, Arial, sans-serif;
+          color: #333;
+          cursor: pointer;
+        }
+
+        .attach-btn:hover {
+          background: linear-gradient(to bottom, #E8E8E8 0%, #D0D0D0 100%);
+        }
+
+        .attach-btn input {
+          display: none;
+        }
+
+        .vb-button {
+          background: linear-gradient(to bottom, #F5F5F5 0%, #E0E0E0 100%);
+          border: 1px solid #808080;
+          padding: 5px 12px;
+          font: 11px Tahoma, Verdana, Arial, sans-serif;
+          color: #333;
+          cursor: pointer;
+          text-decoration: none;
+          display: inline-block;
+        }
+
+        .vb-button:hover {
+          background: linear-gradient(to bottom, #FFFFFF 0%, #E8E8E8 100%);
+        }
+
+        .vb-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .vb-button.secondary {
+          background: linear-gradient(to bottom, #E0E0E0 0%, #C8C8C8 100%);
         }
       `}</style>
     </Layout>

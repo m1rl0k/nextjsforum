@@ -93,15 +93,93 @@ export default function ViewMessage() {
   }
 
   if (loading) {
-    return <Layout><div>Loading...</div></Layout>;
+    return (
+      <Layout>
+        <div className="loading-container">
+          <div className="loading-spinner">💬</div>
+          <div>Loading message...</div>
+        </div>
+        <style jsx>{`
+          .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+            gap: 15px;
+            font: 11px Tahoma, Verdana, Arial, sans-serif;
+          }
+          .loading-spinner {
+            font-size: 2rem;
+            animation: pulse 2s infinite;
+          }
+          @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+          }
+        `}</style>
+      </Layout>
+    );
   }
 
   if (error) {
-    return <Layout><div>Error: {error}</div></Layout>;
+    return (
+      <Layout>
+        <div className="error-container">
+          <div className="error-icon">⚠️</div>
+          <div className="error-text">{error}</div>
+          <Link href="/messages" className="back-btn">Back to Messages</Link>
+        </div>
+        <style jsx>{`
+          .error-container {
+            text-align: center;
+            padding: 60px 20px;
+            font: 11px Tahoma, Verdana, Arial, sans-serif;
+          }
+          .error-icon { font-size: 3rem; margin-bottom: 15px; }
+          .error-text { color: #991b1b; margin-bottom: 20px; }
+          .back-btn {
+            display: inline-block;
+            background: linear-gradient(to bottom, #F5F5F5 0%, #E0E0E0 100%);
+            border: 1px solid #808080;
+            padding: 6px 12px;
+            color: #333;
+            text-decoration: none;
+            font-size: 11px;
+          }
+        `}</style>
+      </Layout>
+    );
   }
 
   if (!message) {
-    return <Layout><div>Message not found</div></Layout>;
+    return (
+      <Layout>
+        <div className="error-container">
+          <div className="error-icon">📭</div>
+          <div>Message not found</div>
+          <Link href="/messages" className="back-btn">Back to Messages</Link>
+        </div>
+        <style jsx>{`
+          .error-container {
+            text-align: center;
+            padding: 60px 20px;
+            font: 11px Tahoma, Verdana, Arial, sans-serif;
+          }
+          .error-icon { font-size: 3rem; margin-bottom: 15px; }
+          .back-btn {
+            display: inline-block;
+            background: linear-gradient(to bottom, #F5F5F5 0%, #E0E0E0 100%);
+            border: 1px solid #808080;
+            padding: 6px 12px;
+            color: #333;
+            text-decoration: none;
+            font-size: 11px;
+            margin-top: 20px;
+          }
+        `}</style>
+      </Layout>
+    );
   }
 
   const isRecipient = message.recipientId === user.id;
@@ -111,61 +189,47 @@ export default function ViewMessage() {
     <Layout title="View Message">
       <div className="view-message-page">
         <div className="breadcrumbs">
-          <Link href="/">Forum Index</Link> &raquo;
+          <Link href="/">Forum Index</Link> &raquo;{' '}
           <Link href="/messages">Private Messages</Link> &raquo;
           <span> View Message</span>
         </div>
 
         <div className="category-block">
           <div className="category-header">
+            <span className="header-icon">✉️</span>
             Private Message
           </div>
-          
-          <div style={{ padding: '20px', backgroundColor: 'white' }}>
+
+          <div className="message-container">
             {/* Message Header */}
-            <div style={{ 
-              padding: '15px', 
-              backgroundColor: 'var(--post-header-bg)', 
-              borderRadius: '3px',
-              marginBottom: '20px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <div>
-                <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+            <div className="message-header">
+              <div className="header-left">
+                <div className="from-line">
                   {isRecipient ? 'From' : 'To'}: <Link href={`/profile/${otherUser.username}`}>{otherUser.username}</Link>
                 </div>
-                <div style={{ fontSize: '12px', color: '#666' }}>
+                <div className="date-line">
                   {formatDate(message.createdAt)}
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '10px' }}>
+              <div className="header-actions">
                 {isRecipient && (
-                  <button 
+                  <button
                     onClick={() => setShowReply(!showReply)}
-                    className="button"
-                    style={{ fontSize: '12px' }}
+                    className="vb-button"
                   >
-                    {showReply ? 'Cancel Reply' : 'Reply'}
+                    {showReply ? 'Cancel Reply' : '↩️ Reply'}
                   </button>
                 )}
-                <Link href="/messages" className="button" style={{ fontSize: '12px', backgroundColor: '#666' }}>
-                  Back to Messages
+                <Link href="/messages" className="vb-button secondary">
+                  ← Back
                 </Link>
               </div>
             </div>
 
             {/* Message Content */}
-            <div style={{ 
-              padding: '20px', 
-              backgroundColor: 'var(--thread-alt-bg)', 
-              borderRadius: '3px',
-              marginBottom: '20px',
-              lineHeight: '1.6'
-            }}>
+            <div className="message-content">
               {message.content.split('\n').map((line, index) => (
-                <div key={index} style={{ marginBottom: line.trim() === '' ? '10px' : '0' }}>
+                <div key={index} className={line.trim() === '' ? 'empty-line' : ''}>
                   {line || '\u00A0'}
                 </div>
               ))}
@@ -173,38 +237,31 @@ export default function ViewMessage() {
 
             {/* Reply Form */}
             {showReply && isRecipient && (
-              <div style={{ 
-                padding: '20px', 
-                backgroundColor: 'var(--sidebar-bg)', 
-                borderRadius: '3px',
-                marginBottom: '20px'
-              }}>
-                <h4 style={{ marginTop: 0, marginBottom: '15px' }}>Reply to {otherUser.username}</h4>
+              <div className="reply-section">
+                <div className="reply-header">Reply to {otherUser.username}</div>
                 <form onSubmit={handleReply}>
-                  <div className="form-group">
+                  <div className="form-row">
                     <textarea
                       value={replyContent}
                       onChange={(e) => setReplyContent(e.target.value)}
-                      className="form-textarea"
+                      className="reply-textarea"
                       placeholder="Enter your reply..."
                       rows="8"
                       required
                     />
                   </div>
-                  <div className="form-group">
-                    <button 
-                      type="submit" 
-                      className="button"
+                  <div className="form-actions">
+                    <button
+                      type="submit"
+                      className="vb-button"
                       disabled={replyLoading}
-                      style={{ marginRight: '10px' }}
                     >
                       {replyLoading ? 'Sending...' : 'Send Reply'}
                     </button>
-                    <button 
+                    <button
                       type="button"
                       onClick={() => setShowReply(false)}
-                      className="button"
-                      style={{ backgroundColor: '#666' }}
+                      className="vb-button secondary"
                     >
                       Cancel
                     </button>
@@ -214,17 +271,186 @@ export default function ViewMessage() {
             )}
 
             {/* Actions */}
-            <div style={{ textAlign: 'center' }}>
-              <Link href="/messages" className="button" style={{ marginRight: '10px' }}>
+            <div className="bottom-actions">
+              <Link href="/messages" className="vb-button">
                 📥 Back to Messages
               </Link>
-              <Link href={`/messages/new?to=${otherUser.username}`} className="button">
+              <Link href={`/messages/new?to=${otherUser.username}`} className="vb-button">
                 ✉️ New Message to {otherUser.username}
               </Link>
             </div>
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .view-message-page {
+          max-width: 800px;
+          margin: 0 auto;
+          padding: 20px;
+          font: 11px Tahoma, Verdana, Arial, sans-serif;
+        }
+
+        .breadcrumbs {
+          background-color: #F5F5F5;
+          padding: 8px 15px;
+          border: 1px solid #6B84AA;
+          border-bottom: none;
+          font-size: 11px;
+        }
+
+        .breadcrumbs a {
+          color: #22497D;
+          text-decoration: none;
+        }
+
+        .breadcrumbs a:hover {
+          color: #FF4400;
+          text-decoration: underline;
+        }
+
+        .category-block {
+          background: white;
+          border: 1px solid #6B84AA;
+        }
+
+        .category-header {
+          background: linear-gradient(to bottom, #8FA3C7 0%, #738FBF 100%);
+          color: white;
+          padding: 8px 15px;
+          font-weight: bold;
+          font-size: 12px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .header-icon {
+          font-size: 14px;
+        }
+
+        .message-container {
+          padding: 15px;
+          background: #E5E5E5;
+        }
+
+        .message-header {
+          background: linear-gradient(to bottom, #E8E8E8 0%, #D8D8D8 100%);
+          border: 1px solid #808080;
+          padding: 10px 15px;
+          margin-bottom: 15px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .from-line {
+          font-weight: bold;
+          margin-bottom: 3px;
+        }
+
+        .from-line a {
+          color: #22497D;
+          text-decoration: none;
+        }
+
+        .from-line a:hover {
+          color: #FF4400;
+          text-decoration: underline;
+        }
+
+        .date-line {
+          font-size: 10px;
+          color: #666;
+        }
+
+        .header-actions {
+          display: flex;
+          gap: 8px;
+        }
+
+        .vb-button {
+          background: linear-gradient(to bottom, #F5F5F5 0%, #E0E0E0 100%);
+          border: 1px solid #808080;
+          padding: 5px 12px;
+          font: 11px Tahoma, Verdana, Arial, sans-serif;
+          color: #333;
+          cursor: pointer;
+          text-decoration: none;
+          display: inline-block;
+        }
+
+        .vb-button:hover {
+          background: linear-gradient(to bottom, #FFFFFF 0%, #E8E8E8 100%);
+        }
+
+        .vb-button:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .vb-button.secondary {
+          background: linear-gradient(to bottom, #E0E0E0 0%, #C8C8C8 100%);
+        }
+
+        .message-content {
+          background: #F5F5F5;
+          border: 1px solid #808080;
+          padding: 15px;
+          line-height: 1.6;
+          font-size: 11px;
+          margin-bottom: 15px;
+        }
+
+        .message-content .empty-line {
+          margin-bottom: 10px;
+        }
+
+        .reply-section {
+          background: #F5F5F5;
+          border: 1px solid #808080;
+          margin-bottom: 15px;
+        }
+
+        .reply-header {
+          background: linear-gradient(to bottom, #E8E8E8 0%, #D8D8D8 100%);
+          padding: 8px 15px;
+          font-weight: bold;
+          border-bottom: 1px solid #808080;
+        }
+
+        .form-row {
+          padding: 15px;
+        }
+
+        .reply-textarea {
+          width: 100%;
+          padding: 8px;
+          border: 1px solid #808080;
+          font: 11px Tahoma, Verdana, Arial, sans-serif;
+          resize: vertical;
+          box-sizing: border-box;
+        }
+
+        .reply-textarea:focus {
+          outline: none;
+          border-color: #4C76B2;
+        }
+
+        .form-actions {
+          padding: 0 15px 15px;
+          display: flex;
+          gap: 8px;
+        }
+
+        .bottom-actions {
+          text-align: center;
+          padding-top: 10px;
+          display: flex;
+          justify-content: center;
+          gap: 10px;
+        }
+      `}</style>
     </Layout>
   );
 }
