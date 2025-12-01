@@ -120,8 +120,24 @@ export default function ThreadPage() {
   const startIndex = (page - 1) * postsPerPage;
   const paginatedPosts = thread.posts.slice(startIndex, startIndex + postsPerPage);
 
+  // Extract first post content for description (strip HTML)
+  const firstPost = thread.posts?.[0];
+  const description = firstPost?.content
+    ? firstPost.content.replace(/<[^>]*>/g, '').substring(0, 160) + '...'
+    : `Discussion thread in ${thread.subject?.name || 'the forum'}`;
+
   return (
-    <Layout title={thread.title}>
+    <Layout
+      title={thread.title}
+      description={description}
+      type="article"
+      article={{
+        author: thread.user?.username,
+        publishedTime: thread.createdAt,
+        modifiedTime: thread.updatedAt,
+        tags: thread.subject?.name ? [thread.subject.name] : []
+      }}
+    >
       <div className="thread-page">
         <div className="breadcrumbs">
           <Link href="/">Forum Index</Link> &raquo;

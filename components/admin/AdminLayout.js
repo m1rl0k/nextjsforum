@@ -130,6 +130,9 @@ const AdminLayout = ({ children }) => {
             <li className={isActive('/admin/upload-settings')}>
               <Link href="/admin/upload-settings">Upload Settings</Link>
             </li>
+            <li className={isActive('/admin/seo')}>
+              <Link href="/admin/seo">SEO Settings</Link>
+            </li>
             <li className={isActive('/admin/backup')}>
               <Link href="/admin/backup">Backup & Export</Link>
             </li>

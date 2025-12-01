@@ -74,7 +74,16 @@ export default function UserProfile() {
   }
 
   return (
-    <Layout title={`${user.username}'s Profile`}>
+    <Layout
+      title={`${user.username}'s Profile`}
+      description={user.bio || `View ${user.username}'s profile, posts, and activity on the forum.`}
+      type="profile"
+      profile={{
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName
+      }}
+    >
       <div className="profile-page">
         <div className="breadcrumbs">
           <Link href="/">Forum Index</Link> &raquo; 

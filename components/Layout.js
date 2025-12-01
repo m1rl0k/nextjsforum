@@ -1,11 +1,20 @@
-import Head from 'next/head';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import Navigation from './Navigation';
 import PreviewBanner from './PreviewBanner';
+import SEO from './SEO';
 
-export default function Layout({ children, title = 'NextJS Forum' }) {
+export default function Layout({
+  children,
+  title,
+  description,
+  keywords,
+  image,
+  type,
+  article,
+  profile,
+  noindex
+}) {
   const router = useRouter();
   const [onlineStats, setOnlineStats] = useState(null);
 
@@ -31,11 +40,17 @@ export default function Layout({ children, title = 'NextJS Forum' }) {
 
   return (
     <>
-      <Head>
-        <title>{title}</title>
-        <meta name="description" content="A vBulletin/phpBB style forum built with Next.js" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <SEO
+        title={title}
+        description={description}
+        keywords={keywords}
+        image={image}
+        url={router.asPath}
+        type={type}
+        article={article}
+        profile={profile}
+        noindex={noindex}
+      />
 
       <PreviewBanner />
       <Navigation />
