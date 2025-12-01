@@ -1,9 +1,14 @@
 import Head from 'next/head';
+import { useState, useEffect } from 'react';
 import { useTheme } from './ThemeProvider';
+
+// Default values used for SSR and initial hydration
+const DEFAULT_SITE_NAME = 'NextJS Forum';
+const DEFAULT_SITE_DESCRIPTION = 'A modern forum built with Next.js';
 
 /**
  * SEO Component - Handles meta tags, Open Graph, and Twitter Cards
- * 
+ *
  * @param {string} title - Page title (will be appended with site name)
  * @param {string} description - Page description for meta and OG
  * @param {string} keywords - Comma-separated keywords
@@ -28,11 +33,17 @@ const SEO = ({
   seoSettings: overrideSettings
 }) => {
   const { themeSettings } = useTheme();
-  
-  // Merge settings with defaults
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Only use dynamic settings after hydration to prevent mismatch
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  // Use defaults during SSR and initial render, then switch to dynamic values
   const siteSettings = {
-    siteName: themeSettings?.siteName || 'NextJS Forum',
-    siteDescription: themeSettings?.siteDescription || 'A modern forum built with Next.js',
+    siteName: isHydrated ? (themeSettings?.siteName || DEFAULT_SITE_NAME) : DEFAULT_SITE_NAME,
+    siteDescription: isHydrated ? (themeSettings?.siteDescription || DEFAULT_SITE_DESCRIPTION) : DEFAULT_SITE_DESCRIPTION,
     siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
     defaultImage: '/og-image.png',
     twitterHandle: '',

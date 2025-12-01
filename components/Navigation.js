@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
@@ -6,12 +6,23 @@ import { useTheme } from '../components/ThemeProvider';
 import NotificationDropdown from './NotificationDropdown';
 import styles from '../styles/Navigation.module.css';
 
+const DEFAULT_SITE_NAME = 'NextJS Forum';
+
 const Navigation = () => {
   const { user, logout, loading } = useAuth();
   const { themeSettings, darkMode, toggleDarkMode } = useTheme();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Only use dynamic settings after hydration to prevent mismatch
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  // Get site name - use default during SSR, dynamic after hydration
+  const siteName = isHydrated ? (themeSettings?.siteName || DEFAULT_SITE_NAME) : DEFAULT_SITE_NAME;
 
   const handleLogout = async () => {
     await logout();
@@ -107,15 +118,15 @@ const Navigation = () => {
         <div className={styles.logoBarContainer}>
           <div className={styles.logo}>
             <Link href="/">
-              {themeSettings?.logoEnabled && themeSettings?.logoUrl ? (
+              {isHydrated && themeSettings?.logoEnabled && themeSettings?.logoUrl ? (
                 <img
                   src={themeSettings.logoUrl}
-                  alt={themeSettings?.siteName || 'NextJS Forum'}
+                  alt={siteName}
                   className={styles.logoImage}
                 />
               ) : (
                 <span className={styles.logoText}>
-                  {themeSettings?.siteName || 'NextJS Forum'}
+                  {siteName}
                 </span>
               )}
             </Link>
